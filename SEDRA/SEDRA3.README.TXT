@@ -1,0 +1,315 @@
+PROJECT:    SEDRA, VERSION 3.0
+FILE:       SEDRA3.DOC
+	    (DO NOT ALTER THIS FILE BEFORE RENAMING IT.)
+DATE:       March 1996
+PROGRAMMER: GEORGE A. KIRAZ
+COMMENTS:   This file contains the documentation for the ASCII version of 
+	    SEDRA III. 
+	    For additional information on the structure of the Database, see
+	       G. Kiraz, `Automatic Concordance Generation of Syriac Texts',
+	       in VI Symposium Syriacum 1992, ed. R. Lavenant, Orientalia 
+	       Christiana Analecta 247, Rome, 1994.
+	    
+		
+	    You are allowed to use SEDRA III for personal and academic 
+	    purposes provided that:
+	    1. You do NOT redistribute any altered versions of the files.
+	    2. You do NOT redistribute any files for any kind of profit.
+	    3. You acknowledge in any publication whose results make use of 
+	       SEDRA III, by any means, using a formula similar to the 
+	       following:
+		  "This work makes use of the Syriac Electronic Data
+		   Retrieval Archive (SEDRA) by George A. Kiraz, distributed
+		   by the Syriac Computing Institute."
+	       You should also cite the paper mentioned above.
+
+*****************************************************************************
+
+FILES:
+======
+   The .ZIP file contains the following files:
+      ROOTS.TXT    - root entries
+      LEXEME.TXT   - lexical entries
+      WORDS.TXT    - word entries
+      ENGLISH.TXT  - English meanings
+      ETIMOLGY.TXT - origin of words
+   
+   To extract the files, use any of the ZIP utilities available to you
+   (e.g. PKUNZIP, UNZIP, GZIP etc.)
+
+TRANSCRIPTION OF SYRIAC:
+========================
+   Consonants: A B G D H O Z K Y ; C L M N S E I / X R W T
+   Vowels:     a o e i u
+   Diacretics: '  dot above, Qushaya
+	       ,  dot below, Rukkakha
+	       _  line under
+	       *  Seyame
+
+GENERAL FORMAT:
+===============
+   Each record entry is given in one line. The fields are seperated by a
+   comma. The first field is always the address of the entry in the form
+      FileId:RecordNo
+   where FileId is according to the following table:
+      0 =  root record (in ROOTS.TXT)
+      1 =  lexical record (in LEXEME.TXT)
+      2 =  word record (in WORDS.TXT)
+      3 =  English meaning record (in ENGLISH.TXT)
+      4 =  origin record (in ETIMOLGY.TXT)
+   and RecordNo is a sequential no (i.e. 1, 2, 3 etc.)
+
+ROOTS.TXT
+=========
+   Root records, e.g.   
+      0:2,"AB","ab           |A",0
+
+   Fields:
+      Record Address, e.g. 0:2
+      Root, e.g. "AB"
+      Sorting, e.g. "ab          |A"
+         This field is for sorting purposes. The 'Root' field is mapped
+         according to the following table:
+            Root:    A B G D H O Z K Y ; C L M N S E I / X R W T 
+            Sorting: a b c d e f g h i j k l m n o p q r s t u v
+         Hence, 'AAR' becomes 'aat'.
+         Each entry ends with '|0' if there is no other homograph root;
+         otherwise, it ends with '|A', '|B', etc. to indicate the order
+         of homograph roots.
+      Attributes: 16-bit intiger as follows
+         0  SEYAME FLAG: 0 NO SEYAME
+                         1 SEYAME
+         1-2 ROOT TYPE:  00 NORMAL
+         		 01 PARETHESIED
+         		 10 BRACKETED
+         		 11 HIGH FREQUENCY ROOT, e.g. propositons
+         3-15 <RESERVED>
+
+
+LEXEMES.TXT
+===========
+   Lexeme records, e.g.
+      1:2,0:2,"ABA",41960448,16
+
+   Fields:
+      Lexeme Address, e.g. 1:2
+      Root Address (in ROOTS.TXT), e.g. 0:2
+      Lexeme, e.g. "ABA"
+      Attributes: 16-bit intiger as follows
+         0    SEYAME FLAG: 0 NO SEYAME
+           	           1 SEYAME
+    	 1    WORD TYPE:   0 NORMAL
+			   1 PARENTHESISED
+         2-5 GRAMMATICAL CATEGORY:
+                           0000 VERB
+			   0001 PARTICIPLE ADJECTIVE
+                      	   0010 DENOMINATIVE
+			   0011 SUBSTANTIVE
+			   0100 NOUN
+	                   0101	PRONOUN
+			   0110 PROPER_NOUN
+	                   0111 NUMERAL
+	                   1000 ADJECTIVE
+	                   1001	PARTICLE
+	                   1010	IDIOM
+	                   1011	ADVERB (ending with AiYT)
+	                   1100	ADJECTIVE OF PLACE
+	                   1101 ADVERB
+      Morphological Type: 32-bit intiger as follows
+         0-3 First SUFFIX: 0000	<NONE>
+			   0001	ToA
+			   0010	YoA
+			   0011	NoA
+			   0100	oNoA
+			   0101	iYNoA
+			   0110	uONoA
+			   0111	ToNoA
+			   1000	TuONoA
+			   1001	uOSoA
+			   1010	oRoA
+			   1011	QoNoA
+			   1100	i;N
+         4-5 SECOND SUFFIX: 00 <NONE>
+         		    01 oYoA
+         		    10 iYToA
+         6-7 THIRD SUFFIX: 00 <NONE>
+                           01 uOToA
+                           10 oAiYT
+         8-9 PREFIX: 00	<NONE>
+                     01 M
+                     10	T
+        10-12 FIRST VOWEL: 000 <NONE>
+                           001 a
+                           010 o
+                           011 e
+                           100 i
+                           101 u
+        13-15 SECOND VOWEL: as above
+        16-18 THIRD VOWEL: as above
+        19-21 FOURTH VOWEL: as above
+        22-24 Total no of vowels in lexeme: 0-7
+        25-27 RADICAL TYPE: 000	<NONE>
+                            001	BI
+                            010	TRI
+                            011	FOUR_RADICAL
+                            100	FIVE_RADICAL
+                            101	SIX_RADICAL
+                            110	COMPOUND
+        28-31 FORM: 0000 <NONE>
+                    0001 PEAL
+                    0010 ETHPEAL
+                    0011 PAEL
+                    0100 ETHPAEL
+                    0101 APHEL
+                    0110 ETTAPHAL
+                    0111 SHAPHEL
+                    1000 ESHTAPHAL
+                    1001 SAPHEL
+                    1010 ESTAPHAL
+                    1011 P
+                    1100 ETHP
+                    1101 PALPEL
+                    1110 ETHPALPAL
+
+WORDS.TXT
+=========
+   Word records, e.g.
+      2:8,1:2,"ABHOH;","AaB,oHaOH_;",7405716,129
+      
+   Fields:
+      Word Address, e.g. 2:8
+      Lexeme Address (in LEXEMES.TXT), e.g. 1:2
+      Word, e.g. "ABHOH;"
+      Vocalised Word, e.g. "AaB,oHaOH_;"
+      Attributes: 16-bit intiger as follows
+         0	SEYAME FLAG: 0 NO SEYAME
+                             1 SEYAME
+         1-4    ignore
+         5      ENCLITIC FLAG: 0 NOT ENCLITIC
+                               1 ENCLITIC
+         6	LEXEME FLAG: 0 NO
+                             1 YES, i.e. = word represents lexeme
+      Morphological Features: 32-bit intiger as follows
+         0-1 	<RESERVED>
+         2-3	SUFFIX GENDER: 00 COMMON or <NONE>
+                               01 MASCULINE
+                               10 SUFFEMININE
+         4-5	SUFFIX PERSON: 00 <NONE>
+                               01 THIRD
+                               10 SECOND
+                               11 FIRST
+         6	SUFFIX NUMBER: 0 SINGULAR or <NONE>
+                               1 PLURAL
+         7-8 	SUFFIX/CONTRACTION: 00 	<NONE>
+                                    01 	SUFFIX
+                                    10 	CONTRACTION
+         9-14 PREFIX CODE: 0-63
+         15-16 GENDER: 00 	<NONE>
+                       01 	COMMON
+                       10 	MASCULINE
+                       11 	FEMININE
+         17-18 PERSON: 00	<NONE>
+                       01	THIRD
+                       10	SECOND
+                       11	FIRST
+         19-20 NUMBER: 00 	<NONE>
+                       01 	SINGULAR
+                       10 	PLURAL
+         21-22 STATE: 00 	<NONE>
+                      01 	ABSOLUTE
+                      10 	CONSTRUCT
+                      11 	EMPHATIC
+         23-25 TENSE: 000 	<NONE>
+                      001 	PERFECT
+                      010 	IMPERFECT
+                      011 	IMPERATIVE
+                      100 	INFINITIVE
+                      101 	ACTIVE_PARTICIPLE
+                      110 	PASSIVE_PARTICIPLE
+                      111 	PARTICIPLES
+         26-31 FORM: 000000 	<NONE>
+                     000001 	PEAL
+                     000010 	ETHPEAL
+                     000011 	PAEL
+                     000100 	ETHPAEL
+                     000101 	APHEL
+                     000110 	ETTAPHAL
+                     000111 	SHAPHEL
+                     001000 	ESHTAPHAL
+                     001001 	SAPHEL
+                     001010 	ESTAPHAL
+                     001011 	PAUEL
+                     001100 	ETHPAUAL
+                     001101     PAIEL
+                     001110 	ETHPAIAL
+                     001111     PALPAL
+                     010000 	ETHPALPAL
+                     010001 	PALPEL
+                     010010 	ETHPALPAL
+                     010011 	PAMEL
+                     010100 	ETHPAMAL
+                     010101 	PAREL
+                     010110 	ETHPARAL
+                     010111 	PALI
+                     011000 	ETHPALI
+                     011001 	PAHLI
+                     011010 	ETHPAHLI
+                     011011 	TAPHEL
+                     011100 	ETHAPHAL
+
+ENGLISH.TXT
+===========
+   English meaning records, e.g.
+      3:165,1:97,"cause","without","","",0,0
+
+   Fields:
+      Record address, e.g. 3:165
+      Lexeme address (in LEXEMES.TXT), e.g. 1:97
+      Meaning, e.g. "cause"
+      String before meaning, e.g. "without" (i.e. without cause)
+      String after meaning, e.g. ""
+      Comment, e.g. ""
+      Attributes: 15-bit intiger as follows:
+         0   <RESERVED>
+         1   COMMENT POSITION: 0 COMMENT BEFORE MEANING
+                               1 COMMENT AFTER MEANING
+         2   COMMENT FONT: 0 NORMAL
+                           1 ITALIC
+         3   STRING BEFORE FONT: as above
+         4   STRING AFTER FONT: as above
+         5-6 VERB TYPE: 00	<NONE>
+                        01	TRANSITIVE
+                        10	INTRANSITIVE
+         7-8  NUMBER: as above
+         9-10 GENDER: as above
+         11-15 FORM: as above
+      Ignore last field
+
+
+ETIMOLGY.TXT
+============      
+   Etimology records, e.g.
+      4:1,1:1,"a\255h\256r",5
+
+   Fields:
+      Record address, e.g. 4:1
+      Lexeme address (in LEXEMES.TXT), e.g. 1:1
+      Word Origin, e.g. "a\255h\256r" 
+      Attributes: 16-bit intigier as follows:
+         0-3 LANGUAGE: 0000 	SYRIAC
+                       0001 	AKKADIAN
+                       0010 	ARAMAIC
+                       0011 	ARABIC
+                       0100 	ARMENIAN
+                       0101 	GREEK
+                       0110 	HEBREW
+                       0111 	LATIN
+                       1000 	PERSIAN
+                       1001 	SANSKRIT
+         4 TYPE: 0 NORMAL
+                 1 PARENTHESIED
+      
+            
+
+*** GOOD LUCK! ***
+

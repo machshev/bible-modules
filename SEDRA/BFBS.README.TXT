@@ -1,0 +1,145 @@
+The files in this .ZIP file are represent two-record types extracted from 
+the SEDRA database. For additional information on the structure of the 
+Database, see
+   G. Kiraz, `Automatic Concordance Generation of Syriac Texts'. 
+   In VI Symposium Syriacum 1992, ed. R. Lavenant, Orientalia Christiana
+   Analecta 247, Rome, 1994.
+******************************************************************
+
+*** NOTE: All references to FEATURRE.TXT files here are to tblWords.txt. (In other words, tblWords.txt is the same as FEATURERE.txt)
+
+The .ZIP file contains two files:
+   BFBSREC.TXT  - The text of the Syriac New Testament according to the
+                  British and Foreign Bible Society's Edition
+   FEATURRE.TXT - A list of all the words in BFBSREC.TXT with morphological
+                  information.
+
+BFBSREC.TXT
+============
+Each line represents a word in the New Testament and contains the following 
+fields:
+   1. Database address of the entry, e.g. 0:1, 0:2, 0:3. 
+      Database address are always represented by 2 numbers in the form:
+         FILE_NUMBER:LINE_NUMBER
+      Here FILE_NUMBER is always 0.
+   2. Word reference, e.g. 520100101
+      - The left 2 digits represent the book (52=Matt, 53=Mark, 54=Luke, etc.)
+      - Next 2 digits = chapter
+      - Next 3 digits = verse
+      - Next 2 digits = word
+      E.g. 520100101 = Matt, Chapter 1, Verse 1, Word 1
+   3. Word address in FEATURRE.TXT, e.g. 33565194d
+      First convert the number into hex, e.g. 33565194d=02002A0Ah. 
+      The two most singnificant bytes are always 02 which represent the
+      FILE_NUMBER. The remaining bytes (i.e. 002A0Ah) give LINE_NUMBER
+      in FEATURRE.TXT of the word in question. You have to convert this
+      number back into decimal (e.g. 002A0Ah=10762d).
+      Now the first word in Matt 1.1 is the one whose address in 
+      in FEATURRE.TXT is 02:10762. If you look at line 02:10762 in
+      FEATURERE>TXT, you will find the word "CTBA" which is the first word in 
+      the Gospel of Matthew!
+   4. Attributes. You can ignore this field (or see Kiraz 1994).
+
+FEATURRE.TXT
+============
+This file is a list of all the words in the Syriac New Testament.
+Each line contains the following fields:
+   1. Database address of the entry, e.g. 2:1, 2:2, 2:3.
+      Database address are always represented by 2 numbers in the form:
+         File_Number:Line_Number
+      Here FILE_NUMBER is always 2.
+   2. Consonantal Word. The word in question (only consonants).
+   3. The same word with vowels and diacritic marks.
+   4. Morphological Features: A long integer (32 bits). The bits are
+      as follows:
+      Bit  Meaning
+      ---  -------
+      0-1  RESEARVED
+      2-3  SUFFIX GENDER
+           00      SUF_COMMON or <NONE>
+           01      SUF_MASCULINE
+           10      SUF_FEMININE
+           11      <RESERVED>
+      4-5  SUFFIX PERSON
+           00      <NONE>
+           01      THIRD
+           10      SECOND
+           11      FIRST
+      6    SUFFIX NUMBER
+           0       SUF_SINGULAR or <NONE>
+           1       SUF_PLURAL
+      7-8   SUFFIX/CONTRACTION
+           00      <NONE>
+           01      SUFFIX
+           10      CONTRACTION
+           11      <RESERVED>
+      9-14 PREFIX CODE (0-63)
+      15-16 Word GENDER
+           00      <NONE>
+           01      COMMON
+           10      MASCULINE
+           11      FEMININE
+      17-18 Word PERSON
+           00      <NONE>
+           01      THIRD
+           10      SECOND
+           11      FIRST
+      19-20 Word NUMBER
+           00      <NONE>
+           01      SINGULAR
+           10      PLURAL
+           11      <RESERVED>
+      21-22 Nominal STATE
+           00      <NONE>
+           01      ABSOLUTE
+           10      CONSTRUCT
+           11      EMPHATIC
+      23-25 Verbal TENSE
+           000     <NONE>
+           001     PERFECT
+           010     IMPERFECT
+           011     IMPERATIVE
+           100     INFINITIVE
+           101     ACTIVE_PARTICIPLE
+           110     PASSIVE_PARTICIPLE
+           111     PARTICIPLES
+      26-31 Verbal CONJUGATION
+           000000  <NONE>
+           000001  PEAL
+           000010  ETHPEAL
+           000011  PAEL
+           000100  ETHPAEL
+           000101  APHEL
+           000110  ETTAPHAL
+           000111  SHAPHEL
+           001000  ESHTAPHAL
+           001001  SAPHEL
+           001010  ESTAPHAL
+           001011  PAUEL
+           001100  ETHPAUAL
+           001101  PAIEL
+           001110  ETHPAIAL
+           001111  PALPAL
+           010000  ETHPALPAL
+           010001  PALPEL
+           010010  ETHPALPAL
+           010011  PAMEL
+           010100  ETHPAMAL
+           010101  PAREL
+           010110  ETHPARAL
+           010111  PALI
+           011000  ETHPALI
+           011001  PAHLI
+           011010  ETHPAHLI
+           011011  TAPHEL
+           011100  ETHAPHAL
+           011101-111111 <RESERVED>
+      For example, the first line in the file has the field 557056d or
+      00088000h or in binary:
+         bit 31       Num  Gen                 bit 0
+         |            | |  | |                 |
+         0000 0000 0000 1000 1000 0000 0000 0000
+         bits 15-16 are 01, i.e. Gender = common
+         bits 19-20 are 01, i.e. number = singular
+5. You can ignore the last field (or see Kiraz 1994).
+
