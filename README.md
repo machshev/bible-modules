@@ -29,6 +29,8 @@ poetry install
 python -m abm_tools SEDRA/BFBS.TXT
 ```
 
+*NOTE:* This is still a work in progress. nothing usefull is garunteed to come of running this script yet ;)
+
 ## Why produce Aramaic bible modules
 
 This is the reason that I personally want free access to good quality Peshitta
