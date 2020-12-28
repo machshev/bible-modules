@@ -10,7 +10,7 @@ __all__ = (
 
 
 WordRefTuple = Tuple[int, int, int, int]
-
+WordEntryTuple = Tuple[int, int, int, int, int]
 
 def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
     """Parse word reference string used in the SEDRA3 bible text DB to describe where each word
@@ -70,7 +70,7 @@ def _parse_sedra3_word_address(word_address: str) -> int:
     return int(address_as_hex[3:], 16)
 
 
-def parse_sedra3_bible_db_file(file_name: str) -> Generator[int, float, str]:
+def parse_sedra3_bible_db_file(file_name: str) -> Generator[WordEntryTuple, None, None]:
     """Import a bible text from SEDRA 3 style DB
 
     Args:
