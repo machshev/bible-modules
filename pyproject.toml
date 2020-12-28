@@ -8,12 +8,16 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-md-toc = "^7.0.5"
-pre-commit = "^2.9.3"
+pandas = "^1.2.0"
+data-science-types = "^0.2.22"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+md-toc = "^7.0.5"
+pre-commit = "^2.9.3"
 pyhamcrest = "^2.0.2"
+pylint = "^2.6.0"
+pytest = "^5.2"
+flake8 = "^3.8.4"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
