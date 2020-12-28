@@ -292,7 +292,7 @@ max-spelling-suggestions=4
 # (hunspell), en_NA (hunspell), en_NG (hunspell), en_NZ (hunspell), en_PH
 # (hunspell), en_SG (hunspell), en_TT (hunspell), en_US (hunspell), en_ZA
 # (hunspell), en_ZM (hunspell), en_ZW (hunspell).
-spelling-dict=en_GB
+spelling-dict=
 
 # List of comma separated words that should not be checked.
 spelling-ignore-words=
