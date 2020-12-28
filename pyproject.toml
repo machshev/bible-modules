@@ -8,6 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+md-toc = "^7.0.5"
+pre-commit = "^2.9.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

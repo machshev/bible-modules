@@ -3,6 +3,32 @@
 Provides the SEDRA 3 source files and the Python based tools to generate Aramaic
 bible software modules in common formats... for example SWORD, MySWORD, E-SWORD modules.
 
+## Table of Contents
+
+<!--TOC-->
+
+- [Aramaic Bible Modules](#aramaic-bible-modules)
+  - [Table of Contents](#table-of-contents)
+  - [Usage](#usage)
+  - [Why produce Aramaic bible modules](#why-produce-aramaic-bible-modules)
+  - [Source documents](#source-documents)
+  - [Modules](#modules)
+
+<!--TOC-->
+
+## Usage
+
+You will need a version of Python 3 installed to run these scripts.
+
+```bash
+pip intall poetry
+git clone git@github.com:machshev/aramaic-bible-modules.git
+cd aramaic-bible-modules
+poetry shell
+poetry install
+python -m abm_tools SEDRA/BFBS.TXT
+```
+
 ## Why produce Aramaic bible modules
 
 This is the reason that I personally want free access to good quality Peshitta

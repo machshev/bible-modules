@@ -1,0 +1,6 @@
+repos:
+ -   repo: https://github.com/frnmst/md-toc
+     rev: master  # or a specific git tag from md-toc
+     hooks:
+     -   id: md-toc
+
