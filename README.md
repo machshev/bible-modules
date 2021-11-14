@@ -54,7 +54,7 @@ poetry install
 *NOTE:* This is still a work in progress. nothing usefull is garunteed to come of running this
  script yet ;)
 
-Currently this will print out to the screen a lost of entries parsed from the the SEDRA DB
+Currently this will print out to the screen a list of entries parsed from the SEDRA DB
 files. As development progresses, you will find various bible modules generated and some helpful
 flags for configuration.
 
