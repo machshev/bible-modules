@@ -4,13 +4,12 @@ from typing import Generator
 from typing import Tuple
 
 
-__all__ = (
-    'parse_sedra3_bible_db_file',
-)
+__all__ = ("parse_sedra3_bible_db_file",)
 
 
 WordRefTuple = Tuple[int, int, int, int]
 WordEntryTuple = Tuple[int, int, int, int, int]
+
 
 def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
     """Parse word reference string used in the SEDRA3 bible text DB to describe where each word
@@ -38,8 +37,8 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
         Tuple of integers, book, chapter, verse, word. Where book is indexed starting at 52 for
         the gospel of Matthew.
     """
-    assert word_ref, 'word_ref is not empty'
-    assert len(word_ref) == 9, 'word_ref is 9 characters long'
+    assert word_ref, "word_ref is not empty"
+    assert len(word_ref) == 9, "word_ref is 9 characters long"
 
     book = int(word_ref[0:2])
     chapter = int(word_ref[2:4])
@@ -65,7 +64,7 @@ def _parse_sedra3_word_address(word_address: str) -> int:
     """
     address_as_hex = hex(int(word_address))
 
-    assert address_as_hex[0:3] == '0x2', 'SEDRA3 DB FILE_NUMBER is 0x2'
+    assert address_as_hex[0:3] == "0x2", "SEDRA3 DB FILE_NUMBER is 0x2"
 
     return int(address_as_hex[3:], 16)
 
@@ -79,9 +78,9 @@ def parse_sedra3_bible_db_file(file_name: str) -> Generator[WordEntryTuple, None
     yield:
         one word entry
     """
-    with open(file_name, 'r') as bible_file:
+    with open(file_name, "r") as bible_file:
         for line in bible_file:
-            columns = line.strip().split(',')
+            columns = line.strip().split(",")
 
             if not columns:
                 continue
