@@ -11,6 +11,7 @@ __all__ = (
     "parse_sedra3_english_db_file",
     "parse_sedra3_roots_db_file",
     "parse_sedra3_lexemes_db_file",
+    "sedra4_db_word_json",
     "from_transliteration",
 )
 
@@ -54,11 +55,22 @@ ESTRANGELA = {
 
 def sedra4_db_word_json(word_id: int):
     """Request word lookup from SEDRA4 DB"""
-    json
+    word_json_path = Path(f"words/{word_id}.json")
 
-    return requests.get(
+    # Use cache version if it exists
+    if word_json_path.is_file():
+        with word_json_path.open("r") as json_file:
+            return json.load(json_file)
+
+    word_json_path.parent.mkdir(parents=True, exist_ok=True)
+
+    json_result = requests.get(
         f"https://sedra.bethmardutho.org/api/word/{word_id}.json"
-    ).json()
+    ).json()[0]
+
+    word_json_path.write_text(json.dumps(json_result))
+
+    return json_result
 
 
 def from_transliteration(string: str) -> str:

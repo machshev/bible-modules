@@ -12,6 +12,7 @@ pandas = "^1.2.0"
 data-science-types = "^0.2.22"
 black = "^21.10b0"
 click = "^8.0.3"
+types-requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 md-toc = "^7.0.5"
@@ -20,9 +21,10 @@ pyhamcrest = "^2.0.2"
 pylint = "^2.6.0"
 pytest = "^5.2"
 flake8 = "^3.8.4"
+ipython = "^7.29.0"
 
 [tool.poetry.scripts]
-abm-tools = "abm_tools.__main__:gen"
+abm-tools = "abm_tools.__main__:tool"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
