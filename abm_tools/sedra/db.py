@@ -1,7 +1,10 @@
 """Module to import SEDRA DB parser using pandas for all the heavy lifting
 """
-import pandas as pd
+import json
 
+import pandas as pd
+import requests
+from pathlib import Path
 
 __all__ = (
     "parse_sedra3_words_db_file",
@@ -49,6 +52,15 @@ ESTRANGELA = {
 }
 
 
+def sedra4_db_word_json(word_id: int):
+    """Request word lookup from SEDRA4 DB"""
+    json
+
+    return requests.get(
+        f"https://sedra.bethmardutho.org/api/word/{word_id}.json"
+    ).json()
+
+
 def from_transliteration(string: str) -> str:
     """Convert transliteration string to unicode Aramaic
 
@@ -76,7 +88,7 @@ def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.Data
 
 
 def parse_sedra3_english_db_file(
-    file_name: str = "SEDRA/tblEnglish.txt"
+    file_name: str = "SEDRA/tblEnglish.txt",
 ) -> pd.DataFrame:
     """Import a english db file from SEDRA 3 style DB as a pandas DataFrame
 
@@ -106,7 +118,7 @@ def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.Data
 
 
 def parse_sedra3_lexemes_db_file(
-    file_name: str = "SEDRA/tblLexemes.txt"
+    file_name: str = "SEDRA/tblLexemes.txt",
 ) -> pd.DataFrame:
     """Import a lexemes db file from SEDRA 3 style DB as a pandas DataFrame
 

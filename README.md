@@ -128,7 +128,7 @@ distribution, a crowd sourced Syriac Lexicon project. These files are made freel
 [Beth Mardutho](https://sedra.bethmardutho.org/).  Further details of the SEDRA project can be
 found on this website, as well as the following publication.
 
-    G. Kiraz, `Automatic Concordance Generation of Syriac Texts'. 
+    G. Kiraz, `Automatic Concordance Generation of Syriac Texts'.
     In VI Symposium Syriacum 1992, ed. R. Lavenant, Orientalia Christiana
     Analecta 247, Rome, 1994.
 

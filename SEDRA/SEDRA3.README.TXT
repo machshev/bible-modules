@@ -3,20 +3,20 @@ FILE:       SEDRA3.DOC
 	    (DO NOT ALTER THIS FILE BEFORE RENAMING IT.)
 DATE:       March 1996
 PROGRAMMER: GEORGE A. KIRAZ
-COMMENTS:   This file contains the documentation for the ASCII version of 
-	    SEDRA III. 
+COMMENTS:   This file contains the documentation for the ASCII version of
+	    SEDRA III.
 	    For additional information on the structure of the Database, see
 	       G. Kiraz, `Automatic Concordance Generation of Syriac Texts',
-	       in VI Symposium Syriacum 1992, ed. R. Lavenant, Orientalia 
+	       in VI Symposium Syriacum 1992, ed. R. Lavenant, Orientalia
 	       Christiana Analecta 247, Rome, 1994.
-	    
-		
-	    You are allowed to use SEDRA III for personal and academic 
+
+
+	    You are allowed to use SEDRA III for personal and academic
 	    purposes provided that:
 	    1. You do NOT redistribute any altered versions of the files.
 	    2. You do NOT redistribute any files for any kind of profit.
-	    3. You acknowledge in any publication whose results make use of 
-	       SEDRA III, by any means, using a formula similar to the 
+	    3. You acknowledge in any publication whose results make use of
+	       SEDRA III, by any means, using a formula similar to the
 	       following:
 		  "This work makes use of the Syriac Electronic Data
 		   Retrieval Archive (SEDRA) by George A. Kiraz, distributed
@@ -33,7 +33,7 @@ FILES:
       WORDS.TXT    - word entries
       ENGLISH.TXT  - English meanings
       ETIMOLGY.TXT - origin of words
-   
+
    To extract the files, use any of the ZIP utilities available to you
    (e.g. PKUNZIP, UNZIP, GZIP etc.)
 
@@ -61,7 +61,7 @@ GENERAL FORMAT:
 
 ROOTS.TXT
 =========
-   Root records, e.g.   
+   Root records, e.g.
       0:2,"AB","ab           |A",0
 
    Fields:
@@ -70,7 +70,7 @@ ROOTS.TXT
       Sorting, e.g. "ab          |A"
          This field is for sorting purposes. The 'Root' field is mapped
          according to the following table:
-            Root:    A B G D H O Z K Y ; C L M N S E I / X R W T 
+            Root:    A B G D H O Z K Y ; C L M N S E I / X R W T
             Sorting: a b c d e f g h i j k l m n o p q r s t u v
          Hence, 'AAR' becomes 'aat'.
          Each entry ends with '|0' if there is no other homograph root;
@@ -175,7 +175,7 @@ WORDS.TXT
 =========
    Word records, e.g.
       2:8,1:2,"ABHOH;","AaB,oHaOH_;",7405716,129
-      
+
    Fields:
       Word Address, e.g. 2:8
       Lexeme Address (in LEXEMES.TXT), e.g. 1:2
@@ -287,14 +287,14 @@ ENGLISH.TXT
 
 
 ETIMOLGY.TXT
-============      
+============
    Etimology records, e.g.
       4:1,1:1,"a\255h\256r",5
 
    Fields:
       Record address, e.g. 4:1
       Lexeme address (in LEXEMES.TXT), e.g. 1:1
-      Word Origin, e.g. "a\255h\256r" 
+      Word Origin, e.g. "a\255h\256r"
       Attributes: 16-bit intigier as follows:
          0-3 LANGUAGE: 0000 	SYRIAC
                        0001 	AKKADIAN
@@ -308,8 +308,7 @@ ETIMOLGY.TXT
                        1001 	SANSKRIT
          4 TYPE: 0 NORMAL
                  1 PARENTHESIED
-      
-            
+
+
 
 *** GOOD LUCK! ***
-

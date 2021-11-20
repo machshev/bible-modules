@@ -1,27 +1,27 @@
 """Test that the SEDRA3 DB import functions are working
 """
 import pytest
+from hamcrest import assert_that, calling, equal_to, raises
 
-from hamcrest import assert_that
-from hamcrest import calling
-from hamcrest import equal_to
-from hamcrest import raises
-
-from abm_tools.sedra.bible import _parse_sedra3_word_ref
-from abm_tools.sedra.bible import _parse_sedra3_word_address
-from abm_tools.sedra.bible import parse_sedra3_bible_db_file
-from abm_tools.sedra.bible import WordRefTuple
+from abm_tools.sedra.bible import (
+    WordRefTuple,
+    _parse_sedra3_word_address,
+    _parse_sedra3_word_ref,
+    parse_sedra3_bible_db_file,
+)
 
 
 @pytest.mark.parametrize(
-    'word_ref,expected_tuple',
+    "word_ref,expected_tuple",
     [
-        ('520100101', (52, 1, 1, 1)),
-        ('632198434', (63, 21, 984, 34)),
-        ('230001245', (23, 0, 12, 45)),
+        ("520100101", (52, 1, 1, 1)),
+        ("632198434", (63, 21, 984, 34)),
+        ("230001245", (23, 0, 12, 45)),
     ],
 )
-def test_parse_sedra3_valid_word_ref(word_ref: str, expected_tuple: WordRefTuple) -> None:
+def test_parse_sedra3_valid_word_ref(
+    word_ref: str, expected_tuple: WordRefTuple
+) -> None:
     """Test that given a string of the correct format then a cosponsoring tuple of integers is
     returned.
     """
@@ -29,17 +29,17 @@ def test_parse_sedra3_valid_word_ref(word_ref: str, expected_tuple: WordRefTuple
 
 
 @pytest.mark.parametrize(
-    'word_ref,expected_error_type,expected_error_msg',
+    "word_ref,expected_error_type,expected_error_msg",
     [
-        ('', AssertionError, 'word_ref is not empty'),
-        ('df', AssertionError, 'word_ref is 9 characters long'),
-        ('345634676734', AssertionError, 'word_ref is 9 characters long'),
-        ('dfbgs_rjg', ValueError, ''),
+        ("", AssertionError, "word_ref is not empty"),
+        ("df", AssertionError, "word_ref is 9 characters long"),
+        ("345634676734", AssertionError, "word_ref is 9 characters long"),
+        ("dfbgs_rjg", ValueError, ""),
     ],
 )
-def test_parse_sedra3_invalid_word_ref(word_ref: str,
-                                       expected_error_type: Exception,
-                                       expected_error_msg: str) -> None:
+def test_parse_sedra3_invalid_word_ref(
+    word_ref: str, expected_error_type: Exception, expected_error_msg: str
+) -> None:
     """Test that when an invalid string the appropriate error is raised"""
     assert_that(
         calling(_parse_sedra3_word_ref).with_args(word_ref),
@@ -48,17 +48,14 @@ def test_parse_sedra3_invalid_word_ref(word_ref: str,
 
 
 @pytest.mark.parametrize(
-    'word_address,expected_id',
+    "word_address,expected_id",
     [
-        ('33565194', 10762),
+        ("33565194", 10762),
     ],
 )
-def test_parse_sedra3_valid_word_ref(word_address: str,
-                                     expected_id: int) -> None:
-    """Test that given a string of the correct format then a cosponsoring id is returned
-    """
+def test_parse_sedra3_valid_word_ref(word_address: str, expected_id: int) -> None:
+    """Test that given a string of the correct format then a cosponsoring id is returned"""
     assert_that(_parse_sedra3_word_address(word_address), equal_to(expected_id))
-
 
 
 def test_parse_sedra3_bible_db_file():

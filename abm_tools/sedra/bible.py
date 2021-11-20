@@ -1,8 +1,6 @@
 """Module to import SEDRA source files
 """
-from typing import Generator
-from typing import Tuple
-
+from typing import Generator, Tuple
 
 __all__ = ("parse_sedra3_bible_db_file",)
 

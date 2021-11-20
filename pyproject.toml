@@ -21,12 +21,19 @@ pylint = "^2.6.0"
 pytest = "^5.2"
 flake8 = "^3.8.4"
 
+[tool.poetry.scripts]
+abm-tools = "abm_tools.__main__:gen"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
 testpaths = [
     "tests",
 ]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
 
 [build-system]
 requires = ["poetry>=0.12"]
