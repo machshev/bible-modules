@@ -1,10 +1,10 @@
 repos:
 -   repo: https://github.com/frnmst/md-toc
-    rev: 8.0.1  # or a specific git tag from md-toc
+    rev: 8.2.3  # or a specific git tag from md-toc
     hooks:
     -   id: md-toc
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.5.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
@@ -14,10 +14,10 @@ repos:
     -   id: check-yaml
     -   id: check-json
 -   repo: https://github.com/psf/black
-    rev: 21.11b1
+    rev: 24.3.0
     hooks:
     -   id: black
 -   repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.13.2
     hooks:
     -   id: isort

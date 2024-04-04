@@ -12,13 +12,13 @@ multi_line_output = 3
 [tool.pdm]
 [tool.pdm.dev-dependencies]
 dev = [
-    "md-toc<8.0.0,>=7.0.5",
-    "pre-commit<3.0.0,>=2.9.3",
-    "pyhamcrest<3.0.0,>=2.0.2",
-    "pylint<3.0.0,>=2.6.0",
-    "pytest<6.0,>=5.2",
-    "flake8<4.0.0,>=3.8.4",
-    "ipython<8.0.0,>=7.29.0",
+    "md-toc",
+    "pre-commit",
+    "pyhamcrest",
+    "pylint",
+    "pytest",
+    "mypy",
+    "ipython",
 ]
 
 [tool.pdm.build]
@@ -34,13 +34,13 @@ authors = [
     {name = "David James McCorrie", email = "djmccorrie@gmail.com"},
 ]
 license = {text = "Apache-2.0"}
-requires-python = ">=3.8,<4.0"
+requires-python = ">=3.10"
 dependencies = [
-    "pandas<2.0.0,>=1.2.0",
-    "data-science-types<1.0.0,>=0.2.22",
-    "black<22.0,>=21.10b0",
-    "click<9.0.0,>=8.0.3",
-    "types-requests<3.0.0,>=2.26.0",
+    "pandas",
+    "data-science-types",
+    "black",
+    "click",
+    "types-requests",
 ]
 name = "abm-tools"
 version = "0.1.1"
