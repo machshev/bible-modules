@@ -1,5 +1,4 @@
-"""Module to import SEDRA source files
-"""
+"""Module to import SEDRA source files."""
 from typing import Generator, Tuple
 
 __all__ = ("parse_sedra3_bible_db_file",)
@@ -10,8 +9,7 @@ WordEntryTuple = Tuple[int, int, int, int, int]
 
 
 def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
-    """Parse word reference string used in the SEDRA3 bible text DB to describe where each word
-    occurs in the bible.
+    """Parse word reference string used in the SEDRA3 bible text DB.
 
     The format of the string is as described in the docs (BFBS.README.TXT):
       - The left 2 digits represent the book (52=Matt, 53=Mark, 54=Luke, etc.)
@@ -47,8 +45,7 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
 
 
 def _parse_sedra3_word_address(word_address: str) -> int:
-    """Parse a word address string used in the SEDRA3 bible text DB to point to an entry in the
-    tblWords.txt file.
+    """Parse a word address string used in the SEDRA3 bible text DB.
 
     Essentially the string is a base 10 integer that when converted to hex, the two most
     significant bytes are the "file_number" (a constant of 02h). Once this is stripped from the
@@ -58,7 +55,7 @@ def _parse_sedra3_word_address(word_address: str) -> int:
         word_address: string containing the word address as described above.
 
     Returns:
-        integer id of the word being addressed
+        integer id of the word being addressed in the tblWords.txt file
     """
     address_as_hex = hex(int(word_address))
 
@@ -68,7 +65,7 @@ def _parse_sedra3_word_address(word_address: str) -> int:
 
 
 def parse_sedra3_bible_db_file(file_name: str) -> Generator[WordEntryTuple, None, None]:
-    """Import a bible text from SEDRA 3 style DB
+    """Import a bible text from SEDRA 3 style DB.
 
     Args:
         file_name: file name for the SEDRA3 style bible DB file (BFBS.TXT)

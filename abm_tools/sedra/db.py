@@ -1,5 +1,4 @@
-"""Module to import SEDRA DB parser using pandas for all the heavy lifting
-"""
+"""Module to import SEDRA DB parser using pandas for all the heavy lifting."""
 import json
 
 import pandas as pd
@@ -54,7 +53,7 @@ ESTRANGELA = {
 
 
 def sedra4_db_word_json(word_id: int):
-    """Request word lookup from SEDRA4 DB"""
+    """Request word lookup from SEDRA4 DB."""
     word_json_path = Path(f"words/{word_id}.json")
 
     # Use cache version if it exists
@@ -74,7 +73,7 @@ def sedra4_db_word_json(word_id: int):
 
 
 def from_transliteration(string: str) -> str:
-    """Convert transliteration string to unicode Aramaic
+    """Convert transliteration string to unicode Aramaic.
 
     Args:
         string: the string to convert
@@ -86,7 +85,7 @@ def from_transliteration(string: str) -> str:
 
 
 def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.DataFrame:
-    """Import a words db file from SEDRA 3 style DB as a pandas DataFrame
+    """Import a words db file from SEDRA 3 style DB as a pandas DataFrame.
 
     Args:
         file_name: file name for the SEDRA3 style words DB file (tblWords.txt)
@@ -102,7 +101,7 @@ def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.Data
 def parse_sedra3_english_db_file(
     file_name: str = "SEDRA/tblEnglish.txt",
 ) -> pd.DataFrame:
-    """Import a english db file from SEDRA 3 style DB as a pandas DataFrame
+    """Import a english db file from SEDRA 3 style DB as a pandas DataFrame.
 
     Args:
         file_name: file name for the SEDRA3 style bible DB file (tblEnglish.txt)
@@ -116,7 +115,7 @@ def parse_sedra3_english_db_file(
 
 
 def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.DataFrame:
-    """Import a roots db file from SEDRA 3 style DB as a pandas DataFrame
+    """Import a roots db file from SEDRA 3 style DB as a pandas DataFrame.
 
     Args:
         file_name: file name for the SEDRA3 style bible DB file (tblRoots.txt)
@@ -132,7 +131,7 @@ def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.Data
 def parse_sedra3_lexemes_db_file(
     file_name: str = "SEDRA/tblLexemes.txt",
 ) -> pd.DataFrame:
-    """Import a lexemes db file from SEDRA 3 style DB as a pandas DataFrame
+    """Import a lexemes db file from SEDRA 3 style DB as a pandas DataFrame.
 
     Args:
         file_name: file name for the SEDRA3 style bible DB file (tblLexemes.txt)
