@@ -1,9 +1,10 @@
 """Module to import SEDRA DB parser using pandas for all the heavy lifting."""
+
 import json
+from pathlib import Path
 
 import pandas as pd
 import requests
-from pathlib import Path
 
 __all__ = (
     "parse_sedra3_words_db_file",

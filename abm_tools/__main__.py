@@ -1,10 +1,15 @@
 """Aramaic Bible Module tool"""
+
 from pathlib import Path
 
 import click
 
 from abm_tools.sedra.bible import parse_sedra3_bible_db_file
-from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file, sedra4_db_word_json
+from abm_tools.sedra.db import (
+    from_transliteration,
+    parse_sedra3_words_db_file,
+    sedra4_db_word_json,
+)
 
 
 @click.group()
@@ -29,7 +34,7 @@ def gen(file_name: Path) -> int:
     for book, chapter, verse, word_num, word_id in parse_sedra3_bible_db_file(
         file_name=str(file_name)
     ):
-        #word = from_transliteration(words.loc[word_id]["strVocalised"])
+        # word = from_transliteration(words.loc[word_id]["strVocalised"])
         word = sedra4_db_word_json(word_id)["western"]
 
         print(
