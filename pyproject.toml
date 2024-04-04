@@ -1,31 +1,3 @@
-[tool.poetry]
-name = "abm-tools"
-version = "0.1.1"
-description = "Provides Tools to generate Aramaic bible software modules such as SWORD, MySWORD, E-SWORD modules"
-license = "Apache-2.0"
-authors = ["David James McCorrie <djmccorrie@gmail.com>"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.8"
-pandas = "^1.2.0"
-data-science-types = "^0.2.22"
-black = "^21.10b0"
-click = "^8.0.3"
-types-requests = "^2.26.0"
-
-[tool.poetry.dev-dependencies]
-md-toc = "^7.0.5"
-pre-commit = "^2.9.3"
-pyhamcrest = "^2.0.2"
-pylint = "^2.6.0"
-pytest = "^5.2"
-flake8 = "^3.8.4"
-ipython = "^7.29.0"
-
-[tool.poetry.scripts]
-abm-tools = "abm_tools.__main__:tool"
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
@@ -37,6 +9,43 @@ testpaths = [
 profile = "black"
 multi_line_output = 3
 
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = [
+    "md-toc<8.0.0,>=7.0.5",
+    "pre-commit<3.0.0,>=2.9.3",
+    "pyhamcrest<3.0.0,>=2.0.2",
+    "pylint<3.0.0,>=2.6.0",
+    "pytest<6.0,>=5.2",
+    "flake8<4.0.0,>=3.8.4",
+    "ipython<8.0.0,>=7.29.0",
+]
+
+[tool.pdm.build]
+includes = []
+
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[project]
+authors = [
+    {name = "David James McCorrie", email = "djmccorrie@gmail.com"},
+]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.8,<4.0"
+dependencies = [
+    "pandas<2.0.0,>=1.2.0",
+    "data-science-types<1.0.0,>=0.2.22",
+    "black<22.0,>=21.10b0",
+    "click<9.0.0,>=8.0.3",
+    "types-requests<3.0.0,>=2.26.0",
+]
+name = "abm-tools"
+version = "0.1.1"
+description = "Provides Tools to generate Aramaic bible software modules such as SWORD, MySWORD, E-SWORD modules"
+readme = "README.md"
+
+[project.scripts]
+abm-tools = "abm_tools.__main__:tool"
