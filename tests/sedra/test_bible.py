@@ -54,9 +54,12 @@ def test_parse_sedra3_invalid_word_ref(
         ("33565194", 10762),
     ],
 )
-def test_parse_sedra3_valid_word_ref(word_address: str, expected_id: int) -> None:
+def test_parse_sedra3_word_address(word_address: str, expected_id: int) -> None:
     """Test that given a string of the correct format then a cosponsoring id is returned"""
-    assert_that(_parse_sedra3_word_address(word_address), equal_to(expected_id))
+    assert_that(
+        _parse_sedra3_word_address(word_address),
+        equal_to(expected_id),
+    )
 
 
 def test_parse_sedra3_bible_db_file():

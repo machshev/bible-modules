@@ -65,7 +65,9 @@ def _parse_sedra3_word_address(word_address: str) -> int:
     return int(address_as_hex[3:], 16)
 
 
-def parse_sedra3_bible_db_file(file_name: str) -> Generator[WordEntryTuple, None, None]:
+def parse_sedra3_bible_db_file(
+    file_name: str = "./SEDRA/BFBS.TXT",
+) -> Generator[WordEntryTuple, None, None]:
     """Import a bible text from SEDRA 3 style DB.
 
     Args:
@@ -74,7 +76,7 @@ def parse_sedra3_bible_db_file(file_name: str) -> Generator[WordEntryTuple, None
     yield:
         one word entry
     """
-    with open(file_name, "r") as bible_file:
+    with open(file_name, "r", encoding="utf-8") as bible_file:
         for line in bible_file:
             columns = line.strip().split(",")
 

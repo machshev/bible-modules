@@ -12,13 +12,17 @@ multi_line_output = 3
 [tool.pdm]
 [tool.pdm.dev-dependencies]
 dev = [
+    "python-lsp-server",
+    "python-lsp-black",
+    "python-lsp-isort",
+    "pylsp-mypy",
     "md-toc",
     "pre-commit",
-    "pyhamcrest",
     "pylint",
-    "pytest",
     "mypy",
     "ipython",
+    "pyhamcrest",
+    "pytest",
 ]
 
 [tool.pdm.build]
@@ -41,6 +45,7 @@ dependencies = [
     "black",
     "click",
     "types-requests",
+    "requests",
 ]
 name = "abm-tools"
 version = "0.1.1"
@@ -48,4 +53,4 @@ description = "Provides Tools to generate Aramaic bible software modules such as
 readme = "README.md"
 
 [project.scripts]
-abm-tools = "abm_tools.__main__:tool"
+abm-tools = "abm_tools.cli:cli"
