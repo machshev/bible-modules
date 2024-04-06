@@ -1,14 +1,13 @@
 """Aramaic Bible Module tool"""
 
-from pathlib import Path
+from typing import List
 
 import click
 
-from abm_tools.sedra.bible import parse_sedra3_bible_db_file
+from abm_tools.render import _BIBLE_RENDERERS
+from abm_tools.sedra.bible import SEDRAPassageRef, parse_sedra3_bible_db_file
 from abm_tools.sedra.db import (
     TRANSLIT_MAPS,
-    SEDRAPassageRef,
-    book_name,
     from_transliteration,
     parse_sedra3_words_db_file,
     sedra4_db_word_json,
@@ -37,18 +36,24 @@ def gen():
     "-a",
     "--alphabet",
     default="syriac",
-    type=click.Choice(TRANSLIT_MAPS.keys(), case_sensitive=False),
+    type=click.Choice(list(TRANSLIT_MAPS.keys()), case_sensitive=False),
 )
-def bible(alphabet: str):
+@click.option(
+    "-f",
+    "--format",
+    "fmt",
+    default="txt",
+    type=click.Choice(list(_BIBLE_RENDERERS.keys()), case_sensitive=False),
+)
+def bible(alphabet: str, fmt: str):
     """Create Aramaic Sword modules"""
 
     words_db = parse_sedra3_words_db_file()
 
     current_ref = SEDRAPassageRef(52, 1, 1)
-    words = []
+    words: List[str] = []
 
-    for book_num, chapter, verse, _, word_id in parse_sedra3_bible_db_file():
-        ref = SEDRAPassageRef(book_num, chapter, verse)
+    for ref, _, word_id in parse_sedra3_bible_db_file():
         if ref != current_ref:
             text = " ".join(words)
 
@@ -59,7 +64,8 @@ def bible(alphabet: str):
 
         words.append(
             from_transliteration(
-                words_db.loc[word_id]["strVocalised"], alphabet=alphabet
+                str(words_db.loc[word_id, "strVocalised"]),
+                alphabet=alphabet,
             )
         )
 

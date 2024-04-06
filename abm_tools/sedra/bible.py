@@ -1,12 +1,68 @@
 """Module to import SEDRA source files."""
 
+from dataclasses import dataclass
 from typing import Generator, Tuple
 
-__all__ = ("parse_sedra3_bible_db_file",)
+__all__ = (
+    "parse_sedra3_bible_db_file",
+    "book_name",
+    "SEDRAPassageRef",
+)
 
 
-WordRefTuple = Tuple[int, int, int, int]
-WordEntryTuple = Tuple[int, int, int, int, int]
+BOOKS = (
+    "Matthew",
+    "Mark",
+    "Luke",
+    "John",
+    "Acts",
+    "Romans",
+    "1 Corinthians",
+    "2 Corinthians",
+    "Galatians",
+    "Ephesians",
+    "Philippians",
+    "Colossians",
+    "1 Thessalonians",
+    "2 Thessalonians",
+    "1 Timothy",
+    "2 Timothy",
+    "Titus",
+    "Philemon",
+    "Hebrews",
+    "James",
+    "1 Peter",
+    "2 Peter",
+    "1 John",
+    "2 John",
+    "3 John",
+    "Jude",
+    "Revelation",
+)
+
+
+@dataclass
+class SEDRAPassageRef:
+    """SEDRA bible db passage reference"""
+
+    book: int
+    chapter: int
+    verse: int
+
+    def __str__(self) -> str:
+        """Human readable string"""
+        book = book_name(self.book)
+
+        return f"{book} {self.chapter}:{self.verse}"
+
+
+WordRefTuple = Tuple[SEDRAPassageRef, int]
+WordEntryTuple = Tuple[SEDRAPassageRef, int, int]
+
+
+def book_name(book_num: int) -> str:
+    """Book name given a book number"""
+    return BOOKS[book_num - 52]
 
 
 def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
@@ -42,7 +98,7 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
     verse = int(word_ref[4:7])
     word = int(word_ref[7:9])
 
-    return book, chapter, verse, word
+    return SEDRAPassageRef(book, chapter, verse), word
 
 
 def _parse_sedra3_word_address(word_address: str) -> int:
@@ -88,7 +144,7 @@ def parse_sedra3_bible_db_file(
             # contains only one word, and that word is already uniquely addressable via the
             # chapter/verse/word number in the second column (index 1)
 
-            book, chapter, verse, word = _parse_sedra3_word_ref(columns[1])
+            ref, word = _parse_sedra3_word_ref(columns[1])
             word_id = _parse_sedra3_word_address(columns[2])
 
-            yield book, chapter, verse, word, word_id
+            yield ref, word, word_id

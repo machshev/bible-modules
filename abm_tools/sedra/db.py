@@ -88,60 +88,10 @@ SYRIAC = {
     "*": "̈",
 }
 
-BOOKS = (
-    "Matthew",
-    "Mark",
-    "Luke",
-    "John",
-    "Acts",
-    "Romans",
-    "1 Corinthians",
-    "2 Corinthians",
-    "Galatians",
-    "Ephesians",
-    "Philippians",
-    "Colossians",
-    "1 Thessalonians",
-    "2 Thessalonians",
-    "1 Timothy",
-    "2 Timothy",
-    "Titus",
-    "Philemon",
-    "Hebrews",
-    "James",
-    "1 Peter",
-    "2 Peter",
-    "1 John",
-    "2 John",
-    "3 John",
-    "Jude",
-    "Revelation",
-)
-
 TRANSLIT_MAPS = {
     "syriac": SYRIAC,
     "hebrew": HEBREW,
 }
-
-
-@dataclass
-class SEDRAPassageRef:
-    """SEDRA bible db passage reference"""
-
-    book: int
-    chapter: int
-    verse: int
-
-    def __str__(self) -> str:
-        """Human readable string"""
-        book = book_name(self.book)
-
-        return f"{book} {self.chapter}:{self.verse}"
-
-
-def book_name(book_num: int) -> str:
-    """Book name given a book number"""
-    return BOOKS[book_num - 52]
 
 
 def sedra4_db_word_json(word_id: int):
