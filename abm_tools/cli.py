@@ -1,17 +1,9 @@
 """Aramaic Bible Module tool"""
 
-from typing import List
-
 import click
 
-from abm_tools.render import _BIBLE_RENDERERS
-from abm_tools.sedra.bible import SEDRAPassageRef, parse_sedra3_bible_db_file
-from abm_tools.sedra.db import (
-    TRANSLIT_MAPS,
-    from_transliteration,
-    parse_sedra3_words_db_file,
-    sedra4_db_word_json,
-)
+from abm_tools.render import _BIBLE_RENDERERS, get_bible_renderer
+from abm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
 
 
 @click.group()
@@ -43,31 +35,12 @@ def gen():
     "--format",
     "fmt",
     default="txt",
-    type=click.Choice(list(_BIBLE_RENDERERS.keys()), case_sensitive=False),
+    type=click.Choice(_BIBLE_RENDERERS, case_sensitive=False),
 )
 def bible(alphabet: str, fmt: str):
     """Create Aramaic Sword modules"""
-
-    words_db = parse_sedra3_words_db_file()
-
-    current_ref = SEDRAPassageRef(52, 1, 1)
-    words: List[str] = []
-
-    for ref, _, word_id in parse_sedra3_bible_db_file():
-        if ref != current_ref:
-            text = " ".join(words)
-
-            print(f"{current_ref}) {text}")
-
-            current_ref = ref
-            words.clear()
-
-        words.append(
-            from_transliteration(
-                str(words_db.loc[word_id, "strVocalised"]),
-                alphabet=alphabet,
-            )
-        )
+    render = get_bible_renderer(alphabet=alphabet, fmt=fmt)
+    render()
 
 
 if __name__ == "__main__":

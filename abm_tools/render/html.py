@@ -7,8 +7,8 @@ from abm_tools.sedra.bible import book_name
 from abm_tools.sedra.db import parse_sedra3_words_db_file
 
 
-class RenderBibleText:
-    """Renderer using plain text in Markdown format"""
+class RenderBibleHTML:
+    """Renderer using plain text HTML format"""
 
     def __init__(
         self,
@@ -28,14 +28,22 @@ class RenderBibleText:
 
     def start_mod(self) -> None:
         """Start the module"""
+        print(
+            "<html dir='rtl' lang='syr' "
+            'style=\'font-family: "Estrangelo Edessa WF", "ExtendedLatinWF"; '
+            "font-size: 36px; line-height: 1.2; height: 150px;'>"
+            "<head></head><body>",
+            file=self._stream,
+        )
 
     def end_mod(self) -> None:
         """End the module"""
+        print("</body></html>", file=self._stream)
 
     def start_book(self, number: int) -> None:
         """Start a new book"""
         self._book = book_name(number)
-        print(f"# {self._book}\n", file=self._stream)
+        print(f"<h1>{self._book}</h1>", file=self._stream)
 
     def end_book(self) -> None:
         """End the current book"""
@@ -44,7 +52,7 @@ class RenderBibleText:
     def start_chapter(self, number: int) -> None:
         """Start a book chapter"""
         self._chapter = number
-        print(f"## Chapter {self._chapter}\n", file=self._stream)
+        print(f"<h2>Chapter {self._chapter}</h2>", file=self._stream)
 
     def end_chapter(self) -> None:
         """End the current book chapter"""
@@ -60,7 +68,7 @@ class RenderBibleText:
         self._words.clear()
 
         print(
-            f"{self._book} {self._chapter}:{self._verse}) {text}",
+            f"<p><b>{self._chapter}:{self._verse}</b> {text}</p>",
             file=self._stream,
         )
 
