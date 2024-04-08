@@ -7,7 +7,7 @@ from typing import Protocol
 class BibleRenderer(Protocol):
     """Protocol used in rendering bibles"""
 
-    def start_mod(self) -> None:
+    def start_mod(self, name: str) -> None:
         """Start the module"""
 
     def end_mod(self) -> None:

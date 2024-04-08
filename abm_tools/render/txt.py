@@ -1,10 +1,10 @@
 """Render text format"""
 
-from sys import stdout
-from typing import Callable, List, TextIO
+from pathlib import Path
+from typing import List, Optional, TextIO
 
 from abm_tools.sedra.bible import book_name
-from abm_tools.sedra.db import parse_sedra3_words_db_file
+from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
 
 class RenderBibleText:
@@ -12,29 +12,40 @@ class RenderBibleText:
 
     def __init__(
         self,
-        transliterator: Callable[[str], str],
-        stream: TextIO = stdout,
+        output_path: Path,
+        alphabet: str = "syriac",
     ) -> None:
         """Initialise a text renderer"""
-        self._stream = stream
-        self._transliterator = transliterator
+        self._output_path = output_path
+        self._stream: Optional[TextIO] = None
+        self._alphabet = alphabet
 
-        self._words_db = parse_sedra3_words_db_file()
         self._words: List[str] = []
 
         self._book: str = ""
         self._chapter: int = 0
         self._verse: int = 0
 
-    def start_mod(self) -> None:
+    def start_mod(self, name: str) -> None:
         """Start the module"""
+        self._stream = (self._output_path / f"{name}.md").open(
+            mode="w", encoding="utf-8"
+        )
 
     def end_mod(self) -> None:
         """End the module"""
+        if self._stream is None:
+            return
+
+        self._stream.close()
 
     def start_book(self, number: int) -> None:
         """Start a new book"""
         self._book = book_name(number)
+
+        if self._stream is None:
+            raise RuntimeError("Can't start a book without starting a module")
+
         print(f"# {self._book}\n", file=self._stream)
 
     def end_book(self) -> None:
@@ -44,6 +55,10 @@ class RenderBibleText:
     def start_chapter(self, number: int) -> None:
         """Start a book chapter"""
         self._chapter = number
+
+        if self._stream is None:
+            raise RuntimeError("Can't start a chapter without starting a module")
+
         print(f"## Chapter {self._chapter}\n", file=self._stream)
 
     def end_chapter(self) -> None:
@@ -59,8 +74,11 @@ class RenderBibleText:
         text = " ".join(self._words)
         self._words.clear()
 
+        if self._stream is None:
+            raise RuntimeError("Can't start a verse without starting a module")
+
         print(
-            f"{self._book} {self._chapter}:{self._verse}) {text}",
+            f"&#x202b;*{self._verse}* {text}\n",
             file=self._stream,
         )
 
@@ -68,6 +86,7 @@ class RenderBibleText:
 
     def add_word(self, word_id: int) -> None:
         """Add word to the active verse"""
-        word = str(self._words_db.loc[word_id, "strVocalised"])
+        words_db = parse_sedra3_words_db_file()
+        word = str(words_db.loc[word_id, "strVocalised"])
 
-        self._words.append(self._transliterator(word))
+        self._words.append(from_transliteration(word, alphabet=self._alphabet))

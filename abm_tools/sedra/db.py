@@ -1,7 +1,7 @@
 """Module to import SEDRA DB parser using pandas for all the heavy lifting."""
 
 import json
-from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
@@ -133,6 +133,7 @@ def from_transliteration(string: str, alphabet: str) -> str:
     return "".join(list(map(lambda c: TRANSLIT_MAPS[alphabet][c], string)))
 
 
+@lru_cache(maxsize=2)
 def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.DataFrame:
     """Import a words db file from SEDRA 3 style DB as a pandas DataFrame.
 
@@ -147,6 +148,7 @@ def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.Data
     return words
 
 
+@lru_cache(maxsize=2)
 def parse_sedra3_english_db_file(
     file_name: str = "SEDRA/tblEnglish.txt",
 ) -> pd.DataFrame:
@@ -163,6 +165,7 @@ def parse_sedra3_english_db_file(
     return english
 
 
+@lru_cache(maxsize=2)
 def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.DataFrame:
     """Import a roots db file from SEDRA 3 style DB as a pandas DataFrame.
 
@@ -177,6 +180,7 @@ def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.Data
     return roots
 
 
+@lru_cache(maxsize=2)
 def parse_sedra3_lexemes_db_file(
     file_name: str = "SEDRA/tblLexemes.txt",
 ) -> pd.DataFrame:
