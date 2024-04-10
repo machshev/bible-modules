@@ -1,7 +1,24 @@
-"""Module to import SEDRA source files."""
+"""Module to import SEDRA source files
+
+After generating modules from the BFBS.TXT file, it turns out there are a few
+verses that are out of order in the file. So it's not possible to just assume
+each line is part of a series of contiguous lines that make up verses. The whole
+file needs to be parsed to ensure all the words in each verse are accounted for.
+
+Given that, we will create an in memory structure containing all of the words in
+the peshitta. Making no assumptions on the number of words or the relative
+positions. Then post process that data structure to export an intemediate file
+that does conform to these basic assumptions. This should speed up multiple
+module generation but slow down individual module generation the first time.
+
+Given the source files are not changing, the intemediate format will also be
+checked in. Although it should be possible to regenerate it from the original
+files.
+"""
 
 from dataclasses import dataclass
-from typing import Generator, Tuple
+from pathlib import Path
+from typing import Dict, Generator, List, Tuple
 
 __all__ = (
     "parse_sedra3_bible_db_file",
@@ -58,6 +75,7 @@ class SEDRAPassageRef:
 
 WordRefTuple = Tuple[SEDRAPassageRef, int]
 WordEntryTuple = Tuple[SEDRAPassageRef, int, int]
+BibleCacheEntryTuple = Tuple[SEDRAPassageRef, List[int]]
 
 
 def book_name(book_num: int) -> str:
@@ -126,6 +144,10 @@ def parse_sedra3_bible_db_file(
 ) -> Generator[WordEntryTuple, None, None]:
     """Import a bible text from SEDRA 3 style DB.
 
+    Note: the words on each row are not contiguous. There are words at the end
+    of the file that are out of order and this may be the case elsewhere. Don't
+    rely or the order of the entries.
+
     Args:
         file_name: file name for the SEDRA3 style bible DB file (BFBS.TXT)
 
@@ -148,3 +170,63 @@ def parse_sedra3_bible_db_file(
             word_id = _parse_sedra3_word_address(columns[2])
 
             yield ref, word, word_id
+
+
+def _create_bible_structure() -> Dict:
+    """Load the bible model"""
+    bible: Dict[int, Dict[int, Dict[int, Dict[int, int]]]] = {}
+
+    for ref, word, word_id in parse_sedra3_bible_db_file():
+        if ref.book not in bible:
+            bible[ref.book] = {}
+
+        book = bible[ref.book]
+
+        if ref.chapter not in book:
+            book[ref.chapter] = {}
+
+        chapter = book[ref.chapter]
+
+        if ref.verse not in chapter:
+            chapter[ref.verse] = {}
+
+        chapter[ref.verse][word] = word_id
+
+    return bible
+
+
+def gen_bible_cache_file() -> None:
+    """Generate the bible cache file"""
+    bible_struct = _create_bible_structure()
+
+    with Path("./SEDRA/BFBS.cache").open(mode="w", encoding="utf-8") as f:
+
+        for book_id in sorted(bible_struct.keys()):
+            for chapter_id in sorted(bible_struct[book_id].keys()):
+                for verse_id in sorted(bible_struct[book_id][chapter_id].keys()):
+                    verse_struct = bible_struct[book_id][chapter_id][verse_id]
+
+                    verse_text = " ".join(
+                        str(verse_struct[word]) for word in sorted(verse_struct.keys())
+                    )
+
+                    f.write(f"{book_id},{chapter_id},{verse_id},{verse_text}\n")
+
+
+def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple, None, None]:
+    """Parse the bible cache file"""
+    cache_path = Path("./SEDRA/BFBS.cache")
+
+    if not cache_path.is_file():
+        gen_bible_cache_file()
+
+    with cache_path.open(mode="r", encoding="utf-8") as f:
+        for line in f:
+            book_id, chapter_id, verse_id, text = line.strip().split(",")
+            words = [int(w) for w in text.split(" ")]
+
+            yield SEDRAPassageRef(
+                book=int(book_id),
+                chapter=int(chapter_id),
+                verse=int(verse_id),
+            ), words

@@ -5,6 +5,7 @@ from pathlib import Path
 import click
 
 from abm_tools.render import _BIBLE_RENDERERS, render_bible
+from abm_tools.sedra.bible import gen_bible_cache_file
 from abm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
 
 
@@ -57,6 +58,12 @@ def bible(
         output_path=output_path,
         mod_name=mod_name,
     )
+
+
+@gen.command()
+def cache_file():
+    """Generate a cache file for easier SEDRA3 bible parsing"""
+    gen_bible_cache_file(Path("./SEDRA/BFBS.cache"))
 
 
 if __name__ == "__main__":

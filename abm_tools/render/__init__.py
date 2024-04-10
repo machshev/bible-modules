@@ -5,19 +5,23 @@ import sys
 from pathlib import Path
 from typing import Callable, List, Mapping, Optional
 
-from abm_tools.sedra.bible import SEDRAPassageRef, parse_sedra3_bible_db_file
+from abm_tools.sedra.bible import SEDRAPassageRef, parse_bible_cache_file
 from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
 from .html import RenderBibleHTML
 from .interface import BibleRenderer
-from .txt import RenderBibleText
+from .md import RenderBibleMarkdown
+from .osis import RenderBibleOSIS
+from .vpl import RenderBibleVPL
 
 __all__ = ("render_bible",)
 
 _BIBLE_RENDERERS: List[str] = [
     "txt",
+    "vpl",
     "md",
     "html",
+    "osis",
 ]
 
 
@@ -29,8 +33,20 @@ def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRend
             f"must be one of {_BIBLE_RENDERERS}"
         )
 
-    if fmt in ["txt", "md"]:
-        return RenderBibleText(
+    if fmt in ["txt", "vpl"]:
+        return RenderBibleVPL(
+            output_path=output_path,
+            alphabet=alphabet,
+        )
+
+    if fmt == "md":
+        return RenderBibleMarkdown(
+            output_path=output_path,
+            alphabet=alphabet,
+        )
+
+    if fmt == "osis":
+        return RenderBibleOSIS(
             output_path=output_path,
             alphabet=alphabet,
         )
@@ -94,7 +110,7 @@ def render_bible(
     renderer.start_mod(name=mod_name)
 
     try:
-        for ref, _, word_id in parse_sedra3_bible_db_file():
+        for ref, words in parse_bible_cache_file():
             if ref != current_ref:
                 if current_ref is None:
                     renderer.start_book(ref.book)
@@ -105,7 +121,8 @@ def render_bible(
 
                 current_ref = ref
 
-            renderer.add_word(word_id)
+            for word_id in words:
+                renderer.add_word(word_id)
 
         renderer.end_verse()
         renderer.end_chapter()
