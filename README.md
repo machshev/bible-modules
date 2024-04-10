@@ -23,6 +23,7 @@ original information.
 - [Aramaic Bible Modules](#aramaic-bible-modules)
   - [Table of Contents](#table-of-contents)
   - [Installing](#installing)
+    - [Clone the repository](#clone-the-repository)
   - [Usage](#usage)
   - [Why produce Aramaic bible modules](#why-produce-aramaic-bible-modules)
   - [Source documents](#source-documents)
@@ -32,7 +33,13 @@ original information.
 
 ## Installing
 
-You will need a version of Python 3 installed to run these scripts.
+You will need a version of Python 3 installed to run these scripts. At the
+moment I've not got access to pypi due to an issue with 2FA and a misshap with
+my phone a few months back. However the plan is to release a package on pypi to
+make it easier to install. For the moment however installing from source is the
+only option.
+
+### Clone the repository
 
 First clone the repository from github.
 
@@ -41,9 +48,11 @@ git clone git@github.com:machshev/aramaic-bible-modules.git
 cd aramaic-bible-modules
 ```
 
-Install python [poetry](https://python-poetry.org/), the simple python
-packageing and dependency manager. We use this to create a virtual environment
-to run the scripts from with all the required dependencies.
+Install [pdm](https://pdm-project.org/en/latest/), the "modern python packaging
+and dependency manager", this allows us to install the versions pinned in the
+lockfile for consistent result. We use `pdm` to manage dependencies as well as
+create a virtual environment to run the scripts from with all the required
+dependencies.
 
 ```bash
 pip install pdm
@@ -62,6 +71,26 @@ generated and some helpful flags for configuration.
 ```bash
 python -m abm_tools SEDRA/BFBS.TXT
 ```
+
+This project is still early stages. However it's possible to generate some
+"modules"... right now that is just a Markdown or HTML export of the whole of
+the Peshitta. It's possible to select the alphabet used for this, SEDRA3 uses
+latin characters in place of the Syriac characters. These Latin characters are
+transformed to Unicode, and optionally either Syriac or Hebrew. The mappings
+seem to be correct as manually verified for the first few verses of Matthew,
+however I wouldn't be supprised if there were pointing marks that are not
+correct and those will be corrected over time with more manual checking.
+
+There is a Makefile that will auto generate the full set of available modules,
+and alphabet combinations. The output is generated in the `output` directory.
+
+```bash
+make
+```
+
+For the moment the cli tool arguments are not stable, so please use the help
+provided `abm_tools -h` as well as the examples in the Makefile to see the
+latest syntax.
 
 *NOTE:* This is still a work in progress. nothing useful is garunteed to come
 of running this script yet ;)
