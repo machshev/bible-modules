@@ -31,7 +31,7 @@ jobs:
     - name: Set up PDM
       uses: pdm-project/setup-pdm@v4
       with:
-        python-version: "3.8"
+        python-version: "3.12"
 
     - name: Resolving dependencies
       run: pdm lock -v --no-cross-platform -G ci-quality
@@ -64,10 +64,6 @@ jobs:
         - macos-latest
         - windows-latest
         python-version:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
         - "3.12"
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.python-version == '3.12' }}
