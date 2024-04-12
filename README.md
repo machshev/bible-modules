@@ -1,4 +1,10 @@
-# Aramaic Bible Modules
+# abm-tools
+
+[![ci](https://github.com/machshev/abm-tools/workflows/ci/badge.svg)](https://github.com/machshev/abm-tools/actions?query=workflow%3Aci)
+[![documentation](https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat)](https://machshev.github.io/abm-tools/)
+[![pypi version](https://img.shields.io/pypi/v/abm-tools.svg)](https://pypi.org/project/abm-tools/)
+[![gitpod](https://img.shields.io/badge/gitpod-workspace-blue.svg?style=flat)](https://gitpod.io/#https://github.com/machshev/abm-tools)
+[![gitter](https://badges.gitter.im/join%20chat.svg)](https://app.gitter.im/#/room/#abm-tools:gitter.im)
 
 Provides the SEDRA 3 source files and the Python based tools to generate Aramaic
 bible software modules in common formats... for example SWORD, MySWORD, E-SWORD
@@ -20,10 +26,11 @@ original information.
 
 <!--TOC-->
 
-- [Aramaic Bible Modules](#aramaic-bible-modules)
+- [abm-tools](#abm-tools)
   - [Table of Contents](#table-of-contents)
   - [Installing](#installing)
     - [Clone the repository](#clone-the-repository)
+    - [From package](#from-package)
   - [Usage](#usage)
   - [Why produce Aramaic bible modules](#why-produce-aramaic-bible-modules)
   - [Source documents](#source-documents)
@@ -55,9 +62,28 @@ create a virtual environment to run the scripts from with all the required
 dependencies.
 
 ```bash
-pip install pdm
+pip install pipx
+pipx install pdm
 pdm install
 ```
+
+### From package
+
+*Note:* Not available right now.
+
+With `pip`:
+
+```bash
+pip install abm-tools
+```
+
+With [`pipx`](https://github.com/pipxproject/pipx):
+
+```bash
+python3.8 -m pip install --user pipx
+pipx install abm-tools
+```
+
 
 ## Usage
 

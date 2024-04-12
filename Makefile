@@ -1,26 +1,55 @@
-.PHONY: all
+.DEFAULT_GOAL := help
+SHELL := bash
+DUTY := $(if $(VIRTUAL_ENV),,pdm run) duty
+export PDM_MULTIRUN_VERSIONS ?= 3.12
+export PDM_MULTIRUN_USE_VENVS ?= $(if $(shell pdm config python.use_venv | grep True),1,0)
 
-all: md vpl html osis
+args = $(foreach a,$($(subst -,_,$1)_args),$(if $(value $a),$a="$($a)"))
+check_quality_args = files
+docs_args = host port
+release_args = version
+test_args = match
 
-md: output/md/hebrew.md output/md/syriac.md
+BASIC_DUTIES = \
+	changelog \
+	check-api \
+	check-dependencies \
+	clean \
+	coverage \
+	docs \
+	docs-deploy \
+	format \
+	release \
+	modules \
+	vscode
 
-vpl: output/vpl/hebrew.vpl output/vpl/syriac.vpl
+QUALITY_DUTIES = \
+	check-quality \
+	check-docs \
+	check-types \
+	test
 
-osis: output/osis/hebrew.osis output/osis/syriac.osis
+.PHONY: help
+help:
+	@$(DUTY) --list
 
-html: output/html/hebrew output/html/syriac
+.PHONY: lock
+lock:
+	@pdm lock -G:all
 
-%.md:
-	abm-tools gen bible -f md -a $(shell basename $*) $(shell basename $*) $(shell dirname $*)
+.PHONY: setup
+setup:
+	@bash scripts/setup.sh
 
-%.vpl:
-	abm-tools gen bible -f vpl -a $(shell basename $*) $(shell basename $*) $(shell dirname $*)
+.PHONY: check
+check:
+	@pdm multirun duty check-quality check-types check-docs
+	@$(DUTY) check-dependencies check-api
 
-%.osis:
-	abm-tools gen bible -f osis -a $(shell basename $*) $(shell basename $*) $(shell dirname $*)
+.PHONY: $(BASIC_DUTIES)
+$(BASIC_DUTIES):
+	@$(DUTY) $@ $(call args,$@)
 
-output/html/%:
-	abm-tools gen bible -f html -a $* $* $(shell dirname $@)
-
-clean:
-	rm -frv ./output
+.PHONY: $(QUALITY_DUTIES)
+$(QUALITY_DUTIES):
+	@pdm multirun duty $@ $(call args,$@)

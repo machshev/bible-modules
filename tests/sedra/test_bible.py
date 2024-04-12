@@ -1,17 +1,11 @@
-"""Test that the SEDRA3 DB import functions are working
-"""
-
-from typing import Type
+"""Test that the SEDRA3 DB import functions are working"""
 
 import pytest
 from hamcrest import assert_that, calling, equal_to, raises
 
-from abm_tools.sedra.bible import (
-    SEDRAPassageRef,
-    WordRefTuple,
-    _parse_sedra3_word_address,
-    _parse_sedra3_word_ref,
-)
+from abm_tools.sedra.bible import (SEDRAPassageRef, WordRefTuple,
+                                   _parse_sedra3_word_address,
+                                   _parse_sedra3_word_ref)
 
 
 @pytest.mark.parametrize(
@@ -23,7 +17,8 @@ from abm_tools.sedra.bible import (
     ],
 )
 def test_parse_sedra3_valid_word_ref(
-    word_ref: str, expected_tuple: WordRefTuple
+    word_ref: str,
+    expected_tuple: WordRefTuple,
 ) -> None:
     """Test that given a string of the correct format then a cosponsoring tuple of integers is
     returned.
@@ -41,7 +36,9 @@ def test_parse_sedra3_valid_word_ref(
     ],
 )
 def test_parse_sedra3_invalid_word_ref(
-    word_ref: str, expected_error_type: Type[Exception], expected_error_msg: str
+    word_ref: str,
+    expected_error_type: type[Exception],
+    expected_error_msg: str,
 ) -> None:
     """Test that when an invalid string the appropriate error is raised"""
     assert_that(
