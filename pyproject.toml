@@ -39,10 +39,6 @@ Funding = "https://github.com/sponsors/machshev"
 [project.scripts]
 abm-tools = "abm_tools.cli:main"
 
-[project.optional-dependencies]
-testing = [
-    "pyhamcrest>=2.1.0",
-]
 [tool.pdm]
 version = {source = "scm"}
 plugins = [
@@ -84,6 +80,7 @@ tests = [
     "pytest-cov>=4.1",
     "pytest-randomly>=3.15",
     "pytest-xdist>=3.3",
+    "pyhamcrest>=2.1.0",
 ]
 typing = [
     "mypy>=1.5",

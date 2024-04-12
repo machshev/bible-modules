@@ -34,9 +34,9 @@ def test_parse_sedra3_valid_word_ref(
 @pytest.mark.parametrize(
     ("word_ref", "expected_error_type", "expected_error_msg"),
     [
-        ("", AssertionError, "word_ref is not empty"),
-        ("df", AssertionError, "word_ref is 9 characters long"),
-        ("345634676734", AssertionError, "word_ref is 9 characters long"),
+        ("", ValueError, "Expected word_ref of 9 characters"),
+        ("df", ValueError, "Expected word_ref of 9 characters"),
+        ("345634676734", ValueError, "Expected word_ref of 9 characters"),
         ("dfbgs_rjg", ValueError, ""),
     ],
 )
