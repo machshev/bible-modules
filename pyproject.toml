@@ -32,13 +32,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://machshev.github.io/abm-tools"
-Documentation = "https://machshev.github.io/abm-tools"
-Changelog = "https://machshev.github.io/abm-tools/changelog"
-Repository = "https://github.com/machshev/abm-tools"
-Issues = "https://github.com/machshev/abm-tools/issues"
-Discussions = "https://github.com/machshev/abm-tools/discussions"
-Gitter = "https://gitter.im/abm-tools/community"
+Homepage = "https://machshev.github.io/aramaic-bible-modules"
+Documentation = "https://machshev.github.io/aramaic-bible-modules"
+Changelog = "https://machshev.github.io/aramaic-bible-modules/changelog"
+Repository = "https://github.com/machshev/aramaic-bible-modules"
+Issues = "https://github.com/machshev/aramaic-bible-modules/issues"
+Discussions = "https://github.com/machshev/aramaic-bible-modules/discussions"
 Funding = "https://github.com/sponsors/machshev"
 
 [project.scripts]

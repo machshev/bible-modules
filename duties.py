@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-from contextlib import contextmanager
-from importlib.metadata import version as pkgversion
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -13,8 +11,6 @@ from duty import duty
 from duty.callables import coverage, lazy, mkdocs, mypy, pytest, ruff, safety
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-
     from duty.context import Context
 
 
@@ -32,18 +28,6 @@ def pyprefix(title: str) -> str:  # noqa: D103
         prefix = f"(python{sys.version_info.major}.{sys.version_info.minor})"
         return f"{prefix:14}{title}"
     return title
-
-
-@contextmanager
-def material_insiders() -> Iterator[bool]:  # noqa: D103
-    if "+insiders" in pkgversion("mkdocs-material"):
-        os.environ["MATERIAL_INSIDERS"] = "true"
-        try:
-            yield True
-        finally:
-            os.environ.pop("MATERIAL_INSIDERS")
-    else:
-        yield False
 
 
 @duty
@@ -119,12 +103,11 @@ def check_docs(ctx: Context) -> None:
     """
     Path("htmlcov").mkdir(parents=True, exist_ok=True)
     Path("htmlcov/index.html").touch(exist_ok=True)
-    with material_insiders():
-        ctx.run(
-            mkdocs.build(strict=True, verbose=True),
-            title=pyprefix("Building documentation"),
-            command="mkdocs build -vs",
-        )
+    ctx.run(
+        mkdocs.build(strict=True, verbose=True),
+        title=pyprefix("Building documentation"),
+        command="mkdocs build -vs",
+    )
 
 
 @duty
@@ -188,12 +171,11 @@ def docs(ctx: Context, host: str = "127.0.0.1", port: int = 8000) -> None:
         host: The host to serve the docs from.
         port: The port to serve the docs on.
     """
-    with material_insiders():
-        ctx.run(
-            mkdocs.serve(dev_addr=f"{host}:{port}"),
-            title="Serving documentation",
-            capture=False,
-        )
+    ctx.run(
+        mkdocs.serve(dev_addr=f"{host}:{port}"),
+        title="Serving documentation",
+        capture=False,
+    )
 
 
 @duty
@@ -204,13 +186,7 @@ def docs_deploy(ctx: Context) -> None:
         ctx: The context instance (passed automatically).
     """
     os.environ["DEPLOY"] = "true"
-    with material_insiders() as insiders:
-        if not insiders:
-            ctx.run(
-                lambda: False,
-                title="Not deploying docs without Material for MkDocs Insiders!",
-            )
-        ctx.run(mkdocs.gh_deploy(), title="Deploying documentation")
+    ctx.run(mkdocs.gh_deploy(), title="Deploying documentation")
 
 
 @duty
