@@ -3,6 +3,7 @@
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Dict
 
 import pandas as pd
 import requests
@@ -27,7 +28,7 @@ HEBREW = {
     "K": "ח",
     "Y": "ט",
     ";": "י",
-    "C": "ק",
+    "C": "כ",
     "L": "ל",
     "M": "מ",
     "N": "נ",
@@ -37,19 +38,31 @@ HEBREW = {
     "/": "צ",
     "X": "ק",
     "R": "ר",
-    "W": "ש",
+    "W": "שׁ",
     "T": "ת",
-    # Check
     "'": "ּ",
-    ",": "",
     "a": "ַ",
     "e": "ֵ",
     "i": "ִ",
     "o": "ָ",
-    "u": "",
+    "u": "ֻ",
+}
+HEBREW_REPLACEMENTS = {
+    ",": "",
     "_": "",
-    "-": "-",
-    "*": "8",
+    "-": "",
+    "*": "",
+    "uO": "וּ",
+    "iA": "Ai",
+    "D'": "דּ",
+    "aD": "Da",
+}
+HEBREW_FINALS = {
+    "צ": "ץ",
+    "נ": "ן",
+    "כ": "ך",
+    "פ": "ף",
+    "מ": "ם",
 }
 
 SYRIAC = {
@@ -87,10 +100,12 @@ SYRIAC = {
     "-": "-",
     "*": "̈",
 }
+SYRIAC_REPLACEMENTS: Dict[str, str] = {}
+SYRIAC_FINALS: Dict[str, str] = {}
 
 TRANSLIT_MAPS = {
-    "syriac": SYRIAC,
-    "hebrew": HEBREW,
+    "syriac": (SYRIAC, SYRIAC_REPLACEMENTS, SYRIAC_FINALS),
+    "hebrew": (HEBREW, HEBREW_REPLACEMENTS, HEBREW_FINALS),
 }
 
 
@@ -124,13 +139,28 @@ def from_transliteration(string: str, alphabet: str) -> str:
     Returns:
         Converted string
     """
-    if alphabet not in TRANSLIT_MAPS:
+    maps = TRANSLIT_MAPS.get(alphabet, None)
+
+    if maps is None:
         valid_alphabets = TRANSLIT_MAPS.keys()
         raise ValueError(
             f"alphabet must be one of {valid_alphabets} not '{alphabet}'",
         )
 
-    return "".join(list(map(lambda c: TRANSLIT_MAPS[alphabet][c], string)))
+    translit_map, subs_map, finals_map = maps
+
+    for sub, rep in subs_map.items():
+        # switch the pointing from before a vav to after it
+        string = string.replace(sub, rep)
+
+    string = "".join(list(map(lambda c: translit_map.get(c, c), string)))
+
+    # Replace any final leters with their final forms if there are any
+    final = string[-1]
+    if final in finals_map:
+        string = string[:-1] + finals_map[final]
+
+    return string
 
 
 @lru_cache(maxsize=2)
