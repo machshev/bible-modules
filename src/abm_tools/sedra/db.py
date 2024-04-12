@@ -7,6 +7,8 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+from abm_tools.errors import InvalidOptionError
+
 __all__ = (
     "parse_sedra3_words_db_file",
     "parse_sedra3_english_db_file",
@@ -16,6 +18,7 @@ __all__ = (
     "from_transliteration",
 )
 
+# ruff: noqa: RUF001
 HEBREW = {
     "A": "א",
     "B": "ב",
@@ -108,7 +111,7 @@ TRANSLIT_MAPS = {
 }
 
 
-def sedra4_db_word_json(word_id: int):
+def sedra4_db_word_json(word_id: int) -> dict:
     """Request word lookup from SEDRA4 DB."""
     word_json_path = Path(f"words/{word_id}.json")
 
@@ -134,6 +137,7 @@ def from_transliteration(string: str, alphabet: str) -> str:
 
     Args:
         string: the string to convert
+        alphabet: the alphabet to use hebrew/syriac
 
     Returns:
         Converted string
@@ -141,9 +145,10 @@ def from_transliteration(string: str, alphabet: str) -> str:
     maps = TRANSLIT_MAPS.get(alphabet)
 
     if maps is None:
-        valid_alphabets = TRANSLIT_MAPS.keys()
-        raise ValueError(
-            f"alphabet must be one of {valid_alphabets} not '{alphabet}'",
+        raise InvalidOptionError(
+            name="alphabet",
+            options=TRANSLIT_MAPS.keys(),
+            value=alphabet,
         )
 
     translit_map, subs_map, finals_map = maps
@@ -152,7 +157,7 @@ def from_transliteration(string: str, alphabet: str) -> str:
         # switch the pointing from before a vav to after it
         string = string.replace(sub, rep)
 
-    string = "".join(list(map(lambda c: translit_map.get(c, c), string)))
+    string = "".join([translit_map.get(c, c) for c in string])
 
     # Replace any final leters with their final forms if there are any
     final = string[-1]
@@ -172,9 +177,7 @@ def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.Data
     Returns:
         pandas DataFrame of the words DB table
     """
-    words = pd.read_csv(file_name, index_col="keyWord")
-
-    return words
+    return pd.read_csv(file_name, index_col="keyWord")
 
 
 @lru_cache(maxsize=2)
@@ -189,9 +192,7 @@ def parse_sedra3_english_db_file(
     Returns:
         pandas DataFrame of the words DB table
     """
-    english = pd.read_csv(file_name, index_col="keyEnglish")
-
-    return english
+    return pd.read_csv(file_name, index_col="keyEnglish")
 
 
 @lru_cache(maxsize=2)
@@ -204,9 +205,7 @@ def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.Data
     Returns:
         pandas DataFrame of the words DB table
     """
-    roots = pd.read_csv(file_name, index_col="keyRoot")
-
-    return roots
+    return pd.read_csv(file_name, index_col="keyRoot")
 
 
 @lru_cache(maxsize=2)
@@ -221,6 +220,4 @@ def parse_sedra3_lexemes_db_file(
     Returns:
         pandas DataFrame of the words DB table
     """
-    lexemes = pd.read_csv(file_name, index_col="keyLexemes")
-
-    return lexemes
+    return pd.read_csv(file_name, index_col="keyLexemes")

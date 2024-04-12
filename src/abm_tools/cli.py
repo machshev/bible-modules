@@ -21,20 +21,20 @@ from abm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
 
 
 @click.group()
-def main():
-    """Tools for interacting with SEDRA and generating aramain bible modules"""
+def main() -> None:
+    """Tools for interacting with SEDRA and generating aramain bible modules."""
 
 
 @main.command()
 @click.argument("word_id", type=int)
-def lookup(word_id: int):
-    """Lookup a word in the SEDRA 4 DataBase"""
-    print(sedra4_db_word_json(word_id))
+def lookup(word_id: int) -> None:
+    """Lookup a word in the SEDRA 4 DataBase."""
+    click.echo(sedra4_db_word_json(word_id=word_id))
 
 
 @main.group()
-def gen():
-    """Tools for generating Aramaic bible software modules"""
+def gen() -> None:
+    """Tools for generating Aramaic bible software modules."""
 
 
 @gen.command()
@@ -61,8 +61,8 @@ def bible(
     fmt: str,
     output_path: Path,
     mod_name: str,
-):
-    """Create Aramaic bible module MOD_NAME in the FORMAT and ALPHABET"""
+) -> None:
+    """Create Aramaic bible module MOD_NAME in the FORMAT and ALPHABET."""
     render_bible(
         alphabet=alphabet,
         fmt=fmt,
@@ -72,8 +72,8 @@ def bible(
 
 
 @gen.command()
-def cache_file():
-    """Generate a cache file for easier SEDRA3 bible parsing"""
+def cache_file() -> None:
+    """Generate a cache file for easier SEDRA3 bible parsing."""
     gen_bible_cache_file()
 
 

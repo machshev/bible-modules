@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Iterator
 from contextlib import contextmanager
 from importlib.metadata import version as pkgversion
 from pathlib import Path
@@ -14,6 +13,8 @@ from duty import duty
 from duty.callables import coverage, lazy, mkdocs, mypy, pytest, ruff, safety
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from duty.context import Context
 
 
@@ -82,9 +83,9 @@ def check_quality(ctx: Context) -> None:
         ctx: The context instance (passed automatically).
     """
     ctx.run(
-        ruff.check(*PY_SRC_LIST, config="config/ruff.toml"),
+        ruff.check(*PY_SRC_LIST),
         title=pyprefix("Checking code quality"),
-        command=f"ruff check --config config/ruff.toml {PY_SRC}",
+        command=f"ruff check {PY_SRC}",
     )
 
 
@@ -213,7 +214,7 @@ def docs_deploy(ctx: Context) -> None:
 
 
 @duty
-def format(ctx: Context) -> None:
+def format(ctx: Context) -> None:  # noqa: A001
     """Run formatting tools on the code.
 
     Parameters:

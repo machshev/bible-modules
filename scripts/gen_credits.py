@@ -1,10 +1,10 @@
 """Script to generate the project's credits."""
 
-from __future__ import annotations
+# ruff: noqa: INP001, E501
 
 import os
 import re
-import sys
+import tomllib
 from collections.abc import Mapping
 from importlib.metadata import PackageNotFoundError, metadata
 from itertools import chain
@@ -14,12 +14,6 @@ from typing import cast
 
 from jinja2 import StrictUndefined
 from jinja2.sandbox import SandboxedEnvironment
-
-# TODO: Remove once support for Python 3.10 is dropped.
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
 
 project_dir = Path(os.getenv("MKDOCS_CONFIG_DIR", "."))
 with project_dir.joinpath("pyproject.toml").open("rb") as pyproject_file:
@@ -139,6 +133,3 @@ def _render_credits() -> str:
     )
     jinja_env = SandboxedEnvironment(undefined=StrictUndefined)
     return jinja_env.from_string(template_text).render(**template_data)
-
-
-print(_render_credits())

@@ -1,19 +1,14 @@
-"""Render bible text into different formats
-"""
+"""Render bible text into different formats."""
 
-import sys
-from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import List, Optional
 
+from abm_tools.errors import InvalidOptionError
+from abm_tools.render.html import RenderBibleHTML
+from abm_tools.render.interface import BibleRenderer
+from abm_tools.render.md import RenderBibleMarkdown
+from abm_tools.render.osis import RenderBibleOSIS
+from abm_tools.render.vpl import RenderBibleVPL
 from abm_tools.sedra.bible import SEDRAPassageRef, parse_bible_cache_file
-from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
-
-from .html import RenderBibleHTML
-from .interface import BibleRenderer
-from .md import RenderBibleMarkdown
-from .osis import RenderBibleOSIS
-from .vpl import RenderBibleVPL
 
 __all__ = ("render_bible",)
 
@@ -27,12 +22,9 @@ _BIBLE_RENDERERS: list[str] = [
 
 
 def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRenderer:
-    """Get bible renderer"""
+    """Get bible renderer."""
     if fmt not in _BIBLE_RENDERERS:
-        raise KeyError(
-            f"BibleRenderer '{fmt}' is not defined, "
-            f"must be one of {_BIBLE_RENDERERS}",
-        )
+        raise InvalidOptionError("BibleRenderer", _BIBLE_RENDERERS, fmt)
 
     if fmt in ["txt", "vpl"]:
         return RenderBibleVPL(
@@ -65,8 +57,8 @@ def notify_state_changed(
     renderer: BibleRenderer,
     ref_old: SEDRAPassageRef,
     ref_new: SEDRAPassageRef,
-):
-    """Update the renderer state with any reference changes"""
+) -> None:
+    """Update the renderer state with any reference changes."""
     if ref_new.verse != ref_old.verse:
         renderer.end_verse()
 
@@ -92,7 +84,7 @@ def render_bible(
     alphabet: str,
     output_path: Path,
 ) -> None:
-    """Get a BibleRenderer to render a bible
+    """Get a BibleRenderer to render a bible.
 
     Args:
         mod_name: name of the module

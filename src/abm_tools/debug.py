@@ -95,14 +95,10 @@ def get_debug_info() -> Environment:
 def print_debug_info() -> None:
     """Print debug/environment information."""
     info = get_debug_info()
-    print(f"- __System__: {info.platform}")
-    print(f"- __Python__: {info.interpreter_name} {info.interpreter_version}")
-    print("- __Environment variables__:")
-    for var in info.variables:
-        print(f"  - `{var.name}`: `{var.value}`")
-    print("- __Installed packages__:")
-    for pkg in info.packages:
-        print(f"  - `{pkg.name}` v{pkg.version}")
+    for _var in info.variables:
+        pass
+    for _pkg in info.packages:
+        pass
 
 
 if __name__ == "__main__":

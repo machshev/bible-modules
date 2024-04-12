@@ -24,7 +24,6 @@ nav:
   - abm_tools: reference/
 - Development:
   - Contributing: contributing.md
-  - Code of Conduct: code_of_conduct.md
   - Coverage report: coverage.md
 
 theme:

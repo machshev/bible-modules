@@ -44,6 +44,10 @@ Funding = "https://github.com/sponsors/machshev"
 [project.scripts]
 abm-tools = "abm_tools.cli:main"
 
+[project.optional-dependencies]
+testing = [
+    "pyhamcrest>=2.1.0",
+]
 [tool.pdm]
 version = {source = "scm"}
 plugins = [
@@ -90,6 +94,8 @@ typing = [
     "mypy>=1.5",
     "types-markdown>=3.5",
     "types-pyyaml>=6.0",
+    "pandas-stubs>=2.2.1.240316",
+    "types-requests>=2.31.0.20240406",
 ]
 security = [
     "safety>=2.3",
@@ -186,7 +192,10 @@ select = [
     "W",
     "YTT",
 ]
-ignore = []
+ignore = [
+    "ANN101",
+    "TRY003",
+]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

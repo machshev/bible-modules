@@ -1,1 +1,1 @@
-"""Test the render.txt module"""
+"""Test the render.txt module."""

@@ -1,4 +1,4 @@
-"""Module to import SEDRA source files
+"""Module to import SEDRA source files.
 
 After generating modules from the BFBS.TXT file, it turns out there are a few
 verses that are out of order in the file. So it's not possible to just assume
@@ -60,14 +60,14 @@ BOOKS = (
 
 @dataclass
 class SEDRAPassageRef:
-    """SEDRA bible db passage reference"""
+    """SEDRA bible db passage reference."""
 
     book: int
     chapter: int
     verse: int
 
     def __str__(self) -> str:
-        """Human readable string"""
+        """Human readable string."""
         book = book_name(self.book)
 
         return f"{book} {self.chapter}:{self.verse}"
@@ -76,10 +76,11 @@ class SEDRAPassageRef:
 WordRefTuple = tuple[SEDRAPassageRef, int]
 WordEntryTuple = tuple[SEDRAPassageRef, int, int]
 BibleCacheEntryTuple = tuple[SEDRAPassageRef, list[int]]
+SEDRA_WORD_REF_LEN: int = 9
 
 
 def book_name(book_num: int) -> str:
-    """Book name given a book number"""
+    """Book name given a book number."""
     return BOOKS[book_num - 52]
 
 
@@ -94,8 +95,8 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
 
     So for example 520100101 = Matt, Chapter 1, Verse 1, Word 1
 
-    This is easier to process when transformed into a tuple of integers of the form (book,
-    chapter, verse, word).
+    This is easier to process when transformed into a tuple of integers of the
+    form (book, chapter, verse, word).
 
     Args:
         word_ref: reference string in the format described above.
@@ -105,11 +106,11 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
         ValueError: when word_ref contains non integer characters
 
     Returns:
-        Tuple of integers, book, chapter, verse, word. Where book is indexed starting at 52 for
-        the gospel of Matthew.
+        Tuple of integers, book, chapter, verse, word. Where book is indexed
+        starting at 52 for the gospel of Matthew.
     """
-    assert word_ref, "word_ref is not empty"
-    assert len(word_ref) == 9, "word_ref is 9 characters long"
+    if len(word_ref) != SEDRA_WORD_REF_LEN:
+        raise ValueError(f"Expected word_ref of {SEDRA_WORD_REF_LEN} characters")
 
     book = int(word_ref[0:2])
     chapter = int(word_ref[2:4])
@@ -122,9 +123,10 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
 def _parse_sedra3_word_address(word_address: str) -> int:
     """Parse a word address string used in the SEDRA3 bible text DB.
 
-    Essentially the string is a base 10 integer that when converted to hex, the two most
-    significant bytes are the "file_number" (a constant of 02h). Once this is stripped from the
-    hex number, the remainder is the index of the word being addressed.
+    Essentially the string is a base 10 integer that when converted to hex, the
+    two most significant bytes are the "file_number" (a constant of 02h). Once
+    this is stripped from the hex number, the remainder is the index of the word
+    being addressed.
 
     Args:
         word_address: string containing the word address as described above.
@@ -134,7 +136,8 @@ def _parse_sedra3_word_address(word_address: str) -> int:
     """
     address_as_hex = hex(int(word_address))
 
-    assert address_as_hex[0:3] == "0x2", "SEDRA3 DB FILE_NUMBER is 0x2"
+    if address_as_hex[0:3] != "0x2":
+        raise ValueError("Expected SEDRA3 DB FILE_NUMBER is 0x2")
 
     return int(address_as_hex[3:], 16)
 
@@ -161,10 +164,11 @@ def parse_sedra3_bible_db_file(
             if not columns:
                 continue
 
-            # First column is the database address FILE_NUMBER:LINE_NUMBER which is essentially a
-            # line number providing no valuable information as I see it right now. Each line
-            # contains only one word, and that word is already uniquely addressable via the
-            # chapter/verse/word number in the second column (index 1)
+            # First column is the database address FILE_NUMBER:LINE_NUMBER which
+            # is essentially a line number providing no valuable information as
+            # I see it right now. Each line contains only one word, and that
+            # word is already uniquely addressable via the chapter/verse/word
+            # number in the second column (index 1)
 
             ref, word = _parse_sedra3_word_ref(columns[1])
             word_id = _parse_sedra3_word_address(columns[2])
@@ -173,7 +177,7 @@ def parse_sedra3_bible_db_file(
 
 
 def _create_bible_structure() -> dict:
-    """Load the bible model"""
+    """Load the bible model."""
     bible: dict[int, dict[int, dict[int, dict[int, int]]]] = {}
 
     for ref, word, word_id in parse_sedra3_bible_db_file():
@@ -196,11 +200,10 @@ def _create_bible_structure() -> dict:
 
 
 def gen_bible_cache_file() -> None:
-    """Generate the bible cache file"""
+    """Generate the bible cache file."""
     bible_struct = _create_bible_structure()
 
     with Path("./SEDRA/BFBS.cache").open(mode="w", encoding="utf-8") as f:
-
         for book_id in sorted(bible_struct.keys()):
             for chapter_id in sorted(bible_struct[book_id].keys()):
                 for verse_id in sorted(bible_struct[book_id][chapter_id].keys()):
@@ -214,7 +217,7 @@ def gen_bible_cache_file() -> None:
 
 
 def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple, None, None]:
-    """Parse the bible cache file"""
+    """Parse the bible cache file."""
     cache_path = Path("./SEDRA/BFBS.cache")
 
     if not cache_path.is_file():
@@ -225,8 +228,11 @@ def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple, None, None]:
             book_id, chapter_id, verse_id, text = line.strip().split(",")
             words = [int(w) for w in text.split(" ")]
 
-            yield SEDRAPassageRef(
-                book=int(book_id),
-                chapter=int(chapter_id),
-                verse=int(verse_id),
-            ), words
+            yield (
+                SEDRAPassageRef(
+                    book=int(book_id),
+                    chapter=int(chapter_id),
+                    verse=int(verse_id),
+                ),
+                words,
+            )
