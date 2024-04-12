@@ -86,15 +86,15 @@ pipx install abm-tools
 
 ## Usage
 
-*NOTE:* This is still a work in progress. nothing useful is garunteed to come
-of running this script yet ;)
+To generate the bible modules individually use the `abm_tools gen bible`
+command. There is help available via `--help` flag to see what formats are
+currently available.
 
-Currently this will print out to the screen a list of entries parsed from the
-SEDRA DB files. As development progresses, you will find various bible modules
-generated and some helpful flags for configuration.
+For example, this command will generate the html format using the hebrew unicode
+characters rather than the default syriac unicode characters.
 
 ```bash
-python -m abm_tools SEDRA/BFBS.TXT
+abm-tools gen bible --alphabet hebrew --format html abm_hebrew ./output
 ```
 
 This project is still early stages. However it's possible to generate some
@@ -110,15 +110,8 @@ There is a Makefile that will auto generate the full set of available modules,
 and alphabet combinations. The output is generated in the `output` directory.
 
 ```bash
-make
+make modules
 ```
-
-For the moment the cli tool arguments are not stable, so please use the help
-provided `abm_tools -h` as well as the examples in the Makefile to see the
-latest syntax.
-
-*NOTE:* This is still a work in progress. nothing useful is garunteed to come
-of running this script yet ;)
 
 ## Why produce Aramaic bible modules
 

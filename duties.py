@@ -31,6 +31,30 @@ def pyprefix(title: str) -> str:  # noqa: D103
 
 
 @duty
+def modules(ctx: Context) -> None:
+    """Generate the bible modules in all formats.
+
+    Parameters:
+        ctx: The context instance (passed automatically).
+    """
+    from abm_tools.render import render_bible
+
+    for fmt in ("vpl", "md", "html", "osis"):
+        for alphabet in ("hebrew", "syriac"):
+            mod_name = f"BFBS_abm_{alphabet}"
+            ctx.run(
+                render_bible,
+                kwargs={
+                    "mod_name": mod_name,
+                    "alphabet": alphabet,
+                    "fmt": fmt,
+                    "output_path": Path("./output"),
+                },
+                title=f"Generating bible module {mod_name} in {fmt} format",
+            )
+
+
+@duty
 def changelog(ctx: Context) -> None:
     """Update the changelog in-place with latest commits.
 
@@ -158,6 +182,7 @@ def clean(ctx: Context) -> None:
     ctx.run("rm -rf htmlcov")
     ctx.run("rm -rf pip-wheel-metadata")
     ctx.run("rm -rf site")
+    ctx.run("rm -rf output")
     ctx.run("find . -type d -name __pycache__ | xargs rm -rf")
     ctx.run("find . -name '*.rej' -delete")
 
@@ -199,14 +224,13 @@ def format(ctx: Context) -> None:  # noqa: A001
     ctx.run(
         ruff.check(
             *PY_SRC_LIST,
-            config="config/ruff.toml",
             fix_only=True,
             exit_zero=True,
         ),
         title="Auto-fixing code",
     )
     ctx.run(
-        ruff.format(*PY_SRC_LIST, config="config/ruff.toml"),
+        ruff.format(*PY_SRC_LIST),
         title="Formatting code",
     )
 

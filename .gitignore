@@ -18,3 +18,4 @@ pdm.toml
 __pypackages__/
 .venv/
 .cache/
+output/
