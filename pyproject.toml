@@ -23,6 +23,7 @@ dev = [
     "ipython",
     "pyhamcrest",
     "pytest",
+    "types-requests>=2.31.0.20240406",
 ]
 
 [tool.pdm.build]
