@@ -2,7 +2,7 @@
 
 import importlib
 from pathlib import Path
-from typing import List, Optional, TextIO
+from typing import TextIO
 
 from abm_tools.sedra.bible import book_name
 from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
@@ -18,10 +18,10 @@ class RenderBibleHTML:
     ) -> None:
         """Initialise a text renderer"""
         self._output_path = output_path
-        self._stream: Optional[TextIO] = None
+        self._stream: TextIO | None = None
         self._alphabet = alphabet
 
-        self._words: List[str] = []
+        self._words: list[str] = []
 
         self._book: str = ""
         self._chapter: int = 0

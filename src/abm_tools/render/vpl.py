@@ -14,7 +14,7 @@ Genesis 1:2 And the earth was without form, and void; and darkness was upon ...
 """
 
 from pathlib import Path
-from typing import List, Optional, TextIO
+from typing import TextIO
 
 from abm_tools.sedra.bible import book_name
 from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
@@ -30,10 +30,10 @@ class RenderBibleVPL:
     ) -> None:
         """Initialise a text renderer"""
         self._output_path = output_path
-        self._stream: Optional[TextIO] = None
+        self._stream: TextIO | None = None
         self._alphabet = alphabet
 
-        self._words: List[str] = []
+        self._words: list[str] = []
 
         self._book: str = ""
         self._chapter: int = 0
@@ -42,7 +42,8 @@ class RenderBibleVPL:
     def start_mod(self, name: str) -> None:
         """Start the module"""
         self._stream = (self._output_path / f"{name}.vpl").open(
-            mode="w", encoding="utf-8"
+            mode="w",
+            encoding="utf-8",
         )
 
     def end_mod(self) -> None:

@@ -11,57 +11,71 @@
 # - When you import `__main__` it will get executed again (as a module) because
 #   there's no `abm_tools.__main__` in `sys.modules`.
 
-from __future__ import annotations
+from pathlib import Path
 
-import argparse
-import sys
-from typing import Any
+import click
 
-from abm_tools import debug
-
-
-class _DebugInfo(argparse.Action):
-    def __init__(self, nargs: int | str | None = 0, **kwargs: Any) -> None:
-        super().__init__(nargs=nargs, **kwargs)
-
-    def __call__(self, *args: Any, **kwargs: Any) -> None:  # noqa: ARG002
-        debug.print_debug_info()
-        sys.exit(0)
+from abm_tools.render import _BIBLE_RENDERERS, render_bible
+from abm_tools.sedra.bible import gen_bible_cache_file
+from abm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
 
 
-def get_parser() -> argparse.ArgumentParser:
-    """Return the CLI argument parser.
+@click.group()
+def main():
+    """Tools for interacting with SEDRA and generating aramain bible modules"""
 
-    Returns:
-        An argparse parser.
-    """
-    parser = argparse.ArgumentParser(prog="abm-tools")
-    parser.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version=f"%(prog)s {debug.get_version()}",
+
+@main.command()
+@click.argument("word_id", type=int)
+def lookup(word_id: int):
+    """Lookup a word in the SEDRA 4 DataBase"""
+    print(sedra4_db_word_json(word_id))
+
+
+@main.group()
+def gen():
+    """Tools for generating Aramaic bible software modules"""
+
+
+@gen.command()
+@click.argument("mod_name", type=str)
+@click.argument(
+    "output_path",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, path_type=Path),
+)
+@click.option(
+    "-a",
+    "--alphabet",
+    default="syriac",
+    type=click.Choice(list(TRANSLIT_MAPS.keys()), case_sensitive=False),
+)
+@click.option(
+    "-f",
+    "--format",
+    "fmt",
+    default="txt",
+    type=click.Choice(_BIBLE_RENDERERS, case_sensitive=False),
+)
+def bible(
+    alphabet: str,
+    fmt: str,
+    output_path: Path,
+    mod_name: str,
+):
+    """Create Aramaic bible module MOD_NAME in the FORMAT and ALPHABET"""
+    render_bible(
+        alphabet=alphabet,
+        fmt=fmt,
+        output_path=output_path,
+        mod_name=mod_name,
     )
-    parser.add_argument(
-        "--debug-info",
-        action=_DebugInfo,
-        help="Print debug information.",
-    )
-    return parser
 
 
-def main(args: list[str] | None = None) -> int:
-    """Run the main program.
+@gen.command()
+def cache_file():
+    """Generate a cache file for easier SEDRA3 bible parsing"""
+    gen_bible_cache_file()
 
-    This function is executed when you type `abm-tools` or `python -m abm_tools`.
 
-    Parameters:
-        args: Arguments passed from the command line.
-
-    Returns:
-        An exit code.
-    """
-    parser = get_parser()
-    opts = parser.parse_args(args=args)
-    print(opts)
-    return 0
+if __name__ == "__main__":
+    main()

@@ -16,9 +16,9 @@ checked in. Although it should be possible to regenerate it from the original
 files.
 """
 
+from collections.abc import Generator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Generator, List, Tuple
 
 __all__ = (
     "parse_sedra3_bible_db_file",
@@ -73,9 +73,9 @@ class SEDRAPassageRef:
         return f"{book} {self.chapter}:{self.verse}"
 
 
-WordRefTuple = Tuple[SEDRAPassageRef, int]
-WordEntryTuple = Tuple[SEDRAPassageRef, int, int]
-BibleCacheEntryTuple = Tuple[SEDRAPassageRef, List[int]]
+WordRefTuple = tuple[SEDRAPassageRef, int]
+WordEntryTuple = tuple[SEDRAPassageRef, int, int]
+BibleCacheEntryTuple = tuple[SEDRAPassageRef, list[int]]
 
 
 def book_name(book_num: int) -> str:
@@ -151,10 +151,10 @@ def parse_sedra3_bible_db_file(
     Args:
         file_name: file name for the SEDRA3 style bible DB file (BFBS.TXT)
 
-    yield:
+    Yield:
         one word entry
     """
-    with open(file_name, "r", encoding="utf-8") as bible_file:
+    with open(file_name, encoding="utf-8") as bible_file:
         for line in bible_file:
             columns = line.strip().split(",")
 
@@ -172,9 +172,9 @@ def parse_sedra3_bible_db_file(
             yield ref, word, word_id
 
 
-def _create_bible_structure() -> Dict:
+def _create_bible_structure() -> dict:
     """Load the bible model"""
-    bible: Dict[int, Dict[int, Dict[int, Dict[int, int]]]] = {}
+    bible: dict[int, dict[int, dict[int, dict[int, int]]]] = {}
 
     for ref, word, word_id in parse_sedra3_bible_db_file():
         if ref.book not in bible:

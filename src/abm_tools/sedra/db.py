@@ -3,7 +3,6 @@
 import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict
 
 import pandas as pd
 import requests
@@ -100,8 +99,8 @@ SYRIAC = {
     "-": "-",
     "*": "̈",
 }
-SYRIAC_REPLACEMENTS: Dict[str, str] = {}
-SYRIAC_FINALS: Dict[str, str] = {}
+SYRIAC_REPLACEMENTS: dict[str, str] = {}
+SYRIAC_FINALS: dict[str, str] = {}
 
 TRANSLIT_MAPS = {
     "syriac": (SYRIAC, SYRIAC_REPLACEMENTS, SYRIAC_FINALS),
@@ -139,7 +138,7 @@ def from_transliteration(string: str, alphabet: str) -> str:
     Returns:
         Converted string
     """
-    maps = TRANSLIT_MAPS.get(alphabet, None)
+    maps = TRANSLIT_MAPS.get(alphabet)
 
     if maps is None:
         valid_alphabets = TRANSLIT_MAPS.keys()

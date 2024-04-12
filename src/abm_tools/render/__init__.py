@@ -2,8 +2,9 @@
 """
 
 import sys
+from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Callable, List, Mapping, Optional
+from typing import List, Optional
 
 from abm_tools.sedra.bible import SEDRAPassageRef, parse_bible_cache_file
 from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
@@ -16,7 +17,7 @@ from .vpl import RenderBibleVPL
 
 __all__ = ("render_bible",)
 
-_BIBLE_RENDERERS: List[str] = [
+_BIBLE_RENDERERS: list[str] = [
     "txt",
     "vpl",
     "md",
@@ -30,7 +31,7 @@ def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRend
     if fmt not in _BIBLE_RENDERERS:
         raise KeyError(
             f"BibleRenderer '{fmt}' is not defined, "
-            f"must be one of {_BIBLE_RENDERERS}"
+            f"must be one of {_BIBLE_RENDERERS}",
         )
 
     if fmt in ["txt", "vpl"]:
@@ -61,7 +62,9 @@ def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRend
 
 
 def notify_state_changed(
-    renderer: BibleRenderer, ref_old: SEDRAPassageRef, ref_new: SEDRAPassageRef
+    renderer: BibleRenderer,
+    ref_old: SEDRAPassageRef,
+    ref_new: SEDRAPassageRef,
 ):
     """Update the renderer state with any reference changes"""
     if ref_new.verse != ref_old.verse:
@@ -105,7 +108,7 @@ def render_bible(
         output_path=output_path,
     )
 
-    current_ref: Optional[SEDRAPassageRef] = None
+    current_ref: SEDRAPassageRef | None = None
 
     renderer.start_mod(name=mod_name)
 
