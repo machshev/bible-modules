@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [1.2.1](https://github.com/machshev/aramaic-bible-modules/releases/tag/1.2.1) - 2024-04-12
+
+<small>[Compare with 1.2.0](https://github.com/machshev/aramaic-bible-modules/compare/1.2.0...1.2.1)</small>
+
 ## [1.2.0](https://github.com/machshev/aramaic-bible-modules/releases/tag/1.2.0) - 2024-04-12
 
 <small>[Compare with first commit](https://github.com/machshev/aramaic-bible-modules/compare/a5f4d34d7f9d50e88fa6188df613db95ea7741ea...1.2.0)</small>

@@ -19,8 +19,40 @@ from typing import TextIO
 
 from abm_tools.sedra.bible import book_name
 from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from abm_tools.templates import get_template
 
 # ruff: noqa: TRY003
+
+
+BOOK_ABREV = {
+    "Matthew": "Matt",
+    "Mark": "Mark",
+    "Luke": "Luke",
+    "John": "John",
+    "Acts": "Acts",
+    "Romans": "Rom",
+    "1 Corinthians": "1Cor",
+    "2 Corinthians": "2Cor",
+    "Galatians": "Gal",
+    "Ephesians": "Eph",
+    "Philippians": "Phil",
+    "Colossians": "Col",
+    "1 Thessalonians": "1Thess",
+    "2 Thessalonians": "2Thess",
+    "1 Timothy": "1Tim",
+    "2 Timothy": "2Tim",
+    "Titus": "Titus",
+    "Philemon": "Phlm",
+    "Hebrews": "Heb",
+    "James": "Jas",
+    "1 Peter": "1Pet",
+    "2 Peter": "2Pet",
+    "1 John": "1John",
+    "2 John": "2John",
+    "3 John": "3John",
+    "Jude": "Jude",
+    "Revelation": "Rev",
+}
 
 
 class RenderBibleOSIS:
@@ -36,17 +68,25 @@ class RenderBibleOSIS:
         self._stream: TextIO | None = None
         self._alphabet = alphabet
 
-        self._words: list[str] = []
-
         self._book: str = ""
         self._chapter: int = 0
         self._verse: int = 0
 
     def start_mod(self, name: str) -> None:
         """Start the module."""
-        self._stream = (self._output_path / f"{name}.osis").open(
+        self._stream = (self._output_path / f"{name}.osis.xml").open(
             mode="w",
             encoding="utf-8",
+        )
+
+        print(
+            get_template("osis/bible_header.osis.jinja2").render(
+                osis_work=name,
+                osis_id=name,
+                title="Peshitta (BFBS text)",
+                lang=self._alphabet,
+            ),
+            file=self._stream,
         )
 
     def end_mod(self) -> None:
@@ -54,40 +94,81 @@ class RenderBibleOSIS:
         if self._stream is None:
             return
 
+        print(
+            get_template("osis/bible_footer.osis.jinja2").render(),
+            file=self._stream,
+        )
+
         self._stream.close()
 
     def start_book(self, number: int) -> None:
         """Start a new book."""
-        self._book = book_name(number)
+        title = book_name(number)
+        self._book = BOOK_ABREV[title]
+
+        print(
+            get_template("osis/bible_book_start.osis.jinja2").render(
+                book_title=title,
+                book_id=self._book,
+            ),
+            file=self._stream,
+        )
 
     def end_book(self) -> None:
         """End the current book."""
+        print(
+            get_template("osis/bible_book_end.osis.jinja2").render(
+                book_id=self._book,
+            ),
+            file=self._stream,
+        )
+
         self._book = ""
 
     def start_chapter(self, number: int) -> None:
         """Start a book chapter."""
         self._chapter = number
+        print(
+            get_template("osis/bible_chapter_start.osis.jinja2").render(
+                book_id=self._book,
+                chapter_id=self._chapter,
+            ),
+            file=self._stream,
+        )
 
     def end_chapter(self) -> None:
         """End the current book chapter."""
+        print(
+            get_template("osis/bible_chapter_end.osis.jinja2").render(
+                book_id=self._book,
+                chapter_id=self._chapter,
+            ),
+            file=self._stream,
+        )
         self._chapter = 0
 
     def start_verse(self, number: int) -> None:
         """Start the verse."""
         self._verse = number
 
-    def end_verse(self) -> None:
-        """End the verse."""
-        text = " ".join(self._words)
-        self._words.clear()
-
         if self._stream is None:
             raise RuntimeError("Can't start a verse without starting a module")
 
+        ref = f"{self._book}.{self._chapter}.{self._verse}"
+
         print(
-            f"{self._book} {self._chapter}:{self._verse} {text}",
+            f'<verse osisID="{ref}"/>',
             file=self._stream,
         )
+
+    def end_verse(self) -> None:
+        """End the verse."""
+        if self._stream is None:
+            raise RuntimeError("Can't start a verse without starting a module")
+
+        ref = f"{self._book}.{self._chapter}.{self._verse}"
+
+        print(f'<verse eID="{ref}"/>', file=self._stream)
 
         self._verse = 0
 
@@ -96,4 +177,8 @@ class RenderBibleOSIS:
         words_db = parse_sedra3_words_db_file()
         word = str(words_db.loc[word_id, "strVocalised"])
 
-        self._words.append(from_transliteration(word, alphabet=self._alphabet))
+        translit = from_transliteration(word, alphabet=self._alphabet)
+        print(
+            f'<w lemma="sedra3:{word_id} sedra4:{word_id}">{translit}</w>',
+            file=self._stream,
+        )

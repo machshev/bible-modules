@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<osis xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.bibletechnologies.net/2003/OSIS/namespace
+      http://www.bibletechnologies.net/osisCore.2.1.1.xsd">
+
+<osisText osisIDWork="{{ osis_work }}" osisRefWork="defaultReferenceScheme"
+xml:lang="{{ lang }}">
+
+<header>
+    <work osisWork="{{ osis_work }}">
+        <title>{{ title }}</title>
+        <identifier type="OSIS">{{ osis_work }}</identifier>
+        <scope>Matt-Rev</scope>
+        <refSystem>Bible.KJV</refSystem>
+    </work>
+    <work osisWork="defaultReferenceScheme">
+        <refSystem>Bible.KJV</refSystem>
+    </work>
+</header>
+<div type="bookGroup">

@@ -5,7 +5,7 @@
 groups = ["default", "ci-quality", "ci-tests", "docs", "duty", "maintain", "quality", "security", "tests", "typing", "testing"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:59e6136df36594ad64e4aa689df74c09601f13fb9925d7b67267103ef34bf79e"
+content_hash = "sha256:22727acc67435ff7b402a84b2f984ab16687ff64128cfe389f99375935f5cba9"
 
 [[package]]
 name = "annotated-types"
@@ -450,7 +450,7 @@ name = "jinja2"
 version = "3.1.3"
 requires_python = ">=3.7"
 summary = "A very fast and expressive template engine."
-groups = ["ci-quality", "ci-tests", "docs", "duty", "maintain", "security"]
+groups = ["ci-quality", "ci-tests", "default", "docs", "duty", "maintain", "security"]
 dependencies = [
     "MarkupSafe>=2.0",
 ]
@@ -526,7 +526,7 @@ name = "markupsafe"
 version = "2.1.5"
 requires_python = ">=3.7"
 summary = "Safely add untrusted strings to HTML/XML markup."
-groups = ["ci-quality", "ci-tests", "docs", "duty", "maintain", "security"]
+groups = ["ci-quality", "ci-tests", "default", "docs", "duty", "maintain", "security"]
 files = [
     {file = "MarkupSafe-2.1.5-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:8dec4936e9c3100156f8a2dc89c4b88d5c435175ff03413b443469c7c8c5f4d1"},
     {file = "MarkupSafe-2.1.5-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:3c6b973f22eb18a789b1460b4b91bf04ae3f0c4234a0a6aa6b0a92f6f7b951d4"},
@@ -1021,7 +1021,7 @@ name = "pyhamcrest"
 version = "2.1.0"
 requires_python = ">=3.6"
 summary = "Hamcrest framework for matcher objects"
-groups = ["testing"]
+groups = ["ci-tests", "tests"]
 files = [
     {file = "pyhamcrest-2.1.0-py3-none-any.whl", hash = "sha256:f6913d2f392e30e0375b3ecbd7aee79e5d1faa25d345c8f4ff597665dcac2587"},
     {file = "pyhamcrest-2.1.0.tar.gz", hash = "sha256:c6acbec0923d0cb7e72c22af1926f3e7c97b8e8d69fc7498eabacaf7c975bd9c"},
