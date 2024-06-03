@@ -1,9 +1,9 @@
-# Aramaic Bible Modules
+# Bible Modules
 
-[![ci](https://github.com/machshev/aramaic-bible-modules/workflows/ci/badge.svg)](https://github.com/machshev/aramaic-bible-modules/actions?query=workflow%3Aci)
-[![documentation](https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat)](https://machshev.github.io/aramaic-bible-modules/)
+[![ci](https://github.com/machshev/bible-modules/workflows/ci/badge.svg)](https://github.com/machshev/bible-modules/actions?query=workflow%3Aci)
+[![documentation](https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat)](https://machshev.github.io/bible-modules/)
 [![pypi version](https://img.shields.io/pypi/v/abm-tools.svg)](https://pypi.org/project/abm-tools/)
-[![gitpod](https://img.shields.io/badge/gitpod-workspace-blue.svg?style=flat)](https://gitpod.io/#https://github.com/machshev/aramaic-bible-modules)
+[![gitpod](https://img.shields.io/badge/gitpod-workspace-blue.svg?style=flat)](https://gitpod.io/#https://github.com/machshev/bible-modules)
 
 Provides the SEDRA 3 source files and the Python based tools to generate Aramaic
 bible software modules in common formats... for example SWORD, MySWORD, E-SWORD
@@ -25,13 +25,13 @@ original information.
 
 <!--TOC-->
 
-- [Aramaic Bible Modules](#aramaic-bible-modules)
+- [Bible Modules](#bible-modules)
   - [Table of Contents](#table-of-contents)
   - [Installing](#installing)
     - [Clone the repository](#clone-the-repository)
     - [From package](#from-package)
   - [Usage](#usage)
-  - [Why produce Aramaic bible modules](#why-produce-aramaic-bible-modules)
+  - [Why produce Aramaic bible modules](#why-produce-bible-modules)
   - [Source documents](#source-documents)
   - [Available Bible Modules](#available-bible-modules)
 
@@ -50,8 +50,8 @@ only option.
 First clone the repository from github.
 
 ```bash
-git clone git@github.com:machshev/aramaic-bible-modules.git
-cd aramaic-bible-modules
+git clone git@github.com:machshev/bible-modules.git
+cd bible-modules
 ```
 
 Install [pdm](https://pdm-project.org/en/latest/), the "modern python packaging
@@ -68,7 +68,7 @@ pdm install
 
 ### From package
 
-*Note:* Not available right now.
+_Note:_ Not available right now.
 
 With `pip`:
 
@@ -83,10 +83,9 @@ python3.8 -m pip install --user pipx
 pipx install abm-tools
 ```
 
-
 ## Usage
 
-To generate the bible modules individually use the `abm_tools gen bible`
+To generate the bible modules individually use the `bm_tools gen bible`
 command. There is help available via `--help` flag to see what formats are
 currently available.
 

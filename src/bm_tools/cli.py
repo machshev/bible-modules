@@ -5,19 +5,19 @@
 # You might be tempted to import things from `__main__` later,
 # but that will cause problems: the code will get executed twice:
 #
-# - When you run `python -m abm_tools` python will execute
+# - When you run `python -m bm_tools` python will execute
 #   `__main__.py` as a script. That means there won't be any
-#   `abm_tools.__main__` in `sys.modules`.
+#   `bm_tools.__main__` in `sys.modules`.
 # - When you import `__main__` it will get executed again (as a module) because
-#   there's no `abm_tools.__main__` in `sys.modules`.
+#   there's no `bm_tools.__main__` in `sys.modules`.
 
 from pathlib import Path
 
 import click
 
-from abm_tools.render import _BIBLE_RENDERERS, render_bible
-from abm_tools.sedra.bible import gen_bible_cache_file
-from abm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
+from bm_tools.render import _BIBLE_RENDERERS, render_bible
+from bm_tools.sedra.bible import gen_bible_cache_file
+from bm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
 
 
 @click.group()

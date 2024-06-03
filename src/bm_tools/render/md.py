@@ -1,29 +1,16 @@
-"""Render verse per line (VPL) format.
-
-The verse per line format is used by SWORD project for simple modules that don't
-need additional formatting. So this module format is just a simple text format
-without extra markup.
-
-## Example
-
-```
-Genesis 1:1 In the beginning God created the heaven and the earth.
-Genesis 1:2 And the earth was without form, and void; and darkness was upon ...
-```
-
-"""
+"""Render Markdown format."""
 
 from pathlib import Path
 from typing import TextIO
 
-from abm_tools.sedra.bible import book_name
-from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from bm_tools.sedra.bible import book_name
+from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
 # ruff: noqa: TRY003
 
 
-class RenderBibleVPL:
-    """Renderer using plain text in VPL format."""
+class RenderBibleMarkdown:
+    """Renderer using plain text in Markdown format."""
 
     def __init__(
         self,
@@ -43,7 +30,7 @@ class RenderBibleVPL:
 
     def start_mod(self, name: str) -> None:
         """Start the module."""
-        self._stream = (self._output_path / f"{name}.vpl").open(
+        self._stream = (self._output_path / f"{name}.md").open(
             mode="w",
             encoding="utf-8",
         )
@@ -59,6 +46,11 @@ class RenderBibleVPL:
         """Start a new book."""
         self._book = book_name(number)
 
+        if self._stream is None:
+            raise RuntimeError("Can't start a book without starting a module")
+
+        print(f"# {self._book}\n", file=self._stream)
+
     def end_book(self) -> None:
         """End the current book."""
         self._book = ""
@@ -66,6 +58,11 @@ class RenderBibleVPL:
     def start_chapter(self, number: int) -> None:
         """Start a book chapter."""
         self._chapter = number
+
+        if self._stream is None:
+            raise RuntimeError("Can't start a chapter without starting a module")
+
+        print(f"## Chapter {self._chapter}\n", file=self._stream)
 
     def end_chapter(self) -> None:
         """End the current book chapter."""
@@ -84,7 +81,7 @@ class RenderBibleVPL:
             raise RuntimeError("Can't start a verse without starting a module")
 
         print(
-            f"{self._book} {self._chapter}:{self._verse} {text}",
+            f"&#x202b;*{self._verse}* {text}\n",
             file=self._stream,
         )
 

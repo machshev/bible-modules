@@ -37,7 +37,7 @@ def modules(ctx: Context) -> None:
     Parameters:
         ctx: The context instance (passed automatically).
     """
-    from abm_tools.render import render_bible
+    from bm_tools.render import render_bible
 
     for fmt in ("vpl", "md", "html", "osis"):
         for alphabet in ("hebrew", "syriac"):
@@ -159,9 +159,9 @@ def check_api(ctx: Context) -> None:
 
     griffe_check = lazy(g_check, name="griffe.check")
     ctx.run(
-        griffe_check("abm_tools", search_paths=["src"], color=True),
+        griffe_check("bm_tools", search_paths=["src"], color=True),
         title="Checking for API breaking changes",
-        command="griffe check -ssrc abm_tools",
+        command="griffe check -ssrc bm_tools",
         nofail=True,
     )
 

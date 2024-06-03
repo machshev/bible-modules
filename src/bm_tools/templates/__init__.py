@@ -17,7 +17,7 @@ def _get_environment() -> Environment:
         _get_environment,
         "environment",
         Environment(
-            loader=PackageLoader("abm_tools"),
+            loader=PackageLoader("bm_tools"),
             undefined=StrictUndefined,
             autoescape=select_autoescape(),
         ),

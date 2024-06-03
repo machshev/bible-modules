@@ -3,7 +3,7 @@
 import pytest
 from hamcrest import assert_that, calling, equal_to, raises
 
-from abm_tools.sedra.bible import (
+from bm_tools.sedra.bible import (
     SEDRAPassageRef,
     WordRefTuple,
     _parse_sedra3_word_address,

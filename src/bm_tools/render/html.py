@@ -1,16 +1,17 @@
-"""Render Markdown format."""
+"""Render text format."""
 
+import importlib
 from pathlib import Path
 from typing import TextIO
 
-from abm_tools.sedra.bible import book_name
-from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from bm_tools.sedra.bible import book_name
+from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
 # ruff: noqa: TRY003
 
 
-class RenderBibleMarkdown:
-    """Renderer using plain text in Markdown format."""
+class RenderBibleHTML:
+    """Renderer using plain text HTML format."""
 
     def __init__(
         self,
@@ -30,15 +31,39 @@ class RenderBibleMarkdown:
 
     def start_mod(self, name: str) -> None:
         """Start the module."""
-        self._stream = (self._output_path / f"{name}.md").open(
-            mode="w",
-            encoding="utf-8",
+        base_path = self._output_path / name
+        base_path.mkdir(parents=True, exist_ok=True)
+
+        resources_path = base_path / "resources"
+        resources_path.mkdir(parents=True, exist_ok=True)
+
+        resource_trav = importlib.resources.files(
+            "bm_tools.templates.html.resources",
+        )
+
+        for file in resource_trav.iterdir():
+            (resources_path / file.name).write_bytes(file.read_bytes())
+
+        self._stream = (base_path / "index.html").open(mode="w", encoding="utf-8")
+        lang = {"syriac": "syr", "hebrew": "heb"}[self._alphabet]
+
+        css = (
+            '<meta content="text/html;charset=utf-8" http-equiv="Content-Type">'
+            '<meta content="utf-8" http-equiv="encoding">'
+            f"<link rel='stylesheet' href='resources/{lang}.css'>"
+        )
+
+        print(
+            f"<html dir='rtl' lang='{lang}'>{css}<head></head><body>",
+            file=self._stream,
         )
 
     def end_mod(self) -> None:
         """End the module."""
         if self._stream is None:
-            return
+            raise RuntimeError("Can't end module without starting it")
+
+        print("</body></html>", file=self._stream)
 
         self._stream.close()
 
@@ -49,7 +74,7 @@ class RenderBibleMarkdown:
         if self._stream is None:
             raise RuntimeError("Can't start a book without starting a module")
 
-        print(f"# {self._book}\n", file=self._stream)
+        print(f"<h1>{self._book}</h1>", file=self._stream)
 
     def end_book(self) -> None:
         """End the current book."""
@@ -62,7 +87,7 @@ class RenderBibleMarkdown:
         if self._stream is None:
             raise RuntimeError("Can't start a chapter without starting a module")
 
-        print(f"## Chapter {self._chapter}\n", file=self._stream)
+        print(f"<h2>Chapter {self._chapter}</h2>", file=self._stream)
 
     def end_chapter(self) -> None:
         """End the current book chapter."""
@@ -81,7 +106,7 @@ class RenderBibleMarkdown:
             raise RuntimeError("Can't start a verse without starting a module")
 
         print(
-            f"&#x202b;*{self._verse}* {text}\n",
+            f"<p><b>{self._verse}</b> {text}</p>",
             file=self._stream,
         )
 

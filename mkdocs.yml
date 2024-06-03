@@ -4,7 +4,7 @@ site_url: "https://machshev.github.io/aramaic-bible-modules"
 repo_url: "https://github.com/machshev/aramaic-bible-modules"
 repo_name: "machshev/aramaic-bible-modules"
 site_dir: "site"
-watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, src/abm_tools]
+watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, src/bm_tools]
 copyright: Copyright &copy; 2024 David James McCorrie
 edit_uri: edit/main/docs/
 
@@ -21,7 +21,7 @@ nav:
   - License: license.md
 # defer to gen-files + literate-nav
 - API reference:
-  - abm_tools: reference/
+  - bm_tools: reference/
 - Development:
   - Contributing: contributing.md
   - Coverage report: coverage.md

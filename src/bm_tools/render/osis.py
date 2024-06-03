@@ -17,9 +17,9 @@ to find a way of doing that without depending on arbitrary binaries.
 from pathlib import Path
 from typing import TextIO
 
-from abm_tools.sedra.bible import book_name
-from abm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
-from abm_tools.templates import get_template
+from bm_tools.sedra.bible import book_name
+from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from bm_tools.templates import get_template
 
 # ruff: noqa: TRY003
 

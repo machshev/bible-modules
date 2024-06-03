@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from abm_tools.errors import InvalidOptionError
+from bm_tools.errors import InvalidOptionError
 
 __all__ = (
     "parse_sedra3_words_db_file",

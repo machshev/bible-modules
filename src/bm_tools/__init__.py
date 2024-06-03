@@ -1,4 +1,4 @@
-"""abm_tools package.
+"""bm_tools package.
 
 aramaic bible module tools
 """

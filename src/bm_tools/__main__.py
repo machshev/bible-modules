@@ -1,4 +1,4 @@
-"""Entry-point module, in case you use `python -m abm_tools`.
+"""Entry-point module, in case you use `python -m bm_tools`.
 
 Why does this file exist, and why `__main__`? For more info, read:
 
@@ -8,7 +8,7 @@ Why does this file exist, and why `__main__`? For more info, read:
 
 import sys
 
-from abm_tools.cli import main
+from bm_tools.cli import main
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

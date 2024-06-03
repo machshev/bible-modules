@@ -5,7 +5,7 @@
 groups = ["default", "ci-quality", "ci-tests", "docs", "duty", "maintain", "quality", "security", "tests", "typing"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:22727acc67435ff7b402a84b2f984ab16687ff64128cfe389f99375935f5cba9"
+content_hash = "sha256:b939cf0c4a7e651b8f8a9d29b5923852d851cda17fee3646cb1808db63868b88"
 
 [[package]]
 name = "annotated-types"

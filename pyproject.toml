@@ -3,8 +3,8 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [project]
-name = "abm-tools"
-description = "aramaic bible module tools"
+name = "bm-tools"
+description = "Bible modules tools"
 authors = [{name = "David James McCorrie", email = "djmccorrie@gmail.com"}]
 license = {text = "Apache-2.0"}
 readme = "README.md"
@@ -29,16 +29,16 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://machshev.github.io/aramaic-bible-modules"
-Documentation = "https://machshev.github.io/aramaic-bible-modules"
-Changelog = "https://machshev.github.io/aramaic-bible-modules/changelog"
-Repository = "https://github.com/machshev/aramaic-bible-modules"
-Issues = "https://github.com/machshev/aramaic-bible-modules/issues"
-Discussions = "https://github.com/machshev/aramaic-bible-modules/discussions"
+Homepage = "https://machshev.github.io/bible-modules"
+Documentation = "https://machshev.github.io/bible-modules"
+Changelog = "https://machshev.github.io/bible-modules/changelog"
+Repository = "https://github.com/machshev/bible-modules"
+Issues = "https://github.com/machshev/bible-modules/issues"
+Discussions = "https://github.com/machshev/bible-modules/discussions"
 Funding = "https://github.com/sponsors/machshev"
 
 [project.scripts]
-abm-tools = "abm_tools.cli:main"
+bm-tools = "bm_tools.cli:main"
 
 [tool.pdm]
 version = {source = "scm"}
@@ -52,8 +52,8 @@ editable-backend = "editables"
 
 [tool.pdm.dev-dependencies]
 duty = ["duty>=0.10"]
-ci-quality = ["abm-tools[duty,docs,quality,typing,security]"]
-ci-tests = ["abm-tools[duty,tests]"]
+ci-quality = ["bm-tools[duty,docs,quality,typing,security]"]
+ci-tests = ["bm-tools[duty,tests]"]
 docs = [
     "black>=23.9",
     "markdown-callouts>=0.3",
@@ -212,7 +212,7 @@ docstring-quotes = "double"
 ban-relative-imports = "all"
 
 [tool.ruff.isort]
-known-first-party = ["abm_tools"]
+known-first-party = ["bm_tools"]
 
 [tool.ruff.pydocstyle]
 convention = "google"

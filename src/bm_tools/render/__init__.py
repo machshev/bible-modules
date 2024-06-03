@@ -2,13 +2,13 @@
 
 from pathlib import Path
 
-from abm_tools.errors import InvalidOptionError
-from abm_tools.render.html import RenderBibleHTML
-from abm_tools.render.interface import BibleRenderer
-from abm_tools.render.md import RenderBibleMarkdown
-from abm_tools.render.osis import RenderBibleOSIS
-from abm_tools.render.vpl import RenderBibleVPL
-from abm_tools.sedra.bible import SEDRAPassageRef, parse_bible_cache_file
+from bm_tools.errors import InvalidOptionError
+from bm_tools.render.html import RenderBibleHTML
+from bm_tools.render.interface import BibleRenderer
+from bm_tools.render.md import RenderBibleMarkdown
+from bm_tools.render.osis import RenderBibleOSIS
+from bm_tools.render.vpl import RenderBibleVPL
+from bm_tools.sedra.bible import SEDRAPassageRef, parse_bible_cache_file
 
 __all__ = ("render_bible",)
 
