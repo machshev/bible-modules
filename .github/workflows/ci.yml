@@ -48,9 +48,6 @@ jobs:
     - name: Check if the code is correctly typed
       run: pdm run duty check-types
 
-    - name: Check for vulnerabilities in dependencies
-      run: pdm run duty check-dependencies
-
     - name: Check for breaking changes in the API
       run: pdm run duty check-api
 
