@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from duty import duty
-from duty.callables import coverage, lazy, mkdocs, mypy, pytest, ruff, safety
+from duty.callables import coverage, lazy, mkdocs, mypy, pytest, ruff
 
 if TYPE_CHECKING:
     from duty.context import Context
@@ -104,18 +104,7 @@ def check_dependencies(ctx: Context) -> None:
     Parameters:
         ctx: The context instance (passed automatically).
     """
-    # retrieve the list of dependencies
-    requirements = ctx.run(
-        ["pdm", "export", "-f", "requirements", "--without-hashes"],
-        title="Exporting dependencies as requirements",
-        allow_overrides=False,
-    )
-
-    ctx.run(
-        safety.check(requirements),
-        title="Checking dependencies",
-        command="pdm export -f requirements --without-hashes | safety check --stdin",
-    )
+    ctx.run("safety scan")
 
 
 @duty

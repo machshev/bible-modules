@@ -68,6 +68,10 @@ docs = [
     "mkdocstrings[python]>=0.23",
     "tomli>=2.0; python_version < '3.11'",
 ]
+lsp = [
+    "python-lsp-server[all]>=1.11.0",
+    "python-lsp-ruff>=2.2.1"
+]
 maintain = [
     "black>=23.9",
     "blacken-docs>=1.16",
