@@ -37,21 +37,15 @@ def modules(ctx: Context) -> None:
     Parameters:
         ctx: The context instance (passed automatically).
     """
-    from bm_tools.render import render_bible
+    from bm_tools.render import render_all
 
-    for fmt in ("vpl", "md", "html", "osis"):
-        for alphabet in ("hebrew", "syriac"):
-            mod_name = f"BFBS_abm_{alphabet}"
-            ctx.run(
-                render_bible,
-                kwargs={
-                    "mod_name": mod_name,
-                    "alphabet": alphabet,
-                    "fmt": fmt,
-                    "output_path": Path("./output"),
-                },
-                title=f"Generating bible module {mod_name} in {fmt} format",
-            )
+    ctx.run(
+        render_all,
+        kwargs={
+            "output_path": Path("./output"),
+        },
+        title="Generating all supported bible modules",
+    )
 
 
 @duty

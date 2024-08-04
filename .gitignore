@@ -19,3 +19,12 @@ __pypackages__/
 .venv/
 .cache/
 output/
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml

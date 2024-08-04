@@ -56,7 +56,7 @@ def _interpreter_name_version() -> tuple[str, str]:
     return "", "0.0.0"
 
 
-def get_version(dist: str = "abm-tools") -> str:
+def get_version(dist: str = "bm-tools") -> str:
     """Get version of the given distribution.
 
     Parameters:
@@ -78,10 +78,10 @@ def get_debug_info() -> Environment:
         Environment information.
     """
     py_name, py_version = _interpreter_name_version()
-    packages = ["abm-tools"]
+    packages = ["bm-tools"]
     variables = [
         "PYTHONPATH",
-        *[var for var in os.environ if var.startswith("ABM_TOOLS")],
+        *[var for var in os.environ if var.startswith("BM_TOOLS")],
     ]
     return Environment(
         interpreter_name=py_name,

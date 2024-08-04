@@ -1,12 +1,7 @@
 """Templates for bible modules."""
 
-from jinja2 import (
-    Environment,
-    PackageLoader,
-    StrictUndefined,
-    Template,
-    select_autoescape,
-)
+from jinja2 import (Environment, PackageLoader, StrictUndefined, Template,
+                    select_autoescape)
 
 __all__ = ("get_template",)
 

@@ -3,12 +3,9 @@
 import pytest
 from hamcrest import assert_that, calling, equal_to, raises
 
-from bm_tools.sedra.bible import (
-    SEDRAPassageRef,
-    WordRefTuple,
-    _parse_sedra3_word_address,
-    _parse_sedra3_word_ref,
-)
+from bm_tools.sedra.bible import (SEDRAPassageRef, WordRefTuple,
+                                  _parse_sedra3_word_address,
+                                  _parse_sedra3_word_ref)
 
 # ruff: noqa: D205
 

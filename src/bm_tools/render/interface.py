@@ -1,6 +1,16 @@
 """Renderer interfaces."""
 
+from collections.abc import Iterable
 from typing import Protocol
+
+from bm_tools.bible import BibleVerseEntryTuple
+
+
+class SourceTextReader(Protocol):
+    """Protocol used to read bible source texts."""
+
+    def readlines() -> Iterable[BibleVerseEntryTuple]:
+        """Read each verse."""
 
 
 class BibleRenderer(Protocol):

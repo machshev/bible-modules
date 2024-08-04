@@ -17,42 +17,11 @@ to find a way of doing that without depending on arbitrary binaries.
 from pathlib import Path
 from typing import TextIO
 
-from bm_tools.sedra.bible import book_name
+from bm_tools.bible import BOOK_ABREV, book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 from bm_tools.templates import get_template
 
 # ruff: noqa: TRY003
-
-
-BOOK_ABREV = {
-    "Matthew": "Matt",
-    "Mark": "Mark",
-    "Luke": "Luke",
-    "John": "John",
-    "Acts": "Acts",
-    "Romans": "Rom",
-    "1 Corinthians": "1Cor",
-    "2 Corinthians": "2Cor",
-    "Galatians": "Gal",
-    "Ephesians": "Eph",
-    "Philippians": "Phil",
-    "Colossians": "Col",
-    "1 Thessalonians": "1Thess",
-    "2 Thessalonians": "2Thess",
-    "1 Timothy": "1Tim",
-    "2 Timothy": "2Tim",
-    "Titus": "Titus",
-    "Philemon": "Phlm",
-    "Hebrews": "Heb",
-    "James": "Jas",
-    "1 Peter": "1Pet",
-    "2 Peter": "2Pet",
-    "1 John": "1John",
-    "2 John": "2John",
-    "3 John": "3John",
-    "Jude": "Jude",
-    "Revelation": "Rev",
-}
 
 
 class RenderBibleOSIS:

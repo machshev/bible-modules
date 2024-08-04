@@ -16,7 +16,7 @@ Genesis 1:2 And the earth was without form, and void; and darkness was upon ...
 from pathlib import Path
 from typing import TextIO
 
-from bm_tools.sedra.bible import book_name
+from bm_tools.bible import book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
 # ruff: noqa: TRY003
