@@ -11,11 +11,8 @@ pip-wheel-metadata/
 .pytest_cache/
 .mypy_cache/
 site/
-pdm.lock
-pdm.toml
-.pdm-plugins/
-.pdm-python
 __pypackages__/
 .venv/
 .cache/
 output/
+.direnv/
