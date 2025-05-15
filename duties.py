@@ -75,7 +75,7 @@ def changelog(ctx: Context) -> None:
         "check-api",
     ],
 )
-def check(ctx: Context) -> None:  # noqa: ARG001
+def check(ctx: Context) -> None:
     """Check it all!
 
     Parameters:

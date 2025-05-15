@@ -5,10 +5,7 @@ from pathlib import Path
 
 from logzero import logger
 
-from bm_tools.sedra.bible import book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
-
-# ruff: noqa: TRY003
 
 
 class RenderBibleHaqor:

@@ -21,9 +21,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 __all__ = (
-    "parse_sedra3_bible_db_file",
-    "book_name",
     "SEDRAPassageRef",
+    "book_name",
+    "parse_sedra3_bible_db_file",
 )
 
 
@@ -110,7 +110,8 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
         starting at 52 for the gospel of Matthew.
     """
     if len(word_ref) != SEDRA_WORD_REF_LEN:
-        raise ValueError(f"Expected word_ref of {SEDRA_WORD_REF_LEN} characters")
+        msg = f"Expected word_ref of {SEDRA_WORD_REF_LEN} characters"
+        raise ValueError(msg)
 
     book = int(word_ref[0:2])
     chapter = int(word_ref[2:4])
@@ -137,14 +138,15 @@ def _parse_sedra3_word_address(word_address: str) -> int:
     address_as_hex = hex(int(word_address))
 
     if address_as_hex[0:3] != "0x2":
-        raise ValueError("Expected SEDRA3 DB FILE_NUMBER is 0x2")
+        msg = "Expected SEDRA3 DB FILE_NUMBER is 0x2"
+        raise ValueError(msg)
 
     return int(address_as_hex[3:], 16)
 
 
 def parse_sedra3_bible_db_file(
     file_name: str = "./SEDRA/BFBS.TXT",
-) -> Generator[WordEntryTuple, None, None]:
+) -> Generator[WordEntryTuple]:
     """Import a bible text from SEDRA 3 style DB.
 
     Note: the words on each row are not contiguous. There are words at the end
@@ -157,7 +159,7 @@ def parse_sedra3_bible_db_file(
     Yield:
         one word entry
     """
-    with open(file_name, encoding="utf-8") as bible_file:
+    with Path(file_name).open(encoding="utf-8") as bible_file:
         for line in bible_file:
             columns = line.strip().split(",")
 
@@ -216,7 +218,7 @@ def gen_bible_cache_file() -> None:
                     f.write(f"{book_id},{chapter_id},{verse_id},{verse_text}\n")
 
 
-def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple, None, None]:
+def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple]:
     """Parse the bible cache file."""
     cache_path = Path("./SEDRA/BFBS.cache")
 

@@ -2,6 +2,7 @@
   description = "Nix development environment";
 
   inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
 
     pyproject-nix.url = "github:nix-community/pyproject.nix";
@@ -19,7 +20,6 @@
       inputs.uv2nix.follows = "uv2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
   outputs = {
@@ -42,53 +42,53 @@
 
       pyprojectOverrides = _final: _prev: {
         bm-tools = _prev.bm-tools.overrideAttrs (old: {
-          passthru = old.passthru // {
-            # Put all tests in the passthru.tests attribute set.
-            # Nixpkgs also uses the passthru.tests mechanism for ofborg test discovery.
-            #
-            # For usage with Flakes we will refer to the passthru.tests attributes to construct the flake checks attribute set.
-            tests =
-              let
+          passthru =
+            old.passthru
+            // {
+              # Put all tests in the passthru.tests attribute set.
+              # Nixpkgs also uses the passthru.tests mechanism for ofborg test discovery.
+              #
+              # For usage with Flakes we will refer to the passthru.tests attributes to construct the flake checks attribute set.
+              tests = let
                 # Construct a virtual environment with only the test dependency-group enabled for testing.
                 virtualenv = _final.mkVirtualEnv "bm-tools-pytest-env" {
-                  bm-tools = [ "test" ];
+                  bm-tools = ["test"];
                 };
-
               in
-              (old.tests or { })
-              // {
-                pytest = pkgs.stdenv.mkDerivation {
-                  name = "bm-tools";
-                  inherit (_final.bm-tools) src;
-                  nativeBuildInputs = [
-                    virtualenv
-                  ];
-                  dontConfigure = true;
+                (old.tests or {})
+                // {
+                  pytest = pkgs.stdenv.mkDerivation {
+                    name = "bm-tools";
+                    inherit (_final.bm-tools) src;
+                    nativeBuildInputs = [
+                      virtualenv
+                    ];
+                    dontConfigure = true;
 
-                  # Because this package is running tests, and not actually building the main package
-                  # the build phase is running the tests.
-                  #
-                  # In this particular example we also output a HTML coverage report, which is used as the build output.
-                  buildPhase = ''
-                    runHook preBuild
-                    pytest --cov-report html
-                    runHook postBuild
-                  '';
+                    # Because this package is running tests, and not actually building the main package
+                    # the build phase is running the tests.
+                    #
+                    # In this particular example we also output a HTML coverage report, which is used as the build output.
+                    buildPhase = ''
+                      runHook preBuild
+                      pytest --cov-report html
+                      runHook postBuild
+                    '';
 
-                  # Install the HTML coverage report into the build output.
-                  #
-                  # If you wanted to install multiple test output formats such as TAP outputs
-                  # you could make this derivation a multiple-output derivation.
-                  #
-                  # See https://nixos.org/manual/nixpkgs/stable/#chap-multiple-output for more information on multiple outputs.
-                  installPhase = ''
-                    runHook preInstall
-                    mv htmlcov $out
-                    runHook postInstall
-                  '';
+                    # Install the HTML coverage report into the build output.
+                    #
+                    # If you wanted to install multiple test output formats such as TAP outputs
+                    # you could make this derivation a multiple-output derivation.
+                    #
+                    # See https://nixos.org/manual/nixpkgs/stable/#chap-multiple-output for more information on multiple outputs.
+                    installPhase = ''
+                      runHook preInstall
+                      mv htmlcov $out
+                      runHook postInstall
+                    '';
+                  };
                 };
-              };
-          };
+            };
         });
       };
 

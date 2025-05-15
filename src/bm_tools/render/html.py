@@ -7,8 +7,6 @@ from typing import TextIO
 from bm_tools.sedra.bible import book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
-# ruff: noqa: TRY003
-
 
 class RenderBibleHTML:
     """Renderer using plain text HTML format."""
@@ -61,7 +59,8 @@ class RenderBibleHTML:
     def end_mod(self) -> None:
         """End the module."""
         if self._stream is None:
-            raise RuntimeError("Can't end module without starting it")
+            msg = "Can't end module without starting it"
+            raise RuntimeError(msg)
 
         print("</body></html>", file=self._stream)
 
@@ -72,7 +71,8 @@ class RenderBibleHTML:
         self._book = book_name(number)
 
         if self._stream is None:
-            raise RuntimeError("Can't start a book without starting a module")
+            msg = "Can't start a book without starting a module"
+            raise RuntimeError(msg)
 
         print(f"<h1>{self._book}</h1>", file=self._stream)
 
@@ -85,7 +85,8 @@ class RenderBibleHTML:
         self._chapter = number
 
         if self._stream is None:
-            raise RuntimeError("Can't start a chapter without starting a module")
+            msg = "Can't start a chapter without starting a module"
+            raise RuntimeError(msg)
 
         print(f"<h2>Chapter {self._chapter}</h2>", file=self._stream)
 
@@ -103,7 +104,8 @@ class RenderBibleHTML:
         self._words.clear()
 
         if self._stream is None:
-            raise RuntimeError("Can't start a verse without starting a module")
+            msg = "Can't start a verse without starting a module"
+            raise RuntimeError(msg)
 
         print(
             f"<p><b>{self._verse}</b> {text}</p>",

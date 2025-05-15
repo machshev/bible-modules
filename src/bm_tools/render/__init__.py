@@ -26,7 +26,8 @@ _BIBLE_RENDERERS: list[str] = [
 def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRenderer:
     """Get bible renderer."""
     if fmt not in _BIBLE_RENDERERS:
-        raise InvalidOptionError("BibleRenderer", _BIBLE_RENDERERS, fmt)
+        msg = "BibleRenderer"
+        raise InvalidOptionError(msg, _BIBLE_RENDERERS, fmt)
 
     if fmt == "haqor":
         return RenderBibleHaqor(
@@ -57,7 +58,8 @@ def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRend
             alphabet=alphabet,
         )
 
-    raise TypeError("Format type not handled")
+    msg = "Format type not handled"
+    raise TypeError(msg)
 
 
 def notify_state_changed(

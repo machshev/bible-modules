@@ -19,8 +19,6 @@ from typing import TextIO
 from bm_tools.sedra.bible import book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
-# ruff: noqa: TRY003
-
 
 class RenderBibleVPL:
     """Renderer using plain text in VPL format."""
@@ -81,7 +79,8 @@ class RenderBibleVPL:
         self._words.clear()
 
         if self._stream is None:
-            raise RuntimeError("Can't start a verse without starting a module")
+            msg = "Can't start a verse without starting a module"
+            raise RuntimeError(msg)
 
         print(
             f"{self._book} {self._chapter}:{self._verse} {text}",

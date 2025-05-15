@@ -21,9 +21,6 @@ from bm_tools.sedra.bible import book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 from bm_tools.templates import get_template
 
-# ruff: noqa: TRY003
-
-
 BOOK_ABREV = {
     "Matthew": "Matt",
     "Mark": "Mark",
@@ -152,7 +149,8 @@ class RenderBibleOSIS:
         self._verse = number
 
         if self._stream is None:
-            raise RuntimeError("Can't start a verse without starting a module")
+            msg = "Can't start a verse without starting a module"
+            raise RuntimeError(msg)
 
         ref = f"{self._book}.{self._chapter}.{self._verse}"
 
@@ -164,7 +162,8 @@ class RenderBibleOSIS:
     def end_verse(self) -> None:
         """End the verse."""
         if self._stream is None:
-            raise RuntimeError("Can't start a verse without starting a module")
+            msg = "Can't start a verse without starting a module"
+            raise RuntimeError(msg)
 
         ref = f"{self._book}.{self._chapter}.{self._verse}"
 

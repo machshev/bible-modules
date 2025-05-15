@@ -10,12 +10,12 @@ import requests
 from bm_tools.errors import InvalidOptionError
 
 __all__ = (
-    "parse_sedra3_words_db_file",
-    "parse_sedra3_english_db_file",
-    "parse_sedra3_roots_db_file",
-    "parse_sedra3_lexemes_db_file",
-    "sedra4_db_word_json",
     "from_transliteration",
+    "parse_sedra3_english_db_file",
+    "parse_sedra3_lexemes_db_file",
+    "parse_sedra3_roots_db_file",
+    "parse_sedra3_words_db_file",
+    "sedra4_db_word_json",
 )
 
 # ruff: noqa: RUF001

@@ -6,8 +6,6 @@ from typing import TextIO
 from bm_tools.sedra.bible import book_name
 from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
 
-# ruff: noqa: TRY003
-
 
 class RenderBibleMarkdown:
     """Renderer using plain text in Markdown format."""
@@ -47,7 +45,8 @@ class RenderBibleMarkdown:
         self._book = book_name(number)
 
         if self._stream is None:
-            raise RuntimeError("Can't start a book without starting a module")
+            msg = "Can't start a book without starting a module"
+            raise RuntimeError(msg)
 
         print(f"# {self._book}\n", file=self._stream)
 
@@ -60,7 +59,8 @@ class RenderBibleMarkdown:
         self._chapter = number
 
         if self._stream is None:
-            raise RuntimeError("Can't start a chapter without starting a module")
+            msg = "Can't start a chapter without starting a module"
+            raise RuntimeError(msg)
 
         print(f"## Chapter {self._chapter}\n", file=self._stream)
 
@@ -78,7 +78,8 @@ class RenderBibleMarkdown:
         self._words.clear()
 
         if self._stream is None:
-            raise RuntimeError("Can't start a verse without starting a module")
+            msg = "Can't start a verse without starting a module"
+            raise RuntimeError(msg)
 
         print(
             f"&#x202b;*{self._verse}* {text}\n",

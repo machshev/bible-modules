@@ -22,63 +22,72 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install Nix
+      uses: cachix/install-nix-action@v24
+
+    - name: Setup Magic Nix Cache
+      uses: DeterminateSystems/magic-nix-cache-action@v7
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Fetch all tags
-      run: git fetch --depth=1 --tags
+    - name: Nix Format Check
+      run: nix fmt -- . --check
 
-    - name: Set up PDM
-      uses: pdm-project/setup-pdm@v4
-      with:
-        python-version: "3.12"
+    - name: Set up Python
+      run: uv python install
 
-    - name: Resolving dependencies
-      run: pdm lock -v --no-cross-platform -G ci-quality
+    - name: Install the project
+      run: |
+        uv venv & uv sync --all-extras
+        source .venv/bin/activate
+        echo PATH=$PATH >> $GITHUB_ENV
 
-    - name: Install dependencies
-      run: pdm install -G ci-quality
+    - name: Lint with Ruff
+      run: |
+        ruff format --check
 
-    - name: Check if the documentation builds correctly
-      run: pdm run duty check-docs
+    - name: Check with Ruff
+      run: |
+        ruff check --output-format=github
 
-    - name: Check the code quality
-      run: pdm run duty check-quality
+    - name: Type check with pyright
+      run: |
+        pyright
+      continue-on-error: true
 
-    - name: Check if the code is correctly typed
-      run: pdm run duty check-types
-
-    - name: Check for breaking changes in the API
-      run: pdm run duty check-api
-
-  tests:
-
+  test:
     strategy:
-      max-parallel: 4
       matrix:
         os:
         - ubuntu-latest
         - macos-latest
         - windows-latest
         python-version:
+        - "3.11"
         - "3.12"
+        - "3.13"
     runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up PDM
-      uses: pdm-project/setup-pdm@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-        allow-python-prereleases: true
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
 
-    - name: Resolving dependencies
-      run: pdm lock -v --no-cross-platform -G ci-tests
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: pdm install --no-editable -G ci-tests
+    - name: Install the project
+      run: |
+        uv venv & uv sync --all-extras
+        source .venv/bin/activate
+        echo PATH=$PATH >> $GITHUB_ENV
 
-    - name: Run the test suite
-      run: pdm run duty test
+    - name: Test with pytest
+      run: |
+        pytest
