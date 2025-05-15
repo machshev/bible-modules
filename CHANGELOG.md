@@ -6,6 +6,63 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [1.3.0](https://github.com/machshev/bible-modules/releases/tag/1.3.0) - 2025-05-15
+
+<small>[Compare with 1.2.0](https://github.com/machshev/bible-modules/compare/1.2.0...1.3.0)</small>
+
+### Build
+
+- nix-shell ([f3cdceb](https://github.com/machshev/bible-modules/commit/f3cdceb4d46e8affe2b246c54713b57d1124ccb2) by David James McCorrie).
+
+### Features
+
+- Initial support for Haqor bible module ([b9ed845](https://github.com/machshev/bible-modules/commit/b9ed8452e2fe6505f95deb8e33736ba3f88be465) by David James McCorrie). Signed-off-by: David James McCorrie <djmccorrie@gmail.com>
+- add UXLC src ([075e93a](https://github.com/machshev/bible-modules/commit/075e93a90be75c2a3555e25ac89f9d7e8f59eced) by David James McCorrie).
+- simple osis support with structure and word lemma ([e6e2ba5](https://github.com/machshev/bible-modules/commit/e6e2ba54e3d6e0a9c5be7895d0f456010ea64d76) by David James McCorrie).
+
+### Bug Fixes
+
+- remove safety check from the CI config as it requires registration ([63b25e7](https://github.com/machshev/bible-modules/commit/63b25e7bdff5bd957d92fd41cfdab337fcccd7ce) by David James McCorrie).
+- use Safety 3.2.0 scanning /home/david/base/bible-modules 2024-06-04 10:30:08 UTC ([8534ad6](https://github.com/machshev/bible-modules/commit/8534ad6b49a38a12ac443facda4f1683d2c54630) by David James McCorrie).
+
+### Code Refactoring
+
+- Convert to UV and add flake ([9d0ece3](https://github.com/machshev/bible-modules/commit/9d0ece363bb5bafbe1f7b7d14783c7ef5a13c61d) by David James McCorrie). Signed-off-by: David James McCorrie <djmccorrie@gmail.com>
+- rename from aramaic-bible-modules to bible-modules to broaden the project scope ([5d95af2](https://github.com/machshev/bible-modules/commit/5d95af24869ef515601a5c9c3b7fbd3b7cdaf8c5) by David James McCorrie).
+
+## [1.2.0](https://github.com/machshev/bible-modules/releases/tag/1.2.0) - 2024-04-12
+
+<small>[Compare with first commit](https://github.com/machshev/bible-modules/compare/a5f4d34d7f9d50e88fa6188df613db95ea7741ea...1.2.0)</small>
+
+### Build
+
+- significant refactor of the build scripts using copier-pdm template ([78ad8e3](https://github.com/machshev/bible-modules/commit/78ad8e388ac84e4bf3f56286ffa09126c0363cf0) by David James McCorrie).
+- add auto-changelog ([71d5ecb](https://github.com/machshev/bible-modules/commit/71d5ecb894da82b38c0279ad9f37a5e6140c0333) by David James McCorrie).
+- update the pdm lock with latest versions ([e578bca](https://github.com/machshev/bible-modules/commit/e578bcaa03f9d493cbfca03dfbff2cea34056509) by David James McCorrie).
+- update dependancy versions ([25901b6](https://github.com/machshev/bible-modules/commit/25901b6a4231172e0fa3c28d71f702bc50de73ea) by David James McCorrie).
+- fixed the pyproject.toml dep versions imported from poetry ([6f0a6d2](https://github.com/machshev/bible-modules/commit/6f0a6d2cb14eda2f24c36524220d153b4ffe8dba) by David James McCorrie).
+- add .pdm-python to .gitignore ([f6e7981](https://github.com/machshev/bible-modules/commit/f6e79813f5df38a99cd09260f69c365415c4c1d6) by David James McCorrie).
+- migrate from poetry to pdm ([6b1a92d](https://github.com/machshev/bible-modules/commit/6b1a92d18fda2a53431a234db7cb10b3ddeb8193) by David James McCorrie).
+
+### Features
+
+- add support for final forms, and improve the hebrew translit mappings ([e4407d6](https://github.com/machshev/bible-modules/commit/e4407d6ab88255182028f9156dee9fbf92016a1b) by David James McCorrie).
+- add initial support for vpl and osis ([7e901d6](https://github.com/machshev/bible-modules/commit/7e901d693f1b70da1f300722c405fbd8146e8f1d) by David James McCorrie).
+- proper syriac font in generated HTML ([021e3c3](https://github.com/machshev/bible-modules/commit/021e3c34420bb5f466c21298b005bb7dafa4a10f) by David James McCorrie).
+- add support for HTML bible module generation as well as Markdown ([c047d89](https://github.com/machshev/bible-modules/commit/c047d89cb6c0f9fd9dc7d668feed6c36f5c25fa6) by David James McCorrie).
+- generate bible text using either Hebrew/syriac unicode alphabets ([7ca9a3d](https://github.com/machshev/bible-modules/commit/7ca9a3d4eb79902c6564960466a7aec8848ca4f0) by David James McCorrie).
+
+### Bug Fixes
+
+- tests ([a769fd1](https://github.com/machshev/bible-modules/commit/a769fd15d5dd4d373675e3c6c70986315d5a99ec) by David James McCorrie).
+- ci only use 3.12 ([8e16abf](https://github.com/machshev/bible-modules/commit/8e16abfb0046a6634e5147423d92cf5f41c7abd9) by David James McCorrie).
+- add build all modules back to makefile, docs updated ([a412d8d](https://github.com/machshev/bible-modules/commit/a412d8d195cc57be39569d88b628d480473311a8) by David James McCorrie).
+- github url ([70c8fc5](https://github.com/machshev/bible-modules/commit/70c8fc525f080faa6ef7e01436c155da0b8bbd71) by David James McCorrie).
+
+### Code Refactoring
+
+- start to add some more meaningfull structure ([bb0b0b4](https://github.com/machshev/bible-modules/commit/bb0b0b45bb14d4bed041ba3af95c0f1e1a336e2b) by David James McCorrie).
+
 ## [1.2.1](https://github.com/machshev/aramaic-bible-modules/releases/tag/1.2.1) - 2024-04-12
 
 <small>[Compare with 1.2.0](https://github.com/machshev/aramaic-bible-modules/compare/1.2.0...1.2.1)</small>
