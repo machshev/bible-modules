@@ -30,6 +30,9 @@ jobs:
 
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -42,21 +45,19 @@ jobs:
 
     - name: Install the project
       run: |
-        uv venv & uv sync --all-extras
-        source .venv/bin/activate
-        echo PATH=$PATH >> $GITHUB_ENV
+        uv sync --locked --all-extras
 
     - name: Lint with Ruff
       run: |
-        ruff format --check
+        uv run ruff format --check
 
     - name: Check with Ruff
       run: |
-        ruff check --output-format=github
+        uv run ruff check --output-format=github
 
     - name: Type check with pyright
       run: |
-        pyright
+        uv run pyright
       continue-on-error: true
 
   test:
@@ -78,16 +79,17 @@ jobs:
 
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
 
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
 
     - name: Install the project
       run: |
-        uv venv & uv sync --all-extras
-        source .venv/bin/activate
-        echo PATH=$PATH >> $GITHUB_ENV
+        uv sync --locked --all-extras
 
     - name: Test with pytest
       run: |
-        pytest
+        uv run pytest
