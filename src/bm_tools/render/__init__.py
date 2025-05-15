@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from bm_tools.errors import InvalidOptionError
+from bm_tools.render.haqor import RenderBibleHaqor
 from bm_tools.render.html import RenderBibleHTML
 from bm_tools.render.interface import BibleRenderer
 from bm_tools.render.md import RenderBibleMarkdown
@@ -18,6 +19,7 @@ _BIBLE_RENDERERS: list[str] = [
     "md",
     "html",
     "osis",
+    "haqor",
 ]
 
 
@@ -25,6 +27,11 @@ def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRend
     """Get bible renderer."""
     if fmt not in _BIBLE_RENDERERS:
         raise InvalidOptionError("BibleRenderer", _BIBLE_RENDERERS, fmt)
+
+    if fmt == "haqor":
+        return RenderBibleHaqor(
+            output_path=output_path,
+        )
 
     if fmt in ["txt", "vpl"]:
         return RenderBibleVPL(

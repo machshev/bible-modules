@@ -125,6 +125,7 @@
             pkgs.uv
             pkgs.ruff
             pkgs.pyright
+            pkgs.sqlitebrowser
           ];
           env =
             {
