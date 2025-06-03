@@ -145,7 +145,7 @@ def _parse_sedra3_word_address(word_address: str) -> int:
 
 
 def parse_sedra3_bible_db_file(
-    file_name: str = "./SEDRA/BFBS.TXT",
+    file_name: str = "./src_texts/SEDRA/BFBS.TXT",
 ) -> Generator[WordEntryTuple]:
     """Import a bible text from SEDRA 3 style DB.
 
@@ -205,7 +205,7 @@ def gen_bible_cache_file() -> None:
     """Generate the bible cache file."""
     bible_struct = _create_bible_structure()
 
-    with Path("./SEDRA/BFBS.cache").open(mode="w", encoding="utf-8") as f:
+    with Path("./src_texts/SEDRA/BFBS.cache").open(mode="w", encoding="utf-8") as f:
         for book_id in sorted(bible_struct.keys()):
             for chapter_id in sorted(bible_struct[book_id].keys()):
                 for verse_id in sorted(bible_struct[book_id][chapter_id].keys()):
@@ -220,7 +220,7 @@ def gen_bible_cache_file() -> None:
 
 def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple]:
     """Parse the bible cache file."""
-    cache_path = Path("./SEDRA/BFBS.cache")
+    cache_path = Path("./src_texts/SEDRA/BFBS.cache")
 
     if not cache_path.is_file():
         gen_bible_cache_file()

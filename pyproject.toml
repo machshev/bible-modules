@@ -174,7 +174,7 @@ sections = ["build", "deps", "feat", "fix", "refactor"]
 template = "keepachangelog"
 
 [tool.pytest.ini_options]
-addopts = "--cov=bm-tools --cov-report term-missing"
+addopts = "--cov=bm_tools --cov-report term-missing"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]

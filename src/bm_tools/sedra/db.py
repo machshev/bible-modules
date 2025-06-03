@@ -113,7 +113,7 @@ TRANSLIT_MAPS = {
 
 def sedra4_db_word_json(word_id: int) -> dict:
     """Request word lookup from SEDRA4 DB."""
-    word_json_path = Path(f"words/{word_id}.json")
+    word_json_path = Path(f"src_texts/sedra4_cache/{word_id}.json")
 
     # Use cache version if it exists
     if word_json_path.is_file():
@@ -168,7 +168,9 @@ def from_transliteration(string: str, alphabet: str) -> str:
 
 
 @lru_cache(maxsize=2)
-def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.DataFrame:
+def parse_sedra3_words_db_file(
+    file_name: str = "src_texts/SEDRA/tblWords.txt",
+) -> pd.DataFrame:
     """Import a words db file from SEDRA 3 style DB as a pandas DataFrame.
 
     Args:
@@ -182,7 +184,7 @@ def parse_sedra3_words_db_file(file_name: str = "SEDRA/tblWords.txt") -> pd.Data
 
 @lru_cache(maxsize=2)
 def parse_sedra3_english_db_file(
-    file_name: str = "SEDRA/tblEnglish.txt",
+    file_name: str = "src_texts/SEDRA/tblEnglish.txt",
 ) -> pd.DataFrame:
     """Import a english db file from SEDRA 3 style DB as a pandas DataFrame.
 
@@ -196,7 +198,9 @@ def parse_sedra3_english_db_file(
 
 
 @lru_cache(maxsize=2)
-def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.DataFrame:
+def parse_sedra3_roots_db_file(
+    file_name: str = "src_texts/SEDRA/tblRoots.txt",
+) -> pd.DataFrame:
     """Import a roots db file from SEDRA 3 style DB as a pandas DataFrame.
 
     Args:
@@ -210,7 +214,7 @@ def parse_sedra3_roots_db_file(file_name: str = "SEDRA/tblRoots.txt") -> pd.Data
 
 @lru_cache(maxsize=2)
 def parse_sedra3_lexemes_db_file(
-    file_name: str = "SEDRA/tblLexemes.txt",
+    file_name: str = "src_texts/SEDRA/tblLexemes.txt",
 ) -> pd.DataFrame:
     """Import a lexemes db file from SEDRA 3 style DB as a pandas DataFrame.
 

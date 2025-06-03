@@ -66,7 +66,3 @@ def test_parse_sedra3_word_address(word_address: str, expected_id: int) -> None:
         _parse_sedra3_word_address(word_address),
         equal_to(expected_id),
     )
-
-
-def test_parse_sedra3_bible_db_file() -> None:
-    """Test that ..."""
