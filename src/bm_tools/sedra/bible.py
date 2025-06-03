@@ -7,11 +7,11 @@ file needs to be parsed to ensure all the words in each verse are accounted for.
 
 Given that, we will create an in memory structure containing all of the words in
 the peshitta. Making no assumptions on the number of words or the relative
-positions. Then post process that data structure to export an intemediate file
+positions. Then post process that data structure to export an intermediate file
 that does conform to these basic assumptions. This should speed up multiple
 module generation but slow down individual module generation the first time.
 
-Given the source files are not changing, the intemediate format will also be
+Given the source files are not changing, the intermediate format will also be
 checked in. Although it should be possible to regenerate it from the original
 files.
 """
