@@ -126,6 +126,8 @@
             pkgs.ruff
             pkgs.pyright
             pkgs.sqlitebrowser
+            pkgs.python313Packages.ipython
+            pkgs.python313Packages.ipdb
           ];
           env =
             {
@@ -133,6 +135,8 @@
               UV_PYTHON_DOWNLOADS = "never";
               # Force uv to use nixpkgs Python interpreter
               UV_PYTHON = python.interpreter;
+              # Make breakpoint() use ipdb instead of the builtin pdb
+              PYTHONBREAKPOINT = "ipdb.set_trace";
             }
             // lib.optionalAttrs pkgs.stdenv.isLinux {
               LD_LIBRARY_PATH = lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;
