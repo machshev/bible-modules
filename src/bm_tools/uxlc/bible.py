@@ -3,22 +3,86 @@
 UXLC is an XML version of the WLC text.
 """
 
+from functools import cache
 from pathlib import Path
 from xml.etree.ElementTree import Element, parse
 
 from logzero import logger
 
 _BASE_PATH = Path("src_texts/UXLC/Books")
-BOOKS = ("Genesis", "Exodus")
+
+BOOKS = (
+    "Genesis",
+    "Exodus",
+    "Leviticus",
+    "Numbers",
+    "Deuteronomy",
+    "Joshua",
+    "Judges",
+    "1 Samuel",
+    "2 Samuel",
+    "1 Kings",
+    "2 Kings",
+    "Isaiah",
+    "Jeremiah",
+    "Ezekiel",
+    "Hosea",
+    "Joel",
+    "Amos",
+    "Obadiah",
+    "Jonah",
+    "Micah",
+    "Nahum",
+    "Habakkuk",
+    "Zephaniah",
+    "Haggai",
+    "Zechariah",
+    "Malachi",
+    "1 Chronicles",
+    "2 Chronicles",
+    "Psalms",
+    "Job",
+    "Proverbs",
+    "Ruth",
+    "Song of Songs",
+    "Ecclesiastes",
+    "Lamentations",
+    "Esther",
+    "Daniel",
+    "Ezra",
+    "Nehemiah",
+)
+
+_TanachIndexET: Element | None = None
+
+
+def _get_tanach_index_element_tree() -> Element:
+    """Get the tanach index XML ElementTree from UXLC."""
+    global _TanachIndexET  # noqa: PLW0603
+
+    if _TanachIndexET is None:
+        et = parse(_BASE_PATH / "TanachIndex.xml")  # noqa: S314
+        _TanachIndexET = et.getroot()
+
+    return _TanachIndexET
 
 
 def _get_book_element_tree(name: str) -> Element:
     """Get a book XML ElementTree from UXLC."""
-    path = _BASE_PATH / f"{name}.xml"
+    filename_element = _get_tanach_index_element_tree().find(
+        f".//name[.='{name}']/../filename"
+    )
+    if filename_element is None:
+        logger.fatal("Could not find a book named %s in UXCL", name)
+        raise ValueError
+
+    filename = filename_element.text
+
+    path = _BASE_PATH / f"{filename}.xml"
 
     if not path.is_file():
         logger.warning("Book src text not found: %s", path)
-        path = _BASE_PATH / f"{name}.DH.xml"
+        path = _BASE_PATH / f"{filename}.DH.xml"
 
     if not path.is_file():
         logger.fatal("Book src text not found: %s", path)
@@ -29,20 +93,23 @@ def _get_book_element_tree(name: str) -> Element:
     return et.getroot()
 
 
-def get_book(name: str) -> dict[int, dict[int, list[str]]]:
+def get_book(name: str) -> list[list[list[str]]]:
     """Get the book text."""
     root = _get_book_element_tree(name=name)
 
+    # Store the parsed data in dict format initially as the parsing order is not
+    # neceserily garunteed.
     chapters = {}
 
     # Find all chapter elements
     for c in root.findall(".//c"):
-        c_num = c.attrib["n"]
+        c_num = int(c.attrib["n"])
 
         chapters[c_num] = {}
 
+        verses = {}
         for v in c.findall("./v"):
-            v_num = v.attrib["n"]
+            v_num = int(v.attrib["n"])
 
             words = []
             for w in v.iter():
@@ -51,6 +118,17 @@ def get_book(name: str) -> dict[int, dict[int, list[str]]]:
 
                 words.append(w.text)
 
-            chapters[c_num][v_num] = words
+            verses[v_num] = words
 
-    return chapters
+        chapters[c_num] = [v for _, v in sorted(verses.items())]
+
+    return [v for _, v in sorted(chapters.items())]
+
+
+def get_all_books() -> dict[str, list[list[list[str]]]]:
+    """Get all the books in UXLC."""
+    bible = {}
+    for book in BOOKS:
+        bible[book] = get_book(name=book)
+
+    return bible
