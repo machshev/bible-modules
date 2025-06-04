@@ -1,6 +1,5 @@
 """Render bible text into different formats."""
 
-import os
 import shutil
 from pathlib import Path
 

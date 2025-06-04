@@ -26,7 +26,7 @@ class RenderBibleHaqor:
         self._chapter: int = 0
         self._verse: int = 0
 
-    def start_mod(self, name: str) -> None:
+    def start_mod(self, name: str) -> None:  # noqa: ARG002
         """Start the module."""
         db_path = self._output_path / "haqor.db"
 

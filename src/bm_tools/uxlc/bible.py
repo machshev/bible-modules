@@ -3,7 +3,6 @@
 UXLC is an XML version of the WLC text.
 """
 
-from functools import cache
 from pathlib import Path
 from xml.etree.ElementTree import Element, parse
 
