@@ -1,6 +1,10 @@
 """Render bible text into different formats."""
 
+import os
+import shutil
 from pathlib import Path
+
+from logzero import logger
 
 from bm_tools.errors import InvalidOptionError
 from bm_tools.render.haqor import RenderBibleHaqor
@@ -20,6 +24,19 @@ _BIBLE_RENDERERS: list[str] = [
     "html",
     "osis",
     "haqor",
+]
+
+
+_ALL_MODULES: list = [
+    {"fmt": "html", "mod_name": "syriac", "alphabet": "syriac"},
+    {"fmt": "html", "mod_name": "hebrew", "alphabet": "hebrew"},
+    {"fmt": "md", "mod_name": "syriac", "alphabet": "syriac"},
+    {"fmt": "md", "mod_name": "hebrew", "alphabet": "hebrew"},
+    {"fmt": "osis", "mod_name": "syriac", "alphabet": "syriac"},
+    {"fmt": "osis", "mod_name": "hebrew", "alphabet": "hebrew"},
+    {"fmt": "vpl", "mod_name": "syriac", "alphabet": "syriac"},
+    {"fmt": "vpl", "mod_name": "hebrew", "alphabet": "hebrew"},
+    {"fmt": "haqor"},
 ]
 
 
@@ -88,19 +105,27 @@ def notify_state_changed(
 
 
 def render_bible(
-    mod_name: str,
     fmt: str,
-    alphabet: str,
     output_path: Path,
+    mod_name: str = "",
+    alphabet: str = "default",
 ) -> None:
     """Get a BibleRenderer to render a bible.
 
     Args:
-        mod_name: name of the module
         fmt: module format
-        alphabet: alphabet to use for the bible text
         output_path: path to output the module to
+        mod_name: name of the module
+        alphabet: alphabet to use for the bible text
     """
+    logger.info(
+        "Generating %s with format %s:%s in %s",
+        mod_name,
+        fmt,
+        alphabet,
+        output_path,
+    )
+
     output_path.mkdir(parents=True, exist_ok=True)
 
     renderer = _get_bible_renderer(
@@ -134,3 +159,21 @@ def render_bible(
 
     finally:
         renderer.end_mod()
+
+
+def render_all(select: list[str] | None = None) -> None:
+    """Generate all bible modules."""
+    base_path = Path("./modules")
+
+    # Remove existing generated modules and recreate the dir
+    shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
+
+    modules = _ALL_MODULES
+    if select:
+        modules = [m for m in _ALL_MODULES if m["fmt"] in select]
+
+    for spec in modules:
+        spec["output_path"] = base_path / spec["fmt"]
+
+        render_bible(**spec)

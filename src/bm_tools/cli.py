@@ -14,8 +14,9 @@
 from pathlib import Path
 
 import click
+from logzero import logger
 
-from bm_tools.render import _BIBLE_RENDERERS, render_bible
+from bm_tools.render import _BIBLE_RENDERERS, render_all, render_bible
 from bm_tools.sedra.bible import gen_bible_cache_file
 from bm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
 
@@ -74,6 +75,28 @@ def bible(
         output_path=output_path,
         mod_name=mod_name,
     )
+
+
+@gen.command("all")
+@click.option(
+    "-s",
+    "--select",
+    "select",
+    default=None,
+    type=click.Choice(_BIBLE_RENDERERS, case_sensitive=False),
+    multiple=True,
+    help=(
+        "By default all module formats are generated, "
+        "this option limits this to the selected module format. "
+        "Provided this option multiple times to select multiple "
+        "explicit formats (or for more control use the `bm gen bible` "
+        "command instead)."
+    ),
+)
+def gen_all(select: list[str] | None) -> None:
+    """Generate all bible modules."""
+    logger.info("Generating all bible modules")
+    render_all(select=select)
 
 
 @main.group()

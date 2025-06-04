@@ -28,7 +28,7 @@ class RenderBibleHaqor:
 
     def start_mod(self, name: str) -> None:
         """Start the module."""
-        db_path = self._output_path / f"{name}.db"
+        db_path = self._output_path / "haqor.db"
 
         # remove existing db file
         db_path.unlink(missing_ok=True)
