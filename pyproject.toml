@@ -37,7 +37,7 @@ Discussions = "https://github.com/machshev/bible-modules/discussions"
 Funding = "https://github.com/sponsors/machshev"
 
 [project.scripts]
-bm-tools = "bm_tools.cli:main"
+bm = "bm_tools.cli:main"
 
 [project.optional-dependencies]
 duty = ["duty>=0.10"]
