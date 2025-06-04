@@ -5,19 +5,23 @@
 [![pypi version](https://img.shields.io/pypi/v/abm-tools.svg)](https://pypi.org/project/abm-tools/)
 [![gitpod](https://img.shields.io/badge/gitpod-workspace-blue.svg?style=flat)](https://gitpod.io/#https://github.com/machshev/bible-modules)
 
-Provides the SEDRA 3 source files and the Python based tools to generate Aramaic
-bible software modules in common formats... for example SWORD, MySWORD, E-SWORD
-modules. Rather than just providing the generated modules (which I'm hoping will
-be available from the normal module sites), I'd like to share the scripts used
-to generate them. That way if someone finds, as I have, that their preferred
-bible software doesn't have a module available... then you can use these scripts
-as a starting point to generate one.
+Initially this project started out focusing on just the Aramaic Peshitta
+modules. This is where the biggest gap was at the time. However while developing
+[Haqor](https://github.com/machshev/haqor-core) it became apparent that the
+existing Hebrew modules are also somewhat defficient in some ways. So this
+project has now expanded to include all original language bible modules. As
+well as generating a bespoke perpose built module and module format for `haqor`.
+
+The idea is to provide everything from the source texts to the pre generated
+bible modules themselves including the code to generate them. This means anyone
+can review the generation process and make improvements as required.
 
 None of this would be possible without the [source documents](#source-documents)
 generously provided free to use for all. These scripts are therefore also
-provided under the same Apache 2.0 licence, as I've done very little work on top
+provided under the Apache 2.0 licence, as I've done very little work on top
 of the many years of time and effort various people have spent compiling the
-original information.
+original information. If you need a different license for some reason then
+please open an issue and let me know.
 
 "freely ye have received, freely give." (Mat 10:8)
 
@@ -37,13 +41,18 @@ original information.
 
 <!--TOC-->
 
-## Installing
+## Pre-generated modules
 
-You will need a version of Python 3 installed to run these scripts. At the
-moment I've not got access to pypi due to an issue with 2FA and a misshap with
-my phone a few months back. However the plan is to release a package on pypi to
-make it easier to install. For the moment however installing from source is the
-only option.
+The bible modules are available pre generated in the `modules` dir of this repo.
+At some point I'll try and get them released as part of a github release
+artefact and perhaps even pushed to the various bible module registries
+automatically as part of CI.
+
+Until then just grab the files from `modules` dir. Github will provide a preview
+of the Markdown versions see [Hebrew](https://github.com/machshev/bible-modules/blob/main/modules/md/hebrew.md)
+and [Syriac](https://github.com/machshev/bible-modules/blob/main/modules/md/syriac.md).
+
+## Installing
 
 ### Clone the repository
 
@@ -54,63 +63,86 @@ git clone git@github.com:machshev/bible-modules.git
 cd bible-modules
 ```
 
-Install [pdm](https://pdm-project.org/en/latest/), the "modern python packaging
-and dependency manager", this allows us to install the versions pinned in the
-lockfile for consistent result. We use `pdm` to manage dependencies as well as
-create a virtual environment to run the scripts from with all the required
-dependencies.
+### Environment setup - the easy way
+
+If you have [nix](https://nix.dev/) and use [direnv](https://direnv.net/) then all
+you need to do is `direnv allow .` and everything will be set up for you
+automatically. You can skip the rest of this section.
+
+If you don't have these setup or haven't heard of this and would like to experience the magic:
+
+- Nix [zero-to-nix](https://zero-to-nix.com/start/install/).
+- [direnv](https://direnv.net/)
+
+(If you like these then maybe take a look at NixOS)
+
+### Environment setup
+
+First install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
-pip install pipx
-pipx install pdm
-pdm install
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### From package
-
-_Note:_ Not available right now.
-
-With `pip`:
+Create a virtual environment. This is highly recommended as it keeps python
+dependencies separate from your system Python. Otherwise you may end up updating
+system python packages to incompatible versions and break other programs, or
+doing an OS level package update (i.e. `apt` or `dnf`) will break this package
+by changing dependency versions. By using a python virtual environment all
+dependencies are kept separate.
 
 ```bash
-pip install abm-tools
+uv venv
 ```
 
-With [`pipx`](https://github.com/pipxproject/pipx):
+Install the required dependencies and this bm-tools package with a sync.
 
 ```bash
-python3.8 -m pip install --user pipx
-pipx install abm-tools
+uv sync
 ```
+
+The main part of the install is now complete. The above steps should not be
+needed again.
+
+Now you have a virtual environment you can activate it by sourcing the
+activation script. This will have to be done every time you open a new shell as
+it is essentially just setting environment variables to redirect python to the
+virtual environment instead of the system python install.
+
+```bash
+. .venv/bin/activate
+```
+
+Finally done!
+You should find the `bm` executable available in your terminal.
 
 ## Usage
 
-To generate the bible modules individually use the `bm_tools gen bible`
-command. There is help available via `--help` flag to see what formats are
-currently available.
-
-For example, this command will generate the html format using the hebrew unicode
-characters rather than the default syriac unicode characters.
+To generate all the bible modules in one go.
 
 ```bash
-abm-tools gen bible --alphabet hebrew --format html abm_hebrew ./output
+bm gen all
 ```
 
-This project is still early stages. However it's possible to generate some
-"modules"... right now that is just a Markdown or HTML export of the whole of
-the Peshitta. It's possible to select the alphabet used for this, SEDRA3 uses
-latin characters in place of the Syriac characters. These Latin characters are
-transformed to Unicode, and optionally either Syriac or Hebrew. The mappings
-seem to be correct as manually verified for the first few verses of Matthew,
-however I wouldn't be supprised if there were pointing marks that are not
-correct and those will be corrected over time with more manual checking.
-
-There is a Makefile that will auto generate the full set of available modules,
-and alphabet combinations. The output is generated in the `output` directory.
+For specific formats you can just generate the modules in the formats you want.
+As an example this generates the HTML modules.
 
 ```bash
-make modules
+bm gen all -s html
 ```
+
+For both HTML and Markdown
+
+```bash
+bm gen all -s html -s md
+```
+
+If you want more control over the generation process then take a look at
+`bm gen bible --help`.
+
+This project is still early stages and the number of formats is likely to
+increase overtime. For the currently supported module formats see the pre
+generated [modules](https://github.com/machshev/bible-modules/tree/main/modules).
 
 ## Why produce Aramaic bible modules
 
@@ -180,6 +212,8 @@ project is to make these texts more available than they currently are.
 
 ## Source documents
 
+### Peshitta and SEDRA
+
 The Peshitta NT text provided is the BFBS version that comes with the SEDRA 3
 project distribution, a crowd sourced Syriac Lexicon project. These files are
 made freely available from [Beth Mardutho](https://sedra.bethmardutho.org/).
@@ -194,9 +228,27 @@ as a living online DB that is accessible under Apache 2.0 licence (hence the
 reason this project is also using that licence) via a JSON API
 [OpenAPI](https://sedra.bethmardutho.org/about/openapi#tag/API).
 
+### UXLC
+
+The UXLC is an XML version of the WLC and provided under a bespoke [license](https://tanach.us/License.html).
+Please take a look at their site [tanach.us](https://tanach.us).
+
+```
+All biblical Hebrew text, in any format, may be viewed or copied without restriction.
+
+Citation of the Tanach.us site as the source of the text is appreciated:
+
+
+Unicode/XML Leningrad Codex: UXLC 2.3 (27.4),
+
+Tanach.us Inc., West Redding, CT, USA, April 2025.
+
+Documents with restrictions
+```
+
 ## Available Bible Modules
 
-This project aims to provide both NT text modules and also a lexicon module. For
+This project aims to provide both OT, NT modules and also a lexicon module. For
 the texts, it is intended that at least two versions be produced. The first
 using Unicode Hebrew consonants and pointing for those who are already familiar
 with Hebrew but not yet the Aramaic script, as a means of making the text more
