@@ -31,12 +31,16 @@ please open an issue and let me know.
 
 - [Bible Modules](#bible-modules)
   - [Table of Contents](#table-of-contents)
+  - [Pre-generated modules](#pre-generated-modules)
   - [Installing](#installing)
     - [Clone the repository](#clone-the-repository)
-    - [From package](#from-package)
+    - [Environment setup - the easy way](#environment-setup---the-easy-way)
+    - [Environment setup](#environment-setup)
   - [Usage](#usage)
-  - [Why produce Aramaic bible modules](#why-produce-bible-modules)
+  - [Why produce Aramaic bible modules](#why-produce-aramaic-bible-modules)
   - [Source documents](#source-documents)
+    - [Peshitta and SEDRA](#peshitta-and-sedra)
+    - [UXLC](#uxlc)
   - [Available Bible Modules](#available-bible-modules)
 
 <!--TOC-->

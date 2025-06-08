@@ -18,8 +18,6 @@ nav:
   - Overview: index.md
   - Changelog: changelog.md
   - License: license.md
-- API reference:
-  - bm_tools: reference/
 - Development:
   - Contributing: contributing.md
   - Coverage report: coverage.md

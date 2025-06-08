@@ -8,13 +8,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from duty import duty
-from duty.callables import coverage, mkdocs, pytest, ruff
+from duty.callables import coverage, mkdocs, pytest
 
 if TYPE_CHECKING:
     from duty.context import Context
 
 
-PY_SRC_PATHS = (Path(_) for _ in ("src", "tests", "duties.py", "scripts"))
+PY_SRC_PATHS = (Path(_) for _ in ("src", "tests", "duties.py"))
 PY_SRC_LIST = tuple(str(_) for _ in PY_SRC_PATHS)
 PY_SRC = " ".join(PY_SRC_LIST)
 CI = os.environ.get("CI", "0") in {"1", "true", "yes", ""}
@@ -44,11 +44,9 @@ def changelog(ctx: Context) -> None:
 
 @duty(
     pre=[
+        "format",
         "check_quality",
-        "check_types",
         "check_docs",
-        "check_dependencies",
-        "check-api",
     ],
 )
 def check(ctx: Context) -> None:
@@ -67,20 +65,9 @@ def check_quality(ctx: Context) -> None:
         ctx: The context instance (passed automatically).
     """
     ctx.run(
-        ruff.check(*PY_SRC_LIST),
+        "ruff check",
         title=pyprefix("Checking code quality"),
-        command=f"ruff check {PY_SRC}",
     )
-
-
-@duty
-def check_dependencies(ctx: Context) -> None:
-    """Check for vulnerabilities in dependencies.
-
-    Parameters:
-        ctx: The context instance (passed automatically).
-    """
-    ctx.run("safety scan")
 
 
 @duty
@@ -92,6 +79,10 @@ def check_docs(ctx: Context) -> None:
     """
     Path("htmlcov").mkdir(parents=True, exist_ok=True)
     Path("htmlcov/index.html").touch(exist_ok=True)
+    ctx.run(
+        "md_toc --in-place github README.md",
+        title=pyprefix("Regenerate TOC"),
+    )
     ctx.run(
         mkdocs.build(strict=True, verbose=True),
         title=pyprefix("Building documentation"),
@@ -134,15 +125,11 @@ def format(ctx: Context) -> None:  # noqa: A001
         ctx: The context instance (passed automatically).
     """
     ctx.run(
-        ruff.check(
-            *PY_SRC_LIST,
-            fix_only=True,
-            exit_zero=True,
-        ),
+        "ruff check --fix",
         title="Auto-fixing code",
     )
     ctx.run(
-        ruff.format(*PY_SRC_LIST),
+        "ruff format",
         title="Formatting code",
     )
 
@@ -164,7 +151,7 @@ def release(ctx: Context, version: str) -> None:
     ctx.run(f"git tag {version}", title="Tagging commit", pty=PTY)
     ctx.run("git push", title="Pushing commits", pty=False)
     ctx.run("git push --tags", title="Pushing tags", pty=False)
-    ctx.run("pdm build", title="Building dist/wheel", pty=PTY)
+    ctx.run("uv build", title="Building dist/wheel", pty=PTY)
     ctx.run("twine upload --skip-existing dist/*", title="Publishing version", pty=PTY)
 
 
@@ -176,8 +163,8 @@ def cov(ctx: Context) -> None:
         ctx: The context instance (passed automatically).
     """
     ctx.run(coverage.combine, nofail=True)
-    ctx.run(coverage.report(rcfile="config/coverage.ini"), capture=False)
-    ctx.run(coverage.html(rcfile="config/coverage.ini"))
+    ctx.run(coverage.report(), capture=False)
+    ctx.run(coverage.html())
 
 
 @duty
@@ -195,12 +182,11 @@ def test(ctx: Context, match: str = "") -> None:
             "-n",
             "auto",
             "tests",
-            config_file="config/pytest.ini",
             select=match,
             color="yes",
         ),
         title=pyprefix("Running tests"),
-        command=f"pytest -c config/pytest.ini -n auto -k{match!r} --color=yes tests",
+        command=f"pytest -n auto -k{match!r} --color=yes tests",
     )
 
 

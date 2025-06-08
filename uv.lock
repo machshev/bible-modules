@@ -100,6 +100,7 @@ ci = [
     { name = "duty" },
     { name = "markdown-callouts" },
     { name = "markdown-exec" },
+    { name = "md-toc" },
     { name = "mkdocs" },
     { name = "mkdocs-coverage" },
     { name = "mkdocs-gen-files" },
@@ -114,6 +115,7 @@ ci = [
 docs = [
     { name = "markdown-callouts" },
     { name = "markdown-exec" },
+    { name = "md-toc" },
     { name = "mkdocs" },
     { name = "mkdocs-coverage" },
     { name = "mkdocs-gen-files" },
@@ -134,6 +136,7 @@ nix = [
     { name = "git-changelog" },
     { name = "markdown-callouts" },
     { name = "markdown-exec" },
+    { name = "md-toc" },
     { name = "mkdocs" },
     { name = "mkdocs-coverage" },
     { name = "mkdocs-gen-files" },
@@ -183,6 +186,9 @@ requires-dist = [
     { name = "markdown-exec", marker = "extra == 'ci'", specifier = ">=1.7" },
     { name = "markdown-exec", marker = "extra == 'docs'", specifier = ">=1.7" },
     { name = "markdown-exec", marker = "extra == 'nix'", specifier = ">=1.7" },
+    { name = "md-toc", marker = "extra == 'ci'", specifier = ">=9.0.0" },
+    { name = "md-toc", marker = "extra == 'docs'", specifier = ">=9.0.0" },
+    { name = "md-toc", marker = "extra == 'nix'", specifier = ">=9.0.0" },
     { name = "mkdocs", marker = "extra == 'ci'", specifier = ">=1.5" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.5" },
     { name = "mkdocs", marker = "extra == 'nix'", specifier = ">=1.5" },
@@ -470,6 +476,15 @@ wheels = [
 ]
 
 [[package]]
+name = "fpyutils"
+version = "4.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/31/9441a8aa548a65d852a12c67036796691b5a90ca49ab09e4437759d9b91f/fpyutils-4.0.1.tar.gz", hash = "sha256:5ee8448b09863d5905ad22cf5f6c8af79d3b314617ac8fbded48eb2a414988e6", size = 21898, upload-time = "2023-11-08T22:06:45.319Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/ba/4a0aa00af38dde32e9b575052217b1e8d34e31106a079a74d83caafc26af/fpyutils-4.0.1-py3-none-any.whl", hash = "sha256:006cfbdbd87915d8a1c5b7062b6c8d2f4f9fd12c3e707d89c27e6abd6c67c6b2", size = 24073, upload-time = "2023-11-08T22:06:43.777Z" },
+]
+
+[[package]]
 name = "ghp-import"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -725,6 +740,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1e/ff/26df5a9f5ac57ccf693a5854916ab47243039d2aa9e0fe5f5a0331e7b74b/marshmallow-4.0.0.tar.gz", hash = "sha256:3b6e80aac299a7935cfb97ed01d1854fb90b5079430969af92118ea1b12a8d55", size = 220507, upload-time = "2025-04-17T02:25:54.925Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d6/26/6cc45d156f44dbe1d5696d9e54042e4dcaf7b946c0b86df6a97d29706f32/marshmallow-4.0.0-py3-none-any.whl", hash = "sha256:e7b0528337e9990fd64950f8a6b3a1baabed09ad17a0dfb844d701151f92d203", size = 48420, upload-time = "2025-04-17T02:25:53.375Z" },
+]
+
+[[package]]
+name = "md-toc"
+version = "9.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fpyutils" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b5/45/3ad7b820f46daa3c0b95bb972d8962a136e452d19eea07125df958cf9055/md_toc-9.0.0.tar.gz", hash = "sha256:a4e73b59f71c20b94c8c16bc6ef3bc2e80d1d40c398050101f80c3567fda7271", size = 65352, upload-time = "2024-04-10T22:12:39.052Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/0d/4b3202d4236da63d9b6b894ab7ecdbc6f6dad6e87a4970d7a22d2b315b97/md_toc-9.0.0-py3-none-any.whl", hash = "sha256:dfd57de2faf252be1d6faf9bed7eab506e1caa7c4486ab6d6d04556426d5a7a5", size = 78101, upload-time = "2024-04-10T22:12:36.754Z" },
 ]
 
 [[package]]
