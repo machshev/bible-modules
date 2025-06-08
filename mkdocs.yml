@@ -1,8 +1,8 @@
-site_name: "aramaic-bible-modules"
-site_description: "aramaic bible module tools"
-site_url: "https://machshev.github.io/aramaic-bible-modules"
-repo_url: "https://github.com/machshev/aramaic-bible-modules"
-repo_name: "machshev/aramaic-bible-modules"
+site_name: "bible-modules"
+site_description: "Bible module tools"
+site_url: "https://machshev.github.io/bible-modules"
+repo_url: "https://github.com/machshev/bible-modules"
+repo_name: "machshev/bible-modules"
 site_dir: "site"
 watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, src/bm_tools]
 copyright: Copyright &copy; 2024 David James McCorrie
@@ -19,7 +19,6 @@ nav:
   - Changelog: changelog.md
   - Credits: credits.md
   - License: license.md
-# defer to gen-files + literate-nav
 - API reference:
   - bm_tools: reference/
 - Development:
@@ -124,7 +123,7 @@ plugins:
           summary: true
 - git-committers:
     enabled: !ENV [DEPLOY, false]
-    repository: machshev/aramaic-bible-modules
+    repository: machshev/bible-modules
 - minify:
     minify_html: !ENV [DEPLOY, false]
 - group:
@@ -137,4 +136,4 @@ extra:
   - icon: fontawesome/brands/github
     link: https://github.com/machshev
   - icon: fontawesome/brands/python
-    link: https://pypi.org/project/aramaic-bible-modules/
+    link: https://pypi.org/project/bible-modules/
