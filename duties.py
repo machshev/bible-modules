@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from duty import duty
-from duty.callables import coverage, lazy, mkdocs, mypy, pytest, ruff
+from duty.callables import coverage, mkdocs, pytest, ruff
 
 if TYPE_CHECKING:
     from duty.context import Context
@@ -28,30 +28,6 @@ def pyprefix(title: str) -> str:  # noqa: D103
         prefix = f"(python{sys.version_info.major}.{sys.version_info.minor})"
         return f"{prefix:14}{title}"
     return title
-
-
-@duty
-def modules(ctx: Context) -> None:
-    """Generate the bible modules in all formats.
-
-    Parameters:
-        ctx: The context instance (passed automatically).
-    """
-    from bm_tools.render import render_bible
-
-    for fmt in ("vpl", "md", "html", "osis"):
-        for alphabet in ("hebrew", "syriac"):
-            mod_name = f"BFBS_abm_{alphabet}"
-            ctx.run(
-                render_bible,
-                kwargs={
-                    "mod_name": mod_name,
-                    "alphabet": alphabet,
-                    "fmt": fmt,
-                    "output_path": Path("./output"),
-                },
-                title=f"Generating bible module {mod_name} in {fmt} format",
-            )
 
 
 @duty
@@ -121,59 +97,6 @@ def check_docs(ctx: Context) -> None:
         title=pyprefix("Building documentation"),
         command="mkdocs build -vs",
     )
-
-
-@duty
-def check_types(ctx: Context) -> None:
-    """Check that the code is correctly typed.
-
-    Parameters:
-        ctx: The context instance (passed automatically).
-    """
-    ctx.run(
-        mypy.run(*PY_SRC_LIST, config_file="config/mypy.ini"),
-        title=pyprefix("Type-checking"),
-        command=f"mypy --config-file config/mypy.ini {PY_SRC}",
-    )
-
-
-@duty
-def check_api(ctx: Context) -> None:
-    """Check for API breaking changes.
-
-    Parameters:
-        ctx: The context instance (passed automatically).
-    """
-    from griffe.cli import check as g_check
-
-    griffe_check = lazy(g_check, name="griffe.check")
-    ctx.run(
-        griffe_check("bm_tools", search_paths=["src"], color=True),
-        title="Checking for API breaking changes",
-        command="griffe check -ssrc bm_tools",
-        nofail=True,
-    )
-
-
-@duty(silent=True)
-def clean(ctx: Context) -> None:
-    """Delete temporary files.
-
-    Parameters:
-        ctx: The context instance (passed automatically).
-    """
-    ctx.run("rm -rf .coverage*")
-    ctx.run("rm -rf .mypy_cache")
-    ctx.run("rm -rf .pytest_cache")
-    ctx.run("rm -rf tests/.pytest_cache")
-    ctx.run("rm -rf build")
-    ctx.run("rm -rf dist")
-    ctx.run("rm -rf htmlcov")
-    ctx.run("rm -rf pip-wheel-metadata")
-    ctx.run("rm -rf site")
-    ctx.run("rm -rf output")
-    ctx.run("find . -type d -name __pycache__ | xargs rm -rf")
-    ctx.run("find . -name '*.rej' -delete")
 
 
 @duty
