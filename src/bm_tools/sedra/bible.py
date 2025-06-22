@@ -16,72 +16,22 @@ checked in. Although it should be possible to regenerate it from the original
 files.
 """
 
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from bm_tools.model import Verse, VerseRef
+from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+
 __all__ = (
-    "SEDRAPassageRef",
-    "book_name",
+    "iterate_verses_nt",
     "parse_sedra3_bible_db_file",
 )
 
 
-BOOKS = (
-    "Matthew",
-    "Mark",
-    "Luke",
-    "John",
-    "Acts",
-    "Romans",
-    "1 Corinthians",
-    "2 Corinthians",
-    "Galatians",
-    "Ephesians",
-    "Philippians",
-    "Colossians",
-    "1 Thessalonians",
-    "2 Thessalonians",
-    "1 Timothy",
-    "2 Timothy",
-    "Titus",
-    "Philemon",
-    "Hebrews",
-    "James",
-    "1 Peter",
-    "2 Peter",
-    "1 John",
-    "2 John",
-    "3 John",
-    "Jude",
-    "Revelation",
-)
-
-
-@dataclass
-class SEDRAPassageRef:
-    """SEDRA bible db passage reference."""
-
-    book: int
-    chapter: int
-    verse: int
-
-    def __str__(self) -> str:
-        """Human readable string."""
-        book = book_name(self.book)
-
-        return f"{book} {self.chapter}:{self.verse}"
-
-
-WordRefTuple = tuple[SEDRAPassageRef, int]
-WordEntryTuple = tuple[SEDRAPassageRef, int, int]
-BibleCacheEntryTuple = tuple[SEDRAPassageRef, list[int]]
+WordRefTuple = tuple[VerseRef, int]
+WordEntryTuple = tuple[VerseRef, int, int]
 SEDRA_WORD_REF_LEN: int = 9
-
-
-def book_name(book_num: int) -> str:
-    """Book name given a book number."""
-    return BOOKS[book_num - 52]
 
 
 def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
@@ -118,7 +68,7 @@ def _parse_sedra3_word_ref(word_ref: str) -> WordRefTuple:
     verse = int(word_ref[4:7])
     word = int(word_ref[7:9])
 
-    return SEDRAPassageRef(book, chapter, verse), word
+    return VerseRef(book, chapter, verse), word
 
 
 def _parse_sedra3_word_address(word_address: str) -> int:
@@ -218,8 +168,22 @@ def gen_bible_cache_file() -> None:
                     f.write(f"{book_id},{chapter_id},{verse_id},{verse_text}\n")
 
 
-def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple]:
+@dataclass
+class VerseSEDRA(Verse):
+    """New Testement SEDRA verse."""
+
+    ref: VerseRef
+    words: Sequence[str]
+    word_ids: Sequence[int]
+
+    def transliterate(self, alphabet: str) -> Sequence[str]:
+        """Get words."""
+        return [from_transliteration(w, alphabet=alphabet) for w in self.words]
+
+
+def iterate_verses_nt() -> Generator[VerseSEDRA]:
     """Parse the bible cache file."""
+    words_db = parse_sedra3_words_db_file()
     cache_path = Path("./src_texts/SEDRA/BFBS.cache")
 
     if not cache_path.is_file():
@@ -228,13 +192,15 @@ def parse_bible_cache_file() -> Generator[BibleCacheEntryTuple]:
     with cache_path.open(mode="r", encoding="utf-8") as f:
         for line in f:
             book_id, chapter_id, verse_id, text = line.strip().split(",")
-            words = [int(w) for w in text.split(" ")]
 
-            yield (
-                SEDRAPassageRef(
-                    book=int(book_id),
+            word_ids = text.split(" ")
+
+            yield VerseSEDRA(
+                ref=VerseRef(
+                    book=int(book_id) - 13,
                     chapter=int(chapter_id),
                     verse=int(verse_id),
                 ),
-                words,
+                word_ids=word_ids,
+                words=[str(words_db.loc[int(w), "strVocalised"]) for w in word_ids],
             )

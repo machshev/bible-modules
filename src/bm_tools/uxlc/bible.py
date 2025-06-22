@@ -3,54 +3,19 @@
 UXLC is an XML version of the WLC text.
 """
 
+from collections.abc import Generator, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from xml.etree.ElementTree import Element, parse
 
 from logzero import logger
 
+from bm_tools.model import BOOKS, Verse, VerseRef
+
+__all__ = ("iterate_verses_ot",)
+
 _BASE_PATH = Path("src_texts/UXLC/Books")
 
-BOOKS = (
-    "Genesis",
-    "Exodus",
-    "Leviticus",
-    "Numbers",
-    "Deuteronomy",
-    "Joshua",
-    "Judges",
-    "1 Samuel",
-    "2 Samuel",
-    "1 Kings",
-    "2 Kings",
-    "Isaiah",
-    "Jeremiah",
-    "Ezekiel",
-    "Hosea",
-    "Joel",
-    "Amos",
-    "Obadiah",
-    "Jonah",
-    "Micah",
-    "Nahum",
-    "Habakkuk",
-    "Zephaniah",
-    "Haggai",
-    "Zechariah",
-    "Malachi",
-    "1 Chronicles",
-    "2 Chronicles",
-    "Psalms",
-    "Job",
-    "Proverbs",
-    "Ruth",
-    "Song of Songs",
-    "Ecclesiastes",
-    "Lamentations",
-    "Esther",
-    "Daniel",
-    "Ezra",
-    "Nehemiah",
-)
 
 _TanachIndexET: Element | None = None
 
@@ -97,7 +62,7 @@ def get_book(name: str) -> list[list[list[str]]]:
     root = _get_book_element_tree(name=name)
 
     # Store the parsed data in dict format initially as the parsing order is not
-    # neceserily garunteed.
+    # neceserily guaranteed.
     chapters = {}
 
     # Find all chapter elements
@@ -124,10 +89,30 @@ def get_book(name: str) -> list[list[list[str]]]:
     return [v for _, v in sorted(chapters.items())]
 
 
-def get_all_books() -> dict[str, list[list[list[str]]]]:
+def get_all_books() -> list[list[list[list[str]]]]:
     """Get all the books in UXLC."""
-    bible = {}
-    for book in BOOKS:
-        bible[book] = get_book(name=book)
+    return [get_book(name=book) for book in BOOKS[:39]]
 
-    return bible
+
+@dataclass
+class VerseUXLC(Verse):
+    """New Testement UXLC verse."""
+
+    ref: VerseRef
+    words: Sequence[str]
+
+
+def iterate_verses_ot() -> Generator[VerseUXLC]:
+    """Iterate UXLC bible verses."""
+    books = get_all_books()
+    for book_id, book in enumerate(books):
+        for chapter_id, chapter in enumerate(book):
+            for verse_id, words in enumerate(chapter):
+                yield VerseUXLC(
+                    ref=VerseRef(
+                        book=book_id + 1,
+                        chapter=chapter_id + 1,
+                        verse=verse_id + 1,
+                    ),
+                    words=words,
+                )

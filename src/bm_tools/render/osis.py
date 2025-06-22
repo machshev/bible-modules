@@ -17,11 +17,50 @@ to find a way of doing that without depending on arbitrary binaries.
 from pathlib import Path
 from typing import TextIO
 
-from bm_tools.sedra.bible import book_name
-from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from bm_tools.model import Verse, book_name
+from bm_tools.sedra.bible import VerseSEDRA
 from bm_tools.templates import get_template
 
 BOOK_ABREV = {
+    "Genesis": "Gen",
+    "Exodus": "Exo",
+    "Leviticus": "Lev",
+    "Numbers": "Num",
+    "Deuteronomy": "Deut",
+    "Joshua": "Josh",
+    "Judges": "Judge",
+    "1 Samuel": "1Sam",
+    "2 Samuel": "2Sam",
+    "1 Kings": "1Kings",
+    "2 Kings": "2Kings",
+    "Isaiah": "Isa",
+    "Jeremiah": "Jer",
+    "Ezekiel": "Ezk",
+    "Hosea": "Hos",
+    "Joel": "Joel",
+    "Amos": "Amos",
+    "Obadiah": "Obd",
+    "Jonah": "Jon",
+    "Micah": "Mic",
+    "Nahum": "Nah",
+    "Habakkuk": "Hab",
+    "Zephaniah": "Zeph",
+    "Haggai": "Hag",
+    "Zechariah": "zech",
+    "Malachi": "Mal",
+    "Psalms": "Psa",
+    "Proverbs": "Prov",
+    "Job": "Job",
+    "Song of Songs": "Song",
+    "Ruth": "Ruth",
+    "Lamentations": "Lam",
+    "Ecclesiastes": "Ecc",
+    "Esther": "Est",
+    "Daniel": "Dan",
+    "Ezra": "Ezr",
+    "Nehemiah": "Neh",
+    "1 Chronicles": "1Chr",
+    "2 Chronicles": "2Chr",
     "Matthew": "Matt",
     "Mark": "Mark",
     "Luke": "Luke",
@@ -171,13 +210,17 @@ class RenderBibleOSIS:
 
         self._verse = 0
 
-    def add_word(self, word_id: int) -> None:
+    def add_words(self, verse: Verse) -> None:
         """Add word to the active verse."""
-        words_db = parse_sedra3_words_db_file()
-        word = str(words_db.loc[word_id, "strVocalised"])
+        if isinstance(verse, VerseSEDRA):
+            words = verse.transliterate(alphabet=self._alphabet)
+            for word_id, word in zip(verse.word_ids, words, strict=True):
+                print(
+                    f'<w lemma="sedra3:{word_id} sedra4:{word_id}">{word}</w>',
+                    file=self._stream,
+                )
 
-        translit = from_transliteration(word, alphabet=self._alphabet)
-        print(
-            f'<w lemma="sedra3:{word_id} sedra4:{word_id}">{translit}</w>',
-            file=self._stream,
-        )
+            return
+
+        for word in verse.words:
+            print(f"<w>{word}</w>", file=self._stream)

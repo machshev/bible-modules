@@ -4,8 +4,8 @@ import importlib
 from pathlib import Path
 from typing import TextIO
 
-from bm_tools.sedra.bible import book_name
-from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from bm_tools.model import Verse, book_name
+from bm_tools.sedra.bible import VerseSEDRA
 
 
 class RenderBibleHTML:
@@ -21,11 +21,11 @@ class RenderBibleHTML:
         self._stream: TextIO | None = None
         self._alphabet = alphabet
 
-        self._words: list[str] = []
-
         self._book: str = ""
         self._chapter: int = 0
         self._verse: int = 0
+
+        self._words: list[str] = []
 
     def start_mod(self, name: str) -> None:
         """Start the module."""
@@ -114,9 +114,9 @@ class RenderBibleHTML:
 
         self._verse = 0
 
-    def add_word(self, word_id: int) -> None:
+    def add_words(self, verse: Verse) -> None:
         """Add word to the active verse."""
-        words_db = parse_sedra3_words_db_file()
-        word = str(words_db.loc[word_id, "strVocalised"])
-
-        self._words.append(from_transliteration(word, alphabet=self._alphabet))
+        if isinstance(verse, VerseSEDRA):
+            self._words = verse.transliterate(alphabet=self._alphabet)
+        else:
+            self._words = verse.words

@@ -3,8 +3,8 @@
 import pytest
 from hamcrest import assert_that, calling, equal_to, raises
 
+from bm_tools.model import VerseRef
 from bm_tools.sedra.bible import (
-    SEDRAPassageRef,
     WordRefTuple,
     _parse_sedra3_word_address,
     _parse_sedra3_word_ref,
@@ -16,9 +16,9 @@ from bm_tools.sedra.bible import (
 @pytest.mark.parametrize(
     ("word_ref", "expected_tuple"),
     [
-        ("520100101", (SEDRAPassageRef(52, 1, 1), 1)),
-        ("632198434", (SEDRAPassageRef(63, 21, 984), 34)),
-        ("230001245", (SEDRAPassageRef(23, 0, 12), 45)),
+        ("520100101", (VerseRef(52, 1, 1), 1)),
+        ("632198434", (VerseRef(63, 21, 984), 34)),
+        ("230001245", (VerseRef(23, 0, 12), 45)),
     ],
 )
 def test_parse_sedra3_valid_word_ref(

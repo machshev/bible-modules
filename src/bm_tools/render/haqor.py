@@ -2,10 +2,15 @@
 
 import sqlite3
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from logzero import logger
 
-from bm_tools.sedra.db import from_transliteration, parse_sedra3_words_db_file
+from bm_tools.model import Verse
+from bm_tools.sedra.bible import VerseSEDRA
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class RenderBibleHaqor:
@@ -19,8 +24,8 @@ class RenderBibleHaqor:
         self._output_path = output_path
         self._db: sqlite3.Connection | None = None
 
-        self._words_syr: list[str] = []
-        self._words_heb: list[str] = []
+        self._words_syr: Sequence[str] | None = []
+        self._words_heb: Sequence[str] = []
 
         self._book: int | None = None
         self._chapter: int = 0
@@ -81,35 +86,40 @@ class RenderBibleHaqor:
 
     def end_verse(self) -> None:
         """End the verse."""
-        syr = " ".join(self._words_syr)
-        self._words_syr.clear()
-
-        heb = " ".join(self._words_heb)
-        self._words_heb.clear()
-
         if self._db is None:
             msg = "Can't start a verse without starting a module"
             raise RuntimeError(msg)
 
-        logger.debug("%s %s:%s %s", self._book, self._chapter, self._verse, syr)
-        logger.debug("%s %s:%s %s", self._book, self._chapter, self._verse, heb)
+        heb = " ".join(self._words_heb)
+        self._words_heb.clear()
 
-        self._db.execute(
-            "INSERT INTO syriac VALUES (?,?,?,?)",
-            (self._book, self._chapter, self._verse, syr),
-        )
+        logger.debug("%s %s:%s %s", self._book, self._chapter, self._verse, heb)
 
         self._db.execute(
             "INSERT INTO hebrew VALUES (?,?,?,?)",
             (self._book, self._chapter, self._verse, heb),
         )
 
+        # This only applies to the NT
+        if self._words_syr is not None:
+            syr = " ".join(self._words_syr)
+            self._words_syr.clear()
+
+            logger.debug("%s %s:%s %s", self._book, self._chapter, self._verse, syr)
+
+            self._db.execute(
+                "INSERT INTO syriac VALUES (?,?,?,?)",
+                (self._book, self._chapter, self._verse, syr),
+            )
+
         self._verse = 0
 
-    def add_word(self, word_id: int) -> None:
+    def add_words(self, verse: Verse) -> None:
         """Add word to the active verse."""
-        words_db = parse_sedra3_words_db_file()
-        word = str(words_db.loc[word_id, "strVocalised"])
+        if isinstance(verse, VerseSEDRA):
+            self._words_syr = verse.transliterate(alphabet="syriac")
+            self._words_heb = verse.transliterate(alphabet="hebrew")
 
-        self._words_syr.append(from_transliteration(word, alphabet="syriac"))
-        self._words_heb.append(from_transliteration(word, alphabet="hebrew"))
+        else:
+            self._words_syr = None
+            self._words_heb = verse.words

@@ -1,18 +1,21 @@
 """Render bible text into different formats."""
 
+import itertools
 import shutil
 from pathlib import Path
 
 from logzero import logger
 
 from bm_tools.errors import InvalidOptionError
+from bm_tools.model import VerseRef
 from bm_tools.render.haqor import RenderBibleHaqor
 from bm_tools.render.html import RenderBibleHTML
 from bm_tools.render.interface import BibleRenderer
 from bm_tools.render.md import RenderBibleMarkdown
 from bm_tools.render.osis import RenderBibleOSIS
 from bm_tools.render.vpl import RenderBibleVPL
-from bm_tools.sedra.bible import SEDRAPassageRef, parse_bible_cache_file
+from bm_tools.sedra.bible import iterate_verses_nt
+from bm_tools.uxlc.bible import iterate_verses_ot
 
 __all__ = ("render_bible",)
 
@@ -80,8 +83,8 @@ def _get_bible_renderer(fmt: str, alphabet: str, output_path: Path) -> BibleRend
 
 def notify_state_changed(
     renderer: BibleRenderer,
-    ref_old: SEDRAPassageRef,
-    ref_new: SEDRAPassageRef,
+    ref_old: VerseRef,
+    ref_new: VerseRef,
 ) -> None:
     """Update the renderer state with any reference changes."""
     if ref_new.verse != ref_old.verse:
@@ -133,12 +136,16 @@ def render_bible(
         output_path=output_path,
     )
 
-    current_ref: SEDRAPassageRef | None = None
+    current_ref: VerseRef | None = None
 
     renderer.start_mod(name=mod_name)
 
     try:
-        for ref, words in parse_bible_cache_file():
+        for verse in itertools.chain(
+            iterate_verses_ot(),
+            iterate_verses_nt(),
+        ):
+            ref = verse.ref
             if ref != current_ref:
                 if current_ref is None:
                     renderer.start_book(ref.book)
@@ -149,8 +156,7 @@ def render_bible(
 
                 current_ref = ref
 
-            for word_id in words:
-                renderer.add_word(word_id)
+            renderer.add_words(verse)
 
         renderer.end_verse()
         renderer.end_chapter()

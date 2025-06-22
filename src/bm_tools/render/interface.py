@@ -30,5 +30,5 @@ class BibleRenderer(Protocol):
     def end_verse(self) -> None:
         """End the verse."""
 
-    def add_word(self, word_id: int) -> None:
+    def add_words(self, word_id: int) -> None:
         """Add word to the active verse."""
