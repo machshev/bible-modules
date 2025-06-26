@@ -83,7 +83,7 @@ BOOKS = (
 
 def book_name(book_num: int) -> str:
     """Book name given a book number."""
-    return BOOKS[book_num]
+    return BOOKS[book_num - 1]
 
 
 @dataclass

@@ -197,7 +197,7 @@ def iterate_verses_nt() -> Generator[VerseSEDRA]:
 
             yield VerseSEDRA(
                 ref=VerseRef(
-                    book=int(book_id) - 13,
+                    book=int(book_id) - 12,
                     chapter=int(chapter_id),
                     verse=int(verse_id),
                 ),
