@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from logzero import logger
 
+from bm_tools.haqor.post_process import post_process
 from bm_tools.model import Verse
 from bm_tools.sedra.bible import VerseSEDRA
 
@@ -58,9 +59,17 @@ class RenderBibleHaqor:
 
     def end_mod(self) -> None:
         """End the module."""
-        if self._db:
-            self._db.commit()
-            self._db.close()
+        if not self._db:
+            logger.error(
+                "Haqor DB is not open, can't end the module before starting it"
+            )
+            raise RuntimeError
+
+        self._db.commit()
+
+        post_process(db=self._db)
+
+        self._db.close()
 
         logger.info("Module generated")
 

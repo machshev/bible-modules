@@ -14,11 +14,13 @@
 from pathlib import Path
 
 import click
-from logzero import logger
+from logzero import INFO, logger, loglevel
 
 from bm_tools.render import _BIBLE_RENDERERS, render_all, render_bible
 from bm_tools.sedra.bible import gen_bible_cache_file
 from bm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
+
+loglevel(INFO)
 
 
 @click.group()

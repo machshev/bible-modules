@@ -1,0 +1,1 @@
+"""Haqor bible module."""
