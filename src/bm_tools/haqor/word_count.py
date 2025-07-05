@@ -4,8 +4,10 @@ from sqlite3 import Connection
 
 from logzero import logger
 
+from bm_tools.utils.heb import constanants
 
-def gen_word_count(db: Connection) -> None:
+
+def gen_word_count(db: Connection) -> dict[str, int]:
     """Generate a word count.
 
     Args:
@@ -14,7 +16,12 @@ def gen_word_count(db: Connection) -> None:
     count = {}
 
     for words in db.execute("SELECT words FROM hebrew WHERE book <= 39"):
-        for word in words[0].split(" "):
+        for raw in words[0].split(" "):
+            word = constanants(text=raw)
+
+            if not word:
+                continue
+
             if word not in count:
                 count[word] = 0
 
@@ -36,3 +43,5 @@ def gen_word_count(db: Connection) -> None:
         )
 
     db.commit()
+
+    return count

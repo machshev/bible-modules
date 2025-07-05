@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from logzero import logger
 
 from bm_tools.haqor.post_process import post_process
-from bm_tools.model import Verse
+from bm_tools.model import BOOKS, Verse
 from bm_tools.sedra.bible import VerseSEDRA
 
 if TYPE_CHECKING:
@@ -40,6 +40,16 @@ class RenderBibleHaqor:
         db_path.unlink(missing_ok=True)
 
         self._db = sqlite3.connect(db_path)
+
+        # Bible text
+        self._db.execute(
+            """CREATE TABLE hebrew(
+                book INT,
+                chapter INT,
+                verse INT,
+                words TEXT
+            )"""
+        )
         self._db.execute(
             """CREATE TABLE syriac(
                 book INT,
@@ -48,13 +58,17 @@ class RenderBibleHaqor:
                 words TEXT
             )"""
         )
+
+        # Index for bible book names
         self._db.execute(
-            """CREATE TABLE hebrew(
+            """CREATE TABLE books(
                 book INT,
-                chapter INT,
-                verse INT,
-                words TEXT
+                name TEXT
             )"""
+        )
+        self._db.executemany(
+            "INSERT INTO books VALUES (?,?)",
+            ((i + 1, name) for i, name in enumerate(BOOKS)),
         )
 
     def end_mod(self) -> None:
