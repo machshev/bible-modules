@@ -37,7 +37,7 @@ def changelog(ctx: Context) -> None:
     Parameters:
         ctx: The context instance (passed automatically).
     """
-    from git_changelog.cli import main as git_changelog
+    from git_changelog.cli import main as git_changelog  # noqa: PLC0415
 
     ctx.run(git_changelog, args=[[]], title="Updating changelog")
 
@@ -168,7 +168,7 @@ def cov(ctx: Context) -> None:
 
 
 @duty
-def test(ctx: Context, match: str = "") -> None:
+def test(ctx: Context, match: str = "") -> None:  # noqa: PT028
     """Run the test suite.
 
     Parameters:
