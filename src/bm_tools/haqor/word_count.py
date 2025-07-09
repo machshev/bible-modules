@@ -1,31 +1,31 @@
 """Word count generation."""
 
+from collections.abc import Sequence
 from sqlite3 import Connection
 
 from logzero import logger
 
-from bm_tools.utils.heb import constanants
+from bm_tools.utils.heb import ParsedWord
 
 
-def gen_word_count(db: Connection) -> dict[str, int]:
+def gen_word_count(
+    db: Connection,
+    parsed_words: Sequence[ParsedWord],
+) -> dict[str, int]:
     """Generate a word count.
 
     Args:
         db: connection to an SQLite3 haqor db.
+        parsed_words: sequence of parsed word objects
     """
     count = {}
 
-    for words in db.execute("SELECT words FROM hebrew WHERE book <= 39"):
-        for raw in words[0].split(" "):
-            word = constanants(text=raw)
+    for parsed in parsed_words:
+        word = parsed.word
+        if word not in count:
+            count[word] = 0
 
-            if not word:
-                continue
-
-            if word not in count:
-                count[word] = 0
-
-            count[word] += 1
+        count[word] += 1
 
     logger.info("Saving word count to Haqor DB")
 

@@ -19,6 +19,7 @@ from logzero import INFO, logger, loglevel
 from bm_tools.render import _BIBLE_RENDERERS, render_all, render_bible
 from bm_tools.sedra.bible import gen_bible_cache_file
 from bm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
+from bm_tools.utils.heb import review
 
 loglevel(INFO)
 
@@ -65,6 +66,7 @@ def gen() -> None:
     type=click.Choice(_BIBLE_RENDERERS, case_sensitive=False),
 )
 def bible(
+    *,
     alphabet: str,
     fmt: str,
     output_path: Path,
@@ -95,7 +97,7 @@ def bible(
         "command instead)."
     ),
 )
-def gen_all(select: list[str] | None) -> None:
+def gen_all(*, select: list[str] | None) -> None:
     """Generate all bible modules."""
     logger.info("Generating all bible modules")
     render_all(select=select)
@@ -104,6 +106,40 @@ def gen_all(select: list[str] | None) -> None:
 @main.group()
 def admin() -> None:
     """Admin helper tools."""
+
+
+@main.group()
+def haqor() -> None:
+    """Haqor tools."""
+
+
+@haqor.command()
+@click.option(
+    "-i",
+    "--index",
+    "index",
+    default=0,
+    type=int,
+    help="Start at index",
+)
+@click.option(
+    "-n",
+    "--rows",
+    "rows",
+    default=None,
+    type=int,
+    help="How many rows to show",
+)
+@click.option(
+    "-u",
+    "--unknowns",
+    "unknowns",
+    is_flag=True,
+    help="Only show unknowns",
+)
+def morph_review(*, index: int, rows: int | None, unknowns: bool) -> None:
+    """Evaluate morphology."""
+    review(index=index, rows=rows, unknowns=unknowns)
 
 
 @admin.command()
