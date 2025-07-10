@@ -1,7 +1,6 @@
 """Render bible text into different formats."""
 
 import itertools
-import shutil
 from pathlib import Path
 
 from logzero import logger
@@ -30,6 +29,7 @@ _BIBLE_RENDERERS: list[str] = [
 
 
 _ALL_MODULES: list = [
+    {"fmt": "haqor"},
     {"fmt": "html", "mod_name": "syriac", "alphabet": "syriac"},
     {"fmt": "html", "mod_name": "hebrew", "alphabet": "hebrew"},
     {"fmt": "md", "mod_name": "syriac", "alphabet": "syriac"},
@@ -38,7 +38,6 @@ _ALL_MODULES: list = [
     {"fmt": "osis", "mod_name": "hebrew", "alphabet": "hebrew"},
     {"fmt": "vpl", "mod_name": "syriac", "alphabet": "syriac"},
     {"fmt": "vpl", "mod_name": "hebrew", "alphabet": "hebrew"},
-    {"fmt": "haqor"},
 ]
 
 
@@ -169,10 +168,7 @@ def render_bible(
 def render_all(select: list[str] | None = None) -> None:
     """Generate all bible modules."""
     base_path = Path("./modules")
-
-    # Remove existing generated modules and recreate the dir
-    shutil.rmtree(base_path)
-    base_path.mkdir(parents=True)
+    base_path.mkdir(parents=True, exist_ok=True)
 
     modules = _ALL_MODULES
     if select:
