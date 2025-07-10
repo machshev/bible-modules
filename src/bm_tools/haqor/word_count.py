@@ -1,36 +1,29 @@
 """Word count generation."""
 
-from collections.abc import Sequence
+from collections.abc import Mapping
 from sqlite3 import Connection
 
 from logzero import logger
 
 from bm_tools.utils.heb import ParsedWord
 
+__all__ = ("save_word_count",)
 
-def gen_word_count(
+
+def save_word_count(
     db: Connection,
-    parsed_words: Sequence[ParsedWord],
-) -> dict[str, int]:
-    """Generate a word count.
+    count: Mapping[str, ParsedWord],
+) -> None:
+    """Save the word count to the DB.
 
     Args:
         db: connection to an SQLite3 haqor db.
-        parsed_words: sequence of parsed word objects
+        count: mapping of words to occorance count
     """
-    count = {}
-
-    for parsed in parsed_words:
-        word = parsed.word
-        if word not in count:
-            count[word] = 0
-
-        count[word] += 1
-
     logger.info("Saving word count to Haqor DB")
 
     db.execute(
-        """CREATE TABLE words(
+        """CREATE TABLE count(
             word TEXT,
             count INT
         )"""
@@ -38,10 +31,8 @@ def gen_word_count(
 
     for word, c in count.items():
         db.execute(
-            "INSERT INTO words VALUES (?,?)",
+            "INSERT INTO count VALUES (?,?)",
             (word, c),
         )
 
     db.commit()
-
-    return count

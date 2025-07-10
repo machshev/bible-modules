@@ -4,7 +4,7 @@ This is useful to rate each verse by how often the words it contains are used.
 Which means we can sort the verses on how easy they might be to read.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from sqlite3 import Connection
 
 from logzero import logger
@@ -14,20 +14,19 @@ from bm_tools.utils.heb import ParsedWord, normalise
 
 def gen_verse_complexity(
     db: Connection,
-    parsed_words: Sequence[ParsedWord],
-    word_count: Mapping,
+    parsed_words: Mapping[str, ParsedWord],
+    word_count: Mapping[str, int],
 ) -> None:
     """Generate a verse complexity score.
 
     Args:
         db: connection to an SQLite3 haqor db.
-        parsed_words: sequence of parsed word objects
+        parsed_words: Mapping of normalised words to parsed word objects
         word_count: mapping of words to word count.
     """
     logger.info("Calculating verse complexity Haqor DB")
 
     bible = []
-    parse_lookup = {word.raw: word.word for word in parsed_words}
 
     for result in db.execute(
         "SELECT book, chapter, verse, words FROM hebrew WHERE book <= 39"
@@ -40,7 +39,7 @@ def gen_verse_complexity(
             if not normalised:
                 continue
 
-            word = parse_lookup[normalised]
+            word = parsed_words[normalised].word
             min_count = min(min_count, word_count[word])
 
         bible.append((book, chapter, verse, words, min_count))

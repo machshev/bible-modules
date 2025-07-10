@@ -1,6 +1,7 @@
 """Hebrew word utility functions."""
 
 import sqlite3
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,6 +12,7 @@ __all__ = (
     "is_vowel",
     "morph_eval",
     "normalise",
+    "parse_bible",
 )
 
 # ruff: noqa: RUF001
@@ -167,6 +169,8 @@ def morph_eval(raw: str) -> ParsedWord:
     word = raw
 
     if len(raw) <= 1:
+        # Single letters, not sure what to do with these?
+        # Is this an error?
         return HebUnknown(word=word, raw=raw)
 
     if raw in HEBREW_PREPOSITIONS:
@@ -190,11 +194,63 @@ def morph_eval(raw: str) -> ParsedWord:
         return HebVerb(
             preposition=preposition,
             definite_article=definite_article,
-            word=word,
+            word=constanants(word),
             raw=raw,
         )
 
-    return HebUnknown(word=word, raw=raw)
+    return HebUnknown(word=constanants(word), raw=raw)
+
+
+def parse_bible(
+    db: sqlite3.Connection,
+) -> tuple[Mapping[str, ParsedWord], Mapping[str, int]]:
+    """Parse the bible and evaluate each word's morphology.
+
+    Args:
+        db: connection to an SQLite3 haqor db.
+
+    Returns:
+        tuple containing mapping of parsed words, and a mapping of word
+        occorance count.
+    """
+    parsed_words = {}
+    count = {}
+
+    for result in db.execute("SELECT words FROM hebrew WHERE book <= 39"):
+        for raw in result[0].split(" "):
+            normalised = normalise(text=raw)
+
+            if not normalised:
+                continue
+
+            # Already evaluated just increment the count
+            if normalised in parsed_words:
+                word = parsed_words[normalised]
+
+            else:
+                # New word seen so work out the morphology and add to the cache
+                word = morph_eval(raw=normalised)
+                parsed_words[normalised] = word
+
+            count[word.word] = count.get(word.word, 0) + 1
+
+    db.execute(
+        """CREATE TABLE words(
+            raw TEXT,
+            word TEXT,
+            count INT
+        )"""
+    )
+
+    for raw, word in parsed_words.items():
+        db.execute(
+            "INSERT INTO words VALUES (?,?,?)",
+            (raw, word.word, count[word.word]),
+        )
+
+    db.commit()
+
+    return parsed_words, count
 
 
 def review(
@@ -209,7 +265,7 @@ def review(
     db = sqlite3.connect(db_path)
 
     for idx, result in enumerate(
-        db.execute("SELECT word FROM words ORDER BY count DESC")
+        db.execute("SELECT raw FROM words ORDER BY count DESC")
     ):
         if idx < index:
             continue
@@ -219,7 +275,7 @@ def review(
         if unknowns and not isinstance(morph, HebUnknown):
             continue
 
-        logger.info("[%i] %s: %s", idx, morph.word[::-1], morph)
+        logger.info("[%i] %s: %s", idx, morph.raw[::-1], morph)
 
         if rows is not None:
             rows -= 1

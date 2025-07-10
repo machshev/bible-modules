@@ -9,8 +9,10 @@ from sqlite3 import Connection
 from logzero import logger
 
 from bm_tools.haqor.verse_complex import gen_verse_complexity
-from bm_tools.haqor.word_count import gen_word_count
-from bm_tools.utils.heb import morph_eval, normalise
+from bm_tools.haqor.word_count import save_word_count
+from bm_tools.utils.heb import parse_bible
+
+__all__ = ("post_process",)
 
 
 def post_process(db: Connection) -> None:
@@ -21,20 +23,8 @@ def post_process(db: Connection) -> None:
     """
     logger.info("Post processing Haqor DB")
 
-    parsed_words = []
+    parsed_words, count = parse_bible(db=db)
 
-    for result in db.execute("SELECT words FROM hebrew WHERE book <= 39"):
-        for raw in result[0].split(" "):
-            normalised = normalise(text=raw)
+    save_word_count(db=db, count=count)
 
-            if not normalised:
-                continue
-
-            word = morph_eval(raw=normalised)
-            parsed_words.append(word)
-
-    word_count = gen_word_count(
-        db=db,
-        parsed_words=parsed_words,
-    )
-    gen_verse_complexity(db=db, parsed_words=parsed_words, word_count=word_count)
+    gen_verse_complexity(db=db, parsed_words=parsed_words, word_count=count)
