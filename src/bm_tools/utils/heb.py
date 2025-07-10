@@ -174,7 +174,7 @@ def morph_eval(raw: str) -> ParsedWord:
         return HebUnknown(word=word, raw=raw)
 
     if raw in HEBREW_PREPOSITIONS:
-        return HebPreposition(word=raw, raw=raw)
+        return HebPreposition(word=constanants(raw), raw=raw)
 
     preposition = None
     definite_article = False
