@@ -28,13 +28,18 @@ HEBREW_CONSANANTS = (
     "ט",
     "י",
     "כ",
+    "ך",  # Final Kaf
     "ל",
     "מ",
+    "ם",  # Final Mem
     "נ",
+    "ן",  # Final Nun
     "ס",
     "ע",
     "פ",
+    "ף",  # Final Pe
     "צ",
+    "ץ",  # Final Tzadi
     "ק",
     "ר",
     "שׁ",
@@ -50,13 +55,15 @@ HEBREW_INSEPARABLE_PREPOSITIONS = (
 )
 
 HEBREW_PREPOSITIONS = (
-    "אֶת",  # Definite article
-    "אֵת",  # Definite article
+    "אָשֵׁר",  # That
     "אֲשֶׁר",  # That
+    "אַשֶׁר",  # That
+    "אַשֻּׁר",  # That
     "כִּי",  # For
     "עַל",  # Upon
     "אֶל",  # To
     "לֹא",  # No/Not
+    "אַל",  # No/Not
     "כָּל",  # All
     "עַד",  # Until
     "אִם",  # With
@@ -104,11 +111,56 @@ HEBREW_VOWELS = (
     HEB_SIN_DOT,
 )
 
+HEB_SUFFIX = (
+    HEB_PATAH + "ה",  # perf.s.3.f
+    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_QAMATS,  # perf.s.2.m
+    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA,  # perf.s.2.f
+    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_HIRIQ + "י",  # perf.s.2.f
+    "ו" + HEB_DAGESH,  # perf.pl.3.c
+    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA + "ם",  # perf.s.2.f
+    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA + "ן",  # perf.s.2.f
+    HEB_SHEVA + "נו" + HEB_DAGESH,  # perf.pl.1.c
+)
+
+HEB_PREFIX = (
+    "י" + HEB_SHEVA,  # y'
+    "י" + HEB_HIRIQ,  # Yi
+    "י" + HEB_PATAH,  # Ya
+    "י" + HEB_DAGESH + HEB_SHEVA,  # y'
+    "י" + HEB_DAGESH + HEB_HIRIQ,  # Yi
+    "י" + HEB_DAGESH + HEB_PATAH,  # Ya
+    "ת" + HEB_HIRIQ,  # Ti
+    "א" + HEB_SEGOL,  # 'e
+)
+
+
+@dataclass(frozen=True)
+class Yahweh:
+    """The name."""
+
+    preposition: str | None
+    word: str
+    raw: str
+
 
 @dataclass(frozen=True)
 class HebUnknown:
     """Unknown Hebrew word."""
 
+    word: str
+    raw: str
+    preposition: str | None = None
+    definite_article: bool = False
+    prefix: str = ""
+    suffix: str = ""
+
+
+@dataclass(frozen=True)
+class HebArticle:
+    """Hebrew Definite Article."""
+
+    preposition: str | None
+    definite_article: bool
     word: str
     raw: str
 
@@ -117,6 +169,8 @@ class HebUnknown:
 class HebPreposition:
     """Hebrew Preposition."""
 
+    preposition: str | None
+    definite_article: bool
     word: str
     raw: str
 
@@ -127,6 +181,9 @@ class HebVerb:
 
     preposition: str | None
     definite_article: bool
+    number: int | None
+    tense: str | None
+    mood: str | None
     word: str
     raw: str
 
@@ -141,7 +198,7 @@ class HebNoun:
     raw: str
 
 
-ParsedWord = HebPreposition | HebNoun | HebVerb | HebUnknown
+ParsedWord = Yahweh | HebArticle | HebPreposition | HebNoun | HebVerb | HebUnknown
 
 
 def is_consanant(char: str) -> bool:
@@ -164,18 +221,9 @@ def normalise(text: str) -> str:
     return "".join([char for char in text if is_consanant(char) or is_vowel(char)])
 
 
-def morph_eval(raw: str) -> ParsedWord:
-    """Evaluate the Morphology of a word."""
+def inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
+    """Parse inseparable prepositions."""
     word = raw
-
-    if len(raw) <= 1:
-        # Single letters, not sure what to do with these?
-        # Is this an error?
-        return HebUnknown(word=word, raw=raw)
-
-    if raw in HEBREW_PREPOSITIONS:
-        return HebPreposition(word=constanants(raw), raw=raw)
-
     preposition = None
     definite_article = False
     if raw[0] in HEBREW_INSEPARABLE_PREPOSITIONS and raw[1] in (
@@ -190,15 +238,101 @@ def morph_eval(raw: str) -> ParsedWord:
         preposition = raw[0]
         word = raw[2:]
 
-    if preposition or definite_article:
-        return HebVerb(
+    return (word, preposition, definite_article)
+
+
+def explode(raw: str) -> tuple[str, str, str]:
+    """Separate a word into it's grammatical parts."""
+    prefix = ""
+    suffix = ""
+
+    for s in HEB_PREFIX:
+        if raw.startswith(s):
+            prefix = s
+            break
+
+    for s in HEB_SUFFIX:
+        if raw.endswith(s):
+            suffix = s
+            break
+
+    # remove prefix/sufix
+    word = raw[len(prefix) : len(raw) - len(suffix)]
+
+    return word, prefix, suffix
+
+
+def grammar(raw: str) -> tuple[str, int | None, str | None, str | None]:
+    """Grammatical evaluation."""
+    word = raw
+    number = None
+    tense = None
+    mood = None
+
+    # remove prefix/sufix
+
+    return word, number, tense, mood
+
+
+def morph_eval(raw: str) -> ParsedWord:
+    """Evaluate the Morphology of a word."""
+    if len(raw) <= 1:
+        # Single letters, not sure what to do with these?
+        # Is this an error?
+        return HebUnknown(word=raw, raw=raw)
+
+    word, preposition, definite_article = inseparable_prepositions(raw=raw)
+    word_constanants = constanants(word)
+
+    # Yahweh
+    if word_constanants == "יהוה":
+        return Yahweh(
             preposition=preposition,
-            definite_article=definite_article,
-            word=constanants(word),
+            word=constanants(raw),
             raw=raw,
         )
 
-    return HebUnknown(word=constanants(word), raw=raw)
+    # Definite Article
+    if word_constanants == "את":
+        return HebArticle(
+            preposition=preposition,
+            definite_article=definite_article,
+            word=word_constanants,
+            raw=raw,
+        )
+
+    word, prefix, suffix = explode(raw=word)
+    word, number, tense, mood = grammar(raw=word)
+
+    word_constanants = constanants(word)
+
+    # Known prepositions
+    if word in HEBREW_PREPOSITIONS:
+        return HebPreposition(
+            preposition=preposition,
+            definite_article=definite_article,
+            word=word_constanants,
+            raw=raw,
+        )
+
+    if False:  # preposition or definite_article:
+        # Add this back in when we can differentiate between verbs and nouns
+        return HebVerb(
+            preposition=preposition,
+            definite_article=definite_article,
+            number=number,
+            tense=tense,
+            mood=mood,
+            word=word_constanants,
+            raw=raw,
+        )
+
+    return HebUnknown(
+        word=word_constanants,
+        raw=raw,
+        prefix=prefix,
+        suffix=suffix,
+    )
 
 
 def parse_bible(
@@ -238,14 +372,38 @@ def parse_bible(
         """CREATE TABLE words(
             raw TEXT,
             word TEXT,
-            count INT
+            count INT,
+            unknown BOOL,
+            prefix TEXT,
+            suffix TEXT
         )"""
     )
 
     for raw, word in parsed_words.items():
+        if isinstance(word, HebUnknown):
+            db.execute(
+                "INSERT INTO words VALUES (?,?,?,?,?,?)",
+                (
+                    raw,
+                    word.word,
+                    count[word.word],
+                    True,
+                    word.prefix,
+                    word.suffix,
+                ),
+            )
+            continue
+
         db.execute(
-            "INSERT INTO words VALUES (?,?,?)",
-            (raw, word.word, count[word.word]),
+            "INSERT INTO words VALUES (?,?,?,?,?,?)",
+            (
+                raw,
+                word.word,
+                count[word.word],
+                False,
+                "",
+                "",
+            ),
         )
 
     db.commit()
