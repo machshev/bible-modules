@@ -250,6 +250,21 @@ Tanach.us Inc., West Redding, CT, USA, April 2025.
 Documents with restrictions
 ```
 
+### Sefaria
+
+[Sefaria](https://www.sefaria.org/about) provides a large collection of jewish
+texts, and related study resources. Two of the resources we make use of are the
+the "DBD Dictionary" and "BDB Aramaic Dictionary" exported from the mongodb made
+available in the public domain.
+
+> For the Jewish people, our texts are our collective inheritance. They belong
+> to everyone and we want them to be available to everyone, in the public domain
+> or with free public licenses. Whether it’s copying a page of text for your
+> classroom or [downloading our entire database](https://github.com/Sefaria/Sefaria-Export) for research and new projects,
+> you’ll enjoy unfettered access to the canon.
+
+We are grateful for this generosity.
+
 ## Available Bible Modules
 
 This project aims to provide both OT, NT modules and also a lexicon module. For
