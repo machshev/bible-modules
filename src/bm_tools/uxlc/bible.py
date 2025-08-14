@@ -80,7 +80,8 @@ def get_book(name: str) -> list[list[list[str]]]:
                 if w.tag != "w":
                     continue
 
-                words.append(w.text)
+                # Some words have x tags within them, so strip them out
+                words.append("".join([e for e in w.itertext() if e > "z"]))
 
             verses[v_num] = words
 
