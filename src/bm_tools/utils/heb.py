@@ -49,6 +49,7 @@ HEBREW_CONSANANTS = (
 HEBREW_INSEPARABLE_PREPOSITIONS = (
     "ב",
     "כ",
+    "ש",
     "ל",
     "מ",
 )
@@ -66,6 +67,7 @@ HEBREW_PREPOSITIONS = (
     "כָּל",  # All
     "עַד",  # Until
     "אִם",  # With
+    "כָל",  # All
 )
 
 HEB_SHEVA = chr(0x05B0)
@@ -119,12 +121,27 @@ HEB_SUFFIX = (
     HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA + "ם",  # perf.s.2.f
     HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA + "ן",  # perf.s.2.f
     HEB_SHEVA + "נו" + HEB_DAGESH,  # perf.pl.1.c
+    # Nouns
+    HEB_HIRIQ + "י",  # to me
+    "ו" + HEB_HOLAM,  # to him
+    "ך" + HEB_QAMATS_QATAN,  # to you (s.2.m)
+    HEB_PATAH + "י",  # my
+    HEB_QAMATS + "י",  # my
+    HEB_QAMATS_QATAN + "י",  # my
+    HEB_TSERE + "י",  # of
+    HEB_QAMATS + "ה",  # Her
+    HEB_HIRIQ + "ים",  # Pl.m
+    "ו" + HEB_HOLAM + "ת",  # Pl.f
+    HEB_SEGOL + "ת",  # Pl.f
+    HEB_HIRIQ + "ית",  # Pl.f
 )
 
 HEB_PREFIX = (
     "י" + HEB_SHEVA,  # y'
     "י" + HEB_HIRIQ,  # Yi
     "י" + HEB_PATAH,  # Ya
+    "י" + HEB_QAMATS,  # Ya
+    "י" + HEB_QAMATS_QATAN,  # Ya
     "י" + HEB_DAGESH + HEB_SHEVA,  # y'
     "י" + HEB_DAGESH + HEB_HIRIQ,  # Yi
     "י" + HEB_DAGESH + HEB_PATAH,  # Ya
@@ -251,25 +268,26 @@ def parse_definite_article(raw: str) -> tuple[str, bool]:
 
 def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
     """Parse inseparable prepositions."""
+    if len(raw) == 1 or raw[0] not in HEBREW_INSEPARABLE_PREPOSITIONS:
+        return (raw, None, False)
+
     word = raw
     preposition = None
     definite_article = False
-    if (
-        len(raw) > 1
-        and raw[0] in HEBREW_INSEPARABLE_PREPOSITIONS
-        and raw[1]
-        in (
-            HEB_SHEVA,
-            HEB_PATAH,
-            HEB_QAMATS,
-            HEB_QAMATS_QATAN,
-        )
+
+    i = 2 if raw[1] == HEB_DAGESH else 1
+
+    if raw[i] in (
+        HEB_SHEVA,
+        HEB_PATAH,
+        HEB_QAMATS,
+        HEB_QAMATS_QATAN,
     ):
-        if raw[1] in (HEB_PATAH, HEB_QAMATS, HEB_QAMATS_QATAN):
+        if raw[i] in (HEB_PATAH, HEB_QAMATS, HEB_QAMATS_QATAN):
             definite_article = True
 
         preposition = raw[0]
-        word = raw[2:]
+        word = raw[i + 1 :]
 
     return (word, preposition, definite_article)
 
