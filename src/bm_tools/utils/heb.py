@@ -46,6 +46,19 @@ HEBREW_CONSANANTS = (
     "ת",
 )
 
+HEBREW_GUTERALS_WEAK = (
+    "א",
+    "ע",
+    "ר",
+)
+
+HEBREW_GUTERALS_HARSH = (
+    "ה",
+    "ח",
+)
+
+HEBREW_GUTERALS = HEBREW_GUTERALS_HARSH + HEBREW_GUTERALS_WEAK
+
 HEBREW_INSEPARABLE_PREPOSITIONS = (
     "ב",
     "כ",
@@ -155,6 +168,7 @@ class Yahweh:
     """The name."""
 
     word: str
+    word_constanants: str
     raw: str
     preposition: str | None
     vav_consec: bool = False
@@ -165,6 +179,7 @@ class HebUnknown:
     """Unknown Hebrew word."""
 
     word: str
+    word_constanants: str
     raw: str
     vav_consec: bool = False
     definite_article: bool = False
@@ -178,6 +193,7 @@ class HebArticle:
     """Hebrew Definite Article."""
 
     word: str
+    word_constanants: str
     raw: str
     vav_consec: bool = False
     definite_article: bool = True
@@ -189,6 +205,7 @@ class HebPreposition:
     """Hebrew Preposition."""
 
     word: str
+    word_constanants: str
     raw: str
     vav_consec: bool
     definite_article: bool
@@ -200,6 +217,7 @@ class HebVerb:
     """Hebrew Verb."""
 
     word: str
+    word_constanants: str
     raw: str
     vav_consec: bool
     definite_article: bool
@@ -216,6 +234,7 @@ class HebNoun:
     preposition: str | None
     definite_article: bool
     word: str
+    word_constanants: str
     raw: str
 
 
@@ -255,13 +274,36 @@ def parse_vav_consecutive(raw: str) -> tuple[str, bool]:
 
 def parse_definite_article(raw: str) -> tuple[str, bool]:
     """Parse the definite article."""
-    if raw[0] == "ה" and raw[1] in (
-        HEB_SHEVA,
-        HEB_PATAH,
-        HEB_QAMATS,
-        HEB_QAMATS_QATAN,
-    ):
-        return raw[2:], True
+    if len(raw) < 4 or raw[0] != "ה":  # noqa: PLR2004
+        return raw, False
+
+    if raw[2] in HEBREW_GUTERALS:
+        if any(
+            [
+                # Segol following Chet Qamats
+                (
+                    raw[1] == HEB_SEGOL
+                    and raw[2] in ("ה", "ע", "ח")
+                    and raw[3] == HEB_QAMATS
+                ),
+                # Qamats following accented Hey or Ayin Qamats
+                raw[1] == HEB_QAMATS and raw[2] in ("ה", "ע") and raw[3] == HEB_QAMATS,
+                # Weak guteral
+                raw[2] in HEBREW_GUTERALS_WEAK and raw[1] == HEB_QAMATS,
+                # Strong guteral
+                raw[2] in HEBREW_GUTERALS_HARSH and raw[1] == HEB_PATAH,
+            ]
+        ):
+            return raw[2:], True
+
+        return raw, False
+
+    # Normal so expect dargesh
+    # Skip shin/sin dot
+    i = 4 if raw[3] in (HEB_SHIN_DOT, HEB_SIN_DOT) else 3
+
+    if raw[1] == HEB_PATAH and raw[i] == HEB_DAGESH:
+        return raw[2:i] + raw[i + 1 :], True
 
     return raw, False
 
@@ -330,7 +372,11 @@ def morph_eval(raw: str) -> ParsedWord:
     if len(raw) <= 1:
         # Single letters, not sure what to do with these?
         # Is this an error?
-        return HebUnknown(word=raw, raw=raw)
+        return HebUnknown(
+            word=raw,
+            word_constanants=constanants(raw),
+            raw=raw,
+        )
 
     word, vav_cons = parse_vav_consecutive(raw=raw)
     word, full_definite_article = parse_definite_article(raw=word)
@@ -341,7 +387,8 @@ def morph_eval(raw: str) -> ParsedWord:
     if word_constanants == "יהוה":
         return Yahweh(
             preposition=preposition,
-            word=constanants(raw),
+            word_constanants=constanants(raw),
+            word=raw,
             raw=raw,
         )
 
@@ -351,7 +398,8 @@ def morph_eval(raw: str) -> ParsedWord:
             preposition=preposition,
             vav_consec=vav_cons,
             definite_article=definite_article,
-            word=word_constanants,
+            word=word,
+            word_constanants=word_constanants,
             raw=raw,
         )
 
@@ -366,7 +414,8 @@ def morph_eval(raw: str) -> ParsedWord:
             preposition=preposition,
             vav_consec=vav_cons,
             definite_article=definite_article,
-            word=word_constanants,
+            word=word,
+            word_constanants=word_constanants,
             raw=raw,
         )
 
@@ -383,7 +432,8 @@ def morph_eval(raw: str) -> ParsedWord:
         )
 
     return HebUnknown(
-        word=word_constanants,
+        word=word,
+        word_constanants=word_constanants,
         raw=raw,
         vav_consec=vav_cons,
         definite_article=full_definite_article or definite_article,
@@ -424,12 +474,13 @@ def parse_bible(
                 word = morph_eval(raw=normalised)
                 parsed_words[normalised] = word
 
-            count[word.word] = count.get(word.word, 0) + 1
+            count[word.word_constanants] = count.get(word.word_constanants, 0) + 1
 
     db.execute(
         """CREATE TABLE words(
             raw TEXT,
             word TEXT,
+            constanants TEXT,
             count INT,
             unknown BOOL,
             vav_con BOOL,
@@ -443,11 +494,12 @@ def parse_bible(
     for raw, word in parsed_words.items():
         if isinstance(word, HebUnknown):
             db.execute(
-                "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (
                     raw,
                     word.word,
-                    count[word.word],
+                    word.word_constanants,
+                    count[word.word_constanants],
                     True,
                     word.vav_consec,
                     word.definite_article,
@@ -459,11 +511,12 @@ def parse_bible(
             continue
 
         db.execute(
-            "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?,?)",
             (
                 raw,
                 word.word,
-                count[word.word],
+                word.word_constanants,
+                count[word.word_constanants],
                 False,
                 word.vav_consec,
                 False,
