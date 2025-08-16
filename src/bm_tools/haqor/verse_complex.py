@@ -39,7 +39,7 @@ def gen_verse_complexity(
             if not normalised:
                 continue
 
-            word = parsed_words[normalised].word
+            word = parsed_words[normalised].word_constanants
             min_count = min(min_count, word_count[word])
 
         bible.append((book, chapter, verse, words, min_count))
