@@ -3,7 +3,7 @@
 import pytest
 from hamcrest import assert_that, equal_to
 
-from bm_tools.utils.heb import parse_definite_article
+from bm_tools.utils.heb import parse_definite_article, parse_inseparable_prepositions
 
 
 @pytest.mark.parametrize(
@@ -23,4 +23,37 @@ def test_parse_definite_article(raw: str, word: str, definite_article: bool) -> 
     actual_word, actual_definite_article = parse_definite_article(raw=raw)
 
     assert_that(actual_definite_article, equal_to(definite_article))
+    assert_that(list(actual_word), equal_to(list(word)))
+
+
+@pytest.mark.parametrize(
+    ("raw", "word", "preposition", "definite_article"),
+    [
+        ("", "", None, False),
+        ("בִּרְקִיעַ", "רְקִיעַ", "ב", False),
+        ("לְאֹתֹת", "אֹתֹת", "ל", False),
+        # Before Yod Sheva
+        ("בִּימֵי", "יְמֵי", "ב", False),
+        # Before Composite/hataf Sheva, point with the corresponding short vowel
+        ("לַעֲבֹד", "עֲבֹד", "ל", False),
+        ("בַּעֲדוֹ", "עֲדוֹ", "ב", False),
+        ("כַּאֲשֶׁר", "אֲשֶׁר", "כ", False),
+        ("מִתַּחַת", "תַחַת", "מ", False),
+        ("מֵעַל", "עַל", "מ", False),
+        ("מֵהָעוֹף", "עוֹף", "מ", True),
+    ],
+)
+def test_parse_inseparable_prepositions(
+    raw: str,
+    word: str,
+    preposition: str,
+    definite_article: bool,  # noqa: FBT001
+) -> None:
+    """Test the definite article is correctly parsed."""
+    actual_word, actual_preposition, actual_definite_article = (
+        parse_inseparable_prepositions(raw=raw)
+    )
+
+    assert_that(actual_definite_article, equal_to(definite_article))
+    assert_that(actual_preposition, equal_to(preposition))
     assert_that(list(actual_word), equal_to(list(word)))

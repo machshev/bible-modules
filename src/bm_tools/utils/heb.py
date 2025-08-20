@@ -62,10 +62,11 @@ HEBREW_GUTERALS = HEBREW_GUTERALS_HARSH + HEBREW_GUTERALS_WEAK
 HEBREW_INSEPARABLE_PREPOSITIONS = (
     "ב",
     "כ",
-    "ש",
     "ל",
     "מ",
+    # "ש",
 )
+
 
 HEBREW_PREPOSITIONS = (
     "אָשֵׁר",  # That
@@ -179,13 +180,15 @@ class HebUnknown:
     """Unknown Hebrew word."""
 
     word: str
-    word_constanants: str
     raw: str
+    word_constanants: str
+    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
+    number: str  # i.e. (s)ingular. (p)lural, and (d)uel
+    prefix: str = ""
+    suffix: str = ""
     vav_consec: bool = False
     definite_article: bool = False
     preposition: str | None = None
-    prefix: str = ""
-    suffix: str = ""
 
 
 @dataclass(frozen=True)
@@ -222,7 +225,8 @@ class HebVerb:
     vav_consec: bool
     definite_article: bool
     preposition: str | None
-    number: int | None
+    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
+    number: str  # i.e. (s)ingular. (p)lural, and (d)uel
     tense: str | None
     mood: str | None
 
@@ -236,6 +240,8 @@ class HebNoun:
     word: str
     word_constanants: str
     raw: str
+    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
+    number: str  # i.e. (s)ingular. (p)lural, and (d)uel
 
 
 ParsedWord = Yahweh | HebArticle | HebPreposition | HebNoun | HebVerb | HebUnknown
@@ -310,7 +316,7 @@ def parse_definite_article(raw: str) -> tuple[str, bool]:
 
 def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
     """Parse inseparable prepositions."""
-    if len(raw) == 1 or raw[0] not in HEBREW_INSEPARABLE_PREPOSITIONS:
+    if len(raw) < 5 or raw[0] not in HEBREW_INSEPARABLE_PREPOSITIONS:  # noqa: PLR2004
         return (raw, None, False)
 
     word = raw
@@ -319,17 +325,46 @@ def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
 
     i = 2 if raw[1] == HEB_DAGESH else 1
 
-    if raw[i] in (
-        HEB_SHEVA,
-        HEB_PATAH,
-        HEB_QAMATS,
-        HEB_QAMATS_QATAN,
-    ):
-        if raw[i] in (HEB_PATAH, HEB_QAMATS, HEB_QAMATS_QATAN):
-            definite_article = True
+    if (raw[0] in ("ב", "כ") and raw[1] == HEB_DAGESH) or (raw[0] == "ל"):
+        # TODO: Special cases Yahweh and Elohim
 
-        preposition = raw[0]
-        word = raw[i + 1 :]
+        if any(
+            [
+                # Standard preposition
+                raw[i] == HEB_SHEVA,
+                # Before Sheva, point with hiriq
+                (raw[i] == HEB_HIRIQ and raw[i + 2] == HEB_SHEVA),
+                # Before Composite/hataf Sheva, point with the corresponding short vowel
+                (raw[i] == HEB_PATAH and raw[i + 2] == HEB_HATAF_PATAH),
+                (raw[i] == HEB_SEGOL and raw[i + 2] == HEB_HATAF_SEGOL),
+                (raw[i] == HEB_QAMATS and raw[i + 2] == HEB_HATAF_QAMATS),
+            ]
+        ):
+            preposition = raw[0]
+            word = raw[i + 1 :]
+
+        # Before Yod Sheva
+        elif raw[i] == HEB_HIRIQ and raw[i + 1] == "י":
+            preposition = raw[0]
+            word = "י" + HEB_SHEVA + raw[i + 2 :]
+
+        # Check for the article
+        elif raw[i] in (HEB_PATAH, HEB_SEGOL, HEB_QAMATS):
+            word, definite_article = parse_definite_article(raw="ה" + raw[i:])
+            if definite_article:
+                preposition = raw[0]
+
+    elif raw[0] == "מ":
+        # Definite article is preserved in full after preposition `Min` and
+        # since the article is ה which is guteral, we only check the article
+        # here in this path.
+        if raw[1] == HEB_TSERE and raw[2] in HEBREW_GUTERALS:
+            preposition = raw[0]
+            word, definite_article = parse_definite_article(raw=raw[2:])
+
+        elif raw[1] == HEB_HIRIQ and raw[3] == HEB_DAGESH:
+            preposition = raw[0]
+            word = raw[2] + raw[4:]
 
     return (word, preposition, definite_article)
 
@@ -355,16 +390,15 @@ def explode(raw: str) -> tuple[str, str, str]:
     return word, prefix, suffix
 
 
-def grammar(raw: str) -> tuple[str, int | None, str | None, str | None]:
+def grammar(raw: str) -> tuple[str, str, str, str, str]:
     """Grammatical evaluation."""
     word = raw
-    number = None
-    tense = None
-    mood = None
+    gender = ""
+    number = ""
+    tense = ""
+    mood = ""
 
-    # remove prefix/sufix
-
-    return word, number, tense, mood
+    return word, gender, number, tense, mood
 
 
 def morph_eval(raw: str) -> ParsedWord:
@@ -404,7 +438,7 @@ def morph_eval(raw: str) -> ParsedWord:
         )
 
     word, prefix, suffix = explode(raw=word)
-    word, number, tense, mood = grammar(raw=word)
+    word, gender, number, tense, mood = grammar(raw=word)
 
     word_constanants = constanants(word)
 
@@ -435,6 +469,8 @@ def morph_eval(raw: str) -> ParsedWord:
         word=word,
         word_constanants=word_constanants,
         raw=raw,
+        gender=gender,
+        number=number,
         vav_consec=vav_cons,
         definite_article=full_definite_article or definite_article,
         preposition=preposition,
@@ -486,6 +522,8 @@ def parse_bible(
             vav_con BOOL,
             article BOOL,
             prepositions TEXT,
+            gender TEXT,
+            number TEXT,
             prefix TEXT,
             suffix TEXT
         )"""
@@ -494,7 +532,7 @@ def parse_bible(
     for raw, word in parsed_words.items():
         if isinstance(word, HebUnknown):
             db.execute(
-                "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     raw,
                     word.word,
@@ -504,6 +542,8 @@ def parse_bible(
                     word.vav_consec,
                     word.definite_article,
                     word.preposition,
+                    word.gender,
+                    word.number,
                     word.prefix,
                     word.suffix,
                 ),
@@ -511,7 +551,7 @@ def parse_bible(
             continue
 
         db.execute(
-            "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO words VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 raw,
                 word.word,
@@ -521,6 +561,8 @@ def parse_bible(
                 word.vav_consec,
                 False,
                 word.preposition,
+                "",
+                "",
                 "",
                 "",
             ),
