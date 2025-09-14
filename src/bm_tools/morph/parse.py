@@ -8,28 +8,22 @@ from bm_tools.morph.constants import (
     HEB_HATAF_SEGOL,
     HEB_HIRIQ,
     HEB_PATAH,
-    HEB_PREFIX,
     HEB_QAMATS,
     HEB_SEGOL,
     HEB_SHEVA,
     HEB_SHIN_DOT,
     HEB_SIN_DOT,
-    HEB_SUFFIX,
     HEB_TSERE,
     HEBREW_GUTERALS,
     HEBREW_GUTERALS_HARSH,
     HEBREW_GUTERALS_WEAK,
     HEBREW_INSEPARABLE_PREPOSITIONS,
-    HEBREW_PREPOSITIONS,
 )
 from bm_tools.morph.helpers import constanants
-from bm_tools.morph.models import (
-    CommonElements,
-    HebNoun,
-    HebPreposition,
-    HebUnknown,
-    HebVerb,
-)
+from bm_tools.morph.models import CommonElements, HebUnknown
+from bm_tools.morph.noun import HebNoun, is_noun
+from bm_tools.morph.preposition import HebPreposition, is_preposition
+from bm_tools.morph.verb import HebVerb, is_verb
 from bm_tools.morph.yahweh import Yahweh, is_yahweh
 
 ParsedWord = Yahweh | HebArticle | HebPreposition | HebNoun | HebVerb | HebUnknown
@@ -137,27 +131,6 @@ def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
     return (word, preposition, definite_article)
 
 
-def explode(raw: str) -> tuple[str, str, str]:
-    """Separate a word into it's grammatical parts."""
-    prefix = ""
-    suffix = ""
-
-    for s in HEB_PREFIX:
-        if raw.startswith(s):
-            prefix = s
-            break
-
-    for s in HEB_SUFFIX:
-        if raw.endswith(s):
-            suffix = s
-            break
-
-    # remove prefix/sufix
-    word = raw[len(prefix) : len(raw) - len(suffix)]
-
-    return word, prefix, suffix
-
-
 def common_elements(raw: str) -> CommonElements:
     """Parse common word elements."""
     word, vav_cons = parse_vav_consecutive(raw=raw)
@@ -177,49 +150,22 @@ def morph_eval(raw: str) -> ParsedWord:
     """Evaluate the Morphology of a word."""
     elements = common_elements(raw=raw)
 
-    for parser in (is_yahweh, is_article):
+    for parser in (
+        is_yahweh,
+        is_article,
+        is_preposition,
+        is_verb,
+        is_noun,
+    ):
         if parsed := parser(elements=elements):
             return parsed
 
-    word, prefix, suffix = explode(raw=elements.word)
-    word_constanants = constanants(word)
-    gender = ""
-    number = ""
-    tense = ""
-    mood = ""
-
-    # Known prepositions
-    if word in HEBREW_PREPOSITIONS:
-        return HebPreposition(
-            preposition=elements.preposition,
-            vav_consec=elements.vav_consec,
-            definite_article=elements.definite_article,
-            word=word,
-            word_constanants=word_constanants,
-            raw=raw,
-        )
-
-    if False:  # preposition or definite_article:
-        # Add this back in when we can differentiate between verbs and nouns
-        return HebVerb(
-            preposition=elements.preposition,
-            definite_article=elements.definite_article,
-            number=number,
-            tense=tense,
-            mood=mood,
-            word=word_constanants,
-            raw=raw,
-        )
-
+    # Unknown
     return HebUnknown(
-        word=word,
-        word_constanants=word_constanants,
-        raw=raw,
-        gender=gender,
-        number=number,
+        word=elements.word,
+        word_constanants=constanants(elements.word),
+        raw=elements.raw,
         vav_consec=elements.vav_consec,
         definite_article=elements.definite_article,
         preposition=elements.preposition,
-        prefix=prefix,
-        suffix=suffix,
     )
