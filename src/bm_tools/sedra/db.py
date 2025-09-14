@@ -18,7 +18,6 @@ __all__ = (
     "sedra4_db_word_json",
 )
 
-# ruff: noqa: RUF001
 HEBREW = {
     "A": "א",
     "B": "ב",

@@ -145,7 +145,7 @@ extend-select = ["W391", "E303"]
 allowed-confusables = ["−"]
 ignore = [
     "D203", "D213", "COM812", "ISC001",
-    "FIX", "TD",
+    "FIX", "TD", "RUF001",
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
