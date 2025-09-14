@@ -52,22 +52,6 @@ HEBREW_INSEPARABLE_PREPOSITIONS = (
 )
 
 
-HEBREW_PREPOSITIONS = (
-    "אָשֵׁר",  # That
-    "אֲשֶׁר",  # That
-    "אַשֶׁר",  # That
-    "אַשֻּׁר",  # That
-    "כִּי",  # For
-    "עַל",  # Upon
-    "אֶל",  # To
-    "לֹא",  # No/Not
-    "אַל",  # No/Not
-    "כָּל",  # All
-    "עַד",  # Until
-    "אִם",  # With
-    "כָל",  # All
-)
-
 HEB_SHEVA = chr(0x05B0)
 HEB_HATAF_SEGOL = chr(0x05B1)
 HEB_HATAF_PATAH = chr(0x05B2)
@@ -108,41 +92,4 @@ HEBREW_VOWELS = (
     HEB_MAPIQ,
     HEB_SHIN_DOT,
     HEB_SIN_DOT,
-)
-
-HEB_SUFFIX = (
-    HEB_PATAH + "ה",  # perf.s.3.f
-    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_QAMATS,  # perf.s.2.m
-    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA,  # perf.s.2.f
-    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_HIRIQ + "י",  # perf.s.2.f
-    "ו" + HEB_DAGESH,  # perf.pl.3.c
-    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA + "ם",  # perf.s.2.f
-    HEB_SHEVA + "ת" + HEB_DAGESH + HEB_SHEVA + "ן",  # perf.s.2.f
-    HEB_SHEVA + "נו" + HEB_DAGESH,  # perf.pl.1.c
-    # Nouns
-    HEB_HIRIQ + "י",  # to me
-    "ו" + HEB_HOLAM,  # to him
-    "ך" + HEB_QAMATS_QATAN,  # to you (s.2.m)
-    HEB_PATAH + "י",  # my
-    HEB_QAMATS + "י",  # my
-    HEB_QAMATS_QATAN + "י",  # my
-    HEB_TSERE + "י",  # of
-    HEB_QAMATS + "ה",  # Her
-    HEB_HIRIQ + "ים",  # Pl.m
-    "ו" + HEB_HOLAM + "ת",  # Pl.f
-    HEB_SEGOL + "ת",  # Pl.f
-    HEB_HIRIQ + "ית",  # Pl.f
-)
-
-HEB_PREFIX = (
-    "י" + HEB_SHEVA,  # y'
-    "י" + HEB_HIRIQ,  # Yi
-    "י" + HEB_PATAH,  # Ya
-    "י" + HEB_QAMATS,  # Ya
-    "י" + HEB_QAMATS_QATAN,  # Ya
-    "י" + HEB_DAGESH + HEB_SHEVA,  # y'
-    "י" + HEB_DAGESH + HEB_HIRIQ,  # Yi
-    "י" + HEB_DAGESH + HEB_PATAH,  # Ya
-    "ת" + HEB_HIRIQ,  # Ti
-    "א" + HEB_SEGOL,  # 'e
 )

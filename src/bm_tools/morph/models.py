@@ -2,7 +2,10 @@
 
 from dataclasses import dataclass
 
-__all__ = ("HebUnknown",)
+__all__ = (
+    "CommonElements",
+    "HebUnknown",
+)
 
 
 @dataclass(frozen=True)
@@ -23,51 +26,10 @@ class HebUnknown:
     word: str
     raw: str
     word_constanants: str
-    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
-    number: str  # i.e. (s)ingular. (p)lural, and (d)uel
+    gender: str = ""  # i.e. (m)asculin, (f)eminin, and (n)uteral
+    number: str = ""  # i.e. (s)ingular. (p)lural, and (d)uel
     prefix: str = ""
     suffix: str = ""
     vav_consec: bool = False
     definite_article: bool = False
     preposition: str | None = None
-
-
-@dataclass(frozen=True)
-class HebPreposition:
-    """Hebrew Preposition."""
-
-    word: str
-    word_constanants: str
-    raw: str
-    vav_consec: bool
-    definite_article: bool
-    preposition: str | None
-
-
-@dataclass(frozen=True)
-class HebVerb:
-    """Hebrew Verb."""
-
-    word: str
-    word_constanants: str
-    raw: str
-    vav_consec: bool
-    definite_article: bool
-    preposition: str | None
-    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
-    number: str  # i.e. (s)ingular. (p)lural, and (d)uel
-    tense: str | None
-    mood: str | None
-
-
-@dataclass(frozen=True)
-class HebNoun:
-    """Hebrew Noun."""
-
-    preposition: str | None
-    definite_article: bool
-    word: str
-    word_constanants: str
-    raw: str
-    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
-    number: str  # i.e. (s)ingular. (p)lural, and (d)uel

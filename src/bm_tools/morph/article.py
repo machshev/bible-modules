@@ -24,7 +24,7 @@ class HebArticle:
 
 
 def is_article(elements: CommonElements) -> HebArticle | None:
-    """Is the word the definite article."""
+    """Is the word the definite article?"""
     word_constanants = constanants(elements.word)
 
     if word_constanants == "את":
