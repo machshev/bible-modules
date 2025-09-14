@@ -403,15 +403,6 @@ def grammar(raw: str) -> tuple[str, str, str, str, str]:
 
 def morph_eval(raw: str) -> ParsedWord:
     """Evaluate the Morphology of a word."""
-    if len(raw) <= 1:
-        # Single letters, not sure what to do with these?
-        # Is this an error?
-        return HebUnknown(
-            word=raw,
-            word_constanants=constanants(raw),
-            raw=raw,
-        )
-
     word, vav_cons = parse_vav_consecutive(raw=raw)
     word, full_definite_article = parse_definite_article(raw=word)
     word, preposition, definite_article = parse_inseparable_prepositions(raw=word)
