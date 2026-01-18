@@ -23,10 +23,21 @@ from bm_tools.morph.helpers import constanants
 from bm_tools.morph.models import CommonElements, HebUnknown
 from bm_tools.morph.noun import HebNoun, is_noun
 from bm_tools.morph.preposition import HebPreposition, is_preposition
+from bm_tools.morph.adverb import HebAdverb, is_adverb
 from bm_tools.morph.verb import HebVerb, is_verb
+from bm_tools.morph.pronoun import HebPronoun, is_pronoun
 from bm_tools.morph.yahweh import Yahweh, is_yahweh
 
-ParsedWord = Yahweh | HebArticle | HebPreposition | HebNoun | HebVerb | HebUnknown
+ParsedWord = (
+    Yahweh
+    | HebArticle
+    | HebPreposition
+    | HebPronoun
+    | HebAdverb
+    | HebNoun
+    | HebVerb
+    | HebUnknown
+)
 
 
 def parse_vav_consecutive(raw: str) -> tuple[str, bool]:
@@ -154,6 +165,8 @@ def morph_eval(raw: str) -> ParsedWord:
         is_yahweh,
         is_article,
         is_preposition,
+        is_pronoun,
+        is_adverb,
         is_verb,
         is_noun,
     ):
