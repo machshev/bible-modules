@@ -6,20 +6,17 @@ from bm_tools.morph.helpers import constanants
 from bm_tools.morph.models import CommonElements
 
 HEBREW_PREPOSITIONS = (
-    "אָשֵׁר",  # That
-    "אֲשֶׁר",  # That
-    "אַשֶׁר",  # That
-    "אַשֻּׁר",  # That
     "כִּי",  # For
     "עַל",  # Upon
     "אֶל",  # To
     "לֹא",  # No/Not
     "אַל",  # No/Not
-    "כָּל",  # All
     "עַד",  # Until
     "אִם",  # With
-    "כָל",  # All
+    "מִן",  # From
+    "אַיִן",  # There is not
 )
+HEBREW_PREPOSITIONS_CONST = tuple(constanants(w) for w in HEBREW_PREPOSITIONS)
 
 __all__ = (
     "HebPreposition",
@@ -41,7 +38,7 @@ class HebPreposition:
 
 def is_preposition(elements: CommonElements) -> HebPreposition | None:
     """Is the word a preposition."""
-    if elements.word not in HEBREW_PREPOSITIONS:
+    if constanants(elements.word) not in HEBREW_PREPOSITIONS_CONST:
         return None
 
     return HebPreposition(
