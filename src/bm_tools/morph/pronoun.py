@@ -34,6 +34,8 @@ HEBREW_PRONOUNS = (
     "אֵי",
     # Indefinite pronouns
     "כָל",  # All
+    # Pronominal suffix (1cs) — also catches construct plural of בן after ב-strip
+    "נִי",  # me / my
 )
 HEBREW_PRONOUNS_CONST = tuple(constanants(w) for w in HEBREW_PRONOUNS)
 
