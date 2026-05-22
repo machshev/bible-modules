@@ -16,6 +16,8 @@ from pathlib import Path
 import click
 from logzero import INFO, logger, loglevel
 
+from bm_tools.haqor.bdb_import import import_bdb
+from bm_tools.haqor.lex_check import lex_check
 from bm_tools.render import _BIBLE_RENDERERS, render_all, render_bible
 from bm_tools.sedra.bible import gen_bible_cache_file
 from bm_tools.sedra.db import TRANSLIT_MAPS, sedra4_db_word_json
@@ -149,10 +151,51 @@ def morph_review(*, index: int, rows: int | None, unknowns: bool, sort: bool) ->
     review(index=index, rows=rows, unknowns=unknowns, sort=sort)
 
 
+@haqor.group()
+def lex() -> None:
+    """Lexicon tools."""
+
+
+@lex.command()
+@click.option(
+    "-n",
+    "--num",
+    "num",
+    default=20,
+    type=int,
+    show_default=True,
+    help="Number of missing words to print (0 = all)",
+)
+def check(*, num: int) -> None:
+    """Check BDB lexicon coverage for every word in the bible.
+
+    Iterates all word types in haqor.db and reports which ones have no
+    matching BDB entry.  Use -n 0 to print every missing word.
+    """
+    db_path = Path.cwd() / "modules" / "haqor" / "haqor.db"
+    lex_check(db_path=db_path, num=num if num > 0 else None)
+
+
 @admin.command()
 def cache_file() -> None:
     """Generate a cache file for easier SEDRA3 bible parsing."""
     gen_bible_cache_file()
+
+
+@admin.command("import-bdb")
+def import_bdb_cmd() -> None:
+    """Build the BDB definition cache (modules/haqor/bdb_cache.db).
+
+    This only needs to be re-run when the Sefaria BDB source JSON changes.
+    The cache is automatically merged into haqor.db during `bm gen all -s haqor`.
+    """
+    src_root = Path.cwd()
+    db_path = src_root / "modules" / "haqor" / "bdb_cache.db"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    db_path.unlink(missing_ok=True)
+    count = import_bdb(src_root=src_root, db_path=db_path)
+    logger.info("Wrote %d BDB entries to %s", count, db_path)
+
 
 
 if __name__ == "__main__":

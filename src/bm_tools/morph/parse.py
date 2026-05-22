@@ -45,6 +45,11 @@ def parse_vav_consecutive(raw: str) -> tuple[str, bool]:
     if raw[0] == "ו" and raw[1] in (
         HEB_SHEVA,
         HEB_PATAH,
+        HEB_DAGESH,  # וּ (shureq) = conjunction "and" before ב/כ/מ/פ
+        HEB_HIRIQ,  # וִ = conjunction "and" before י (hiriq assimilation)
+        HEB_QAMATS,  # וָ = conjunction "and" before ר and some consonants
+        HEB_SEGOL,  # וֶ = conjunction "and" before aleph-initial words
+        HEB_TSERE,  # וֵ = conjunction "and" (less common variant)
     ):
         return raw[2:], True
 
@@ -84,6 +89,21 @@ def parse_definite_article(raw: str) -> tuple[str, bool]:
     if raw[1] == HEB_PATAH and raw[i] == HEB_DAGESH:
         return raw[2:i] + raw[i + 1 :], True
 
+    # NFD canonical: vowel appears before dagesh (e.g. לַּ = ל + patah + dagesh).
+    # Only applies when the vowel is not sheva (sheva is handled below).
+    if raw[1] == HEB_PATAH and raw[3] != HEB_SHEVA and i + 1 < len(raw) and raw[i + 1] == HEB_DAGESH:
+        return raw[2 : i + 1] + raw[i + 2 :], True
+
+    # Article before consonant + sheva (no dagesh): e.g. הַלְ, הַנְ, הַמְ
+    # These letters resist dagesh forte or have a reduced vowel after the article.
+    if raw[1] == HEB_PATAH and raw[3] == HEB_SHEVA:
+        return raw[2:], True
+
+    # Fallback: article where dagesh forte is quiesced (e.g. הַשַׁבָּת without dagesh on שׁ).
+    # raw[i] should be dagesh but is a vowel instead — strip article without removing any dagesh.
+    if raw[1] == HEB_PATAH and i < len(raw) and raw[i] not in (HEB_DAGESH, HEB_SHEVA):
+        return raw[2:], True
+
     return raw, False
 
 
@@ -98,21 +118,41 @@ def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:  #
 
     i = 2 if raw[1] == HEB_DAGESH else 1
 
-    if (raw[0] in ("ב", "כ") and raw[1] == HEB_DAGESH) or (raw[0] == "ל"):
+    if (raw[0] in ("ב", "כ") and raw[1] in (HEB_DAGESH, HEB_SHEVA, HEB_PATAH, HEB_HIRIQ, HEB_QAMATS, HEB_TSERE)) or (raw[0] == "ל"):
         # TODO: Special cases Yahweh and Elohim
 
-        if any(
+        if raw[i] == HEB_SHEVA:
+            # Standard preposition; skip any dagesh forte that follows in DB encoding (e.g. בְּצַ)
+            preposition = raw[0]
+            j = i + 1
+            if j < len(raw) and raw[j] == HEB_DAGESH:
+                j += 1
+            word = raw[j:]
+
+        elif any(
             [
-                # Standard preposition
-                raw[i] == HEB_SHEVA,
                 # Before Sheva, point with hiriq
                 (raw[i] == HEB_HIRIQ and raw[i + 2] == HEB_SHEVA),
+                # Before Sheva with shin/sin-dot intervening (e.g. לִשְׁמֹר: ל+hiriq+שׁ(shin-dot)+sheva)
+                (raw[i] == HEB_HIRIQ and i + 3 < len(raw) and raw[i + 2] in (HEB_SHIN_DOT, HEB_SIN_DOT) and raw[i + 3] == HEB_SHEVA),
                 # Before Composite/hataf Sheva, point with the corresponding short vowel
                 (raw[i] == HEB_PATAH and raw[i + 2] == HEB_HATAF_PATAH),
                 (raw[i] == HEB_SEGOL and raw[i + 2] == HEB_HATAF_SEGOL),
                 (raw[i] == HEB_QAMATS and raw[i + 2] == HEB_HATAF_QAMATS),
+                # ל + hataf vowel before Hiphil infinitive or guttural-initial word
+                raw[i] in (HEB_HATAF_PATAH, HEB_HATAF_SEGOL, HEB_HATAF_QAMATS),
             ]
         ):
+            preposition = raw[0]
+            word = raw[i + 1 :]
+
+        # ב/כ + hiriq + dagesh + root (e.g. כִּדְמוּתֵנוּ — before sheva-initial word)
+        elif raw[i] == HEB_HIRIQ and i + 1 < len(raw) and raw[i + 1] == HEB_DAGESH:
+            preposition = raw[0]
+            word = raw[i + 2 :]
+
+        # ב/כ + hiriq + root without dagesh (e.g. בִדְגַת — before sheva-initial word)
+        elif raw[i] == HEB_HIRIQ and raw[0] in ("ב", "כ") and i + 1 < len(raw) and raw[i + 1] != "י":
             preposition = raw[0]
             word = raw[i + 1 :]
 
@@ -122,7 +162,8 @@ def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:  #
             word = "י" + HEB_SHEVA + raw[i + 2 :]
 
         # ל + tsere before pe-aleph infinitive construct (e.g. לֵאמֹר)
-        elif raw[0] == "ל" and raw[i] == HEB_TSERE:
+        # ב/כ + tsere = compensatory lengthening before guttural (e.g. כֵּאלֹהִים)
+        elif (raw[0] == "ל" and raw[i] == HEB_TSERE) or (raw[0] == "ל" and raw[i] == HEB_QAMATS) or (raw[0] in ("ב", "כ") and raw[i] == HEB_TSERE):  # noqa: E501
             preposition = raw[0]
             word = raw[i + 1 :]
 
@@ -184,14 +225,73 @@ def morph_eval(raw: str) -> ParsedWord:
         if parsed := parser(elements=elements):
             return parsed
 
+    # Compound preposition: if a preposition was already stripped but the remaining word
+    # starts with another inseparable preposition (e.g. מִלִּפְנֵי → מ + לִפְנֵי → ל + פְנֵי),
+    # strip the second preposition and retry.
+    if elements.preposition is not None and elements.word:
+        word2, prep2, art2 = parse_inseparable_prepositions(raw=elements.word)
+        if prep2 is not None and word2 != elements.word:
+            compound = CommonElements(
+                word=word2,
+                raw=raw,
+                preposition=elements.preposition,  # keep the outer preposition
+                definite_article=elements.definite_article or art2,
+                vav_consec=elements.vav_consec,
+            )
+            for parser in (is_verb, is_noun):
+                if parsed := parser(elements=compound):
+                    return parsed
+
+    # Interrogative ה (הֲ with hataf-patah): strip ה + hataf-patah prefix and retry.
+    # This is unambiguous — patah would overlap with the definite article.
+    # E.g. הֲשֹׁמֵר (interrogative "Is he guarding?") → שֹׁמֵר (Qal participle ms).
+    if raw[0] == "ה" and len(raw) > 2 and raw[1] == HEB_HATAF_PATAH:  # noqa: PLR2004
+        interr_word = raw[2:]
+        interr_elements = CommonElements(
+            word=interr_word,
+            raw=raw,
+            preposition=elements.preposition,
+            definite_article=elements.definite_article,
+            vav_consec=elements.vav_consec,
+        )
+        for parser in (is_verb, is_noun):
+            if parsed := parser(elements=interr_elements):
+                return parsed
+
     # If stripping produced an unrecognised fragment, retry verb/noun on the raw
     # word without any stripping.  This recovers words like בָּרָא where ב is the
     # first root consonant, not a preposition.
-    if elements.word != raw:
-        bare = CommonElements(word=raw, raw=raw, preposition=None, definite_article=False, vav_consec=False)
+    # Require the stripped fragment to have at least 2 consonants to avoid false
+    # positives where prep+pronoun (e.g. לָּךְ = ל+ך) is wrongly matched as a verb.
+    if elements.word != raw and len(constanants(elements.word)) >= 2:
+        bare = CommonElements(
+            word=raw,
+            raw=raw,
+            preposition=None,
+            definite_article=False,
+            vav_consec=False,
+        )
         for parser in (is_verb, is_noun):
             if parsed := parser(elements=bare):
                 return parsed
+
+    # If a preposition was stripped but the result was unrecognised, also try the
+    # article-only-stripped form (without preposition).  This recovers words like
+    # הַלְוִיִּם where ל is the first root consonant of לֵוִי, not the ל preposition.
+    if elements.preposition is not None:
+        word_art, vav_art = parse_vav_consecutive(raw=raw)
+        word_art, art_flag = parse_definite_article(raw=word_art)
+        if word_art != elements.word:
+            no_prep = CommonElements(
+                word=word_art,
+                raw=raw,
+                preposition=None,
+                definite_article=art_flag or elements.definite_article,
+                vav_consec=vav_art or elements.vav_consec,
+            )
+            for parser in (is_noun, is_verb):
+                if parsed := parser(elements=no_prep):
+                    return parsed
 
     return HebUnknown(
         word=elements.word,
