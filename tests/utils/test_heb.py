@@ -3,7 +3,7 @@
 import pytest
 from hamcrest import assert_that, equal_to
 
-from bm_tools.utils.heb import parse_definite_article, parse_inseparable_prepositions
+from bm_tools.morph.parse import parse_definite_article, parse_inseparable_prepositions
 
 
 @pytest.mark.parametrize(
