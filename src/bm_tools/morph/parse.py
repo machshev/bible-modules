@@ -184,7 +184,15 @@ def morph_eval(raw: str) -> ParsedWord:
         if parsed := parser(elements=elements):
             return parsed
 
-    # Unknown
+    # If stripping produced an unrecognised fragment, retry verb/noun on the raw
+    # word without any stripping.  This recovers words like בָּרָא where ב is the
+    # first root consonant, not a preposition.
+    if elements.word != raw:
+        bare = CommonElements(word=raw, raw=raw, preposition=None, definite_article=False, vav_consec=False)
+        for parser in (is_verb, is_noun):
+            if parsed := parser(elements=bare):
+                return parsed
+
     return HebUnknown(
         word=elements.word,
         word_constanants=constanants(elements.word),

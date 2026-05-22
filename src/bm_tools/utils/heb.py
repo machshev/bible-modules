@@ -113,15 +113,16 @@ def review(
     index: int = 0,
     rows: int | None = None,
     unknowns: bool = False,
+    sort: bool = False,
 ) -> None:
     """Review the morphology results."""
     db_path = Path.cwd() / "modules" / "haqor" / "haqor.db"
 
     db = sqlite3.connect(db_path)
 
-    for idx, result in enumerate(
-        db.execute("SELECT raw FROM words ORDER BY count DESC")
-    ):
+    query = "SELECT raw FROM words" + (" ORDER BY count DESC" if sort else "")
+
+    for idx, result in enumerate(db.execute(query)):
         if idx < index:
             continue
 

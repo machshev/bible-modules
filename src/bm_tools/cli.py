@@ -137,9 +137,16 @@ def haqor() -> None:
     is_flag=True,
     help="Only show unknowns",
 )
-def morph_review(*, index: int, rows: int | None, unknowns: bool) -> None:
+@click.option(
+    "-s",
+    "--sort",
+    "sort",
+    is_flag=True,
+    help="Sort by word count descending",
+)
+def morph_review(*, index: int, rows: int | None, unknowns: bool, sort: bool) -> None:
     """Evaluate morphology."""
-    review(index=index, rows=rows, unknowns=unknowns)
+    review(index=index, rows=rows, unknowns=unknowns, sort=sort)
 
 
 @admin.command()
