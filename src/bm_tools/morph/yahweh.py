@@ -22,6 +22,9 @@ class Yahweh:
     vav_consec: bool = False
 
 
+_INSEP_PREP_CONS = ("ב", "כ", "ל", "מ", "ה")
+
+
 def is_yahweh(elements: CommonElements) -> Yahweh | None:
     """Is the word Yahweh?"""
     word_constanants = constanants(elements.word)
@@ -33,5 +36,17 @@ def is_yahweh(elements: CommonElements) -> Yahweh | None:
             word=elements.raw,
             raw=elements.raw,
         )
+
+    # Handle preposition + Yahweh where the preposition was not stripped
+    # (e.g. לַיהוָה, בַּיהוָה) because the vowel pattern is non-standard
+    if word_constanants.endswith("יהוה") and len(word_constanants) > 4:  # noqa: PLR2004
+        prefix = word_constanants[:-4]
+        if len(prefix) == 1 and prefix in _INSEP_PREP_CONS:
+            return Yahweh(
+                preposition=prefix,
+                word_constanants=word_constanants,
+                word=elements.word,
+                raw=elements.raw,
+            )
 
     return None
