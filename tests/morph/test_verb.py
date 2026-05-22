@@ -11,14 +11,14 @@ from bm_tools.morph.verb import HebVerb
     ("raw", "person", "gender", "number"),
     [
         # Full Qal perfect paradigm for שמר (to guard/keep)
-        ("שָׁמַר", "3", "m", "s"),    # 3ms  CāCaC (no suffix)
-        ("שָׁמְרָה", "3", "f", "s"),   # 3fs  + ָה
+        ("שָׁמַר", "3", "m", "s"),  # 3ms  CāCaC (no suffix)
+        ("שָׁמְרָה", "3", "f", "s"),  # 3fs  + ָה
         ("שָׁמַרְתָּ", "2", "m", "s"),  # 2ms  + ְתָּ
         ("שָׁמַרְתְּ", "2", "f", "s"),  # 2fs  + ְתְּ
-        ("שָׁמַרְתִּי", "1", "c", "s"), # 1cs  + ְתִּי
-        ("שָׁמְרוּ", "3", "c", "p"),    # 3cp  + וּ
-        ("שְׁמַרְתֶּם", "2", "m", "p"), # 2mp  + ְתֶּם
-        ("שְׁמַרְתֶּן", "2", "f", "p"), # 2fp  + ְתֶּן
+        ("שָׁמַרְתִּי", "1", "c", "s"),  # 1cs  + ְתִּי
+        ("שָׁמְרוּ", "3", "c", "p"),  # 3cp  + וּ
+        ("שְׁמַרְתֶּם", "2", "m", "p"),  # 2mp  + ְתֶּם
+        ("שְׁמַרְתֶּן", "2", "f", "p"),  # 2fp  + ְתֶּן
         ("שָׁמַרְנוּ", "1", "c", "p"),  # 1cp  + ְנוּ
         # Common verb: אמר (to say) — 3ms
         ("אָמַר", "3", "m", "s"),
@@ -44,23 +44,23 @@ def test_vav_consecutive_preserved() -> None:
 
     assert_that(result, instance_of(HebVerb))
     assert_that(result.tense, equal_to("imperfect"))
-    assert_that(result.vav_consec, equal_to(True))
+    assert_that(result.vav_consec, equal_to(True))  # noqa: FBT003
 
 
 @pytest.mark.parametrize(
     ("raw", "person", "gender", "number"),
     [
         # Regular strong verb שׁמר (to guard)
-        ("יִשְׁמֹר", "3", "m", "s"),    # 3ms
-        ("תִּשְׁמֹר", "2", "m", "s"),   # 2ms (also 3fs)
-        ("אֶשְׁמֹר", "1", "c", "s"),    # 1cs
-        ("נִשְׁמֹר", "1", "c", "p"),    # 1cp
+        ("יִשְׁמֹר", "3", "m", "s"),  # 3ms
+        ("תִּשְׁמֹר", "2", "m", "s"),  # 2ms (also 3fs)
+        ("אֶשְׁמֹר", "1", "c", "s"),  # 1cs
+        ("נִשְׁמֹר", "1", "c", "p"),  # 1cp
         ("יִשְׁמְרוּ", "3", "m", "p"),  # 3mp
-        ("תִּשְׁמְרוּ", "2", "m", "p"), # 2mp
-        ("תִּשְׁמְרִי", "2", "f", "s"), # 2fs
+        ("תִּשְׁמְרוּ", "2", "m", "p"),  # 2mp
+        ("תִּשְׁמְרִי", "2", "f", "s"),  # 2fs
         # Pe-aleph verb אמר (to say) — preformative takes holem
         ("יֹאמַר", "3", "m", "s"),
-        ("וַיֹּאמֶר", "3", "m", "s"),   # with vav-consecutive
+        ("וַיֹּאמֶר", "3", "m", "s"),  # with vav-consecutive
         # Niphal imperfect pe-aleph אמר — preformative takes tsere
         ("יֵאָמַר", "3", "m", "s"),
     ],

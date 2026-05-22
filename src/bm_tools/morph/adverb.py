@@ -12,18 +12,24 @@ __all__ = (
 
 HEB_ADVERB = (
     # Participle
-    "גַּם",  # Also, even
+    "גַּם",  # Also, even
     "אַף",  # Also/even
     "אַךְ",  # Surly
     "רַק",  # Only
-    "הִנֵּה",  # Behold
+    "הִנֵּה",  # Behold
     "נָא",  # Please now
-    "כֹּה",  # So
+    "כֹּה",  # So
     "עַד",  # Until
     "עוֹד",  # further
     "כֵן",  # Yes / it is so
     "אַחֲרֵי",  # After
+    "יְהִי",  # let there be / may it be (jussive of היה)
+    "עַתָּה",  # now
+    "אוֹ",  # or (conjunction)
+    "דֵּי",  # enough / that (Aramaic particle; also כְּדֵי, מִדֵּי)
+    "הִנּוֹ",  # behold him / here he is (הִנֵּה + 3ms suffix; consonants הנו)
 )
+HEB_ADVERB_CONST = tuple(constanants(w) for w in HEB_ADVERB)
 
 
 @dataclass(frozen=True)
@@ -42,7 +48,7 @@ class HebAdverb:
 
 def is_adverb(elements: CommonElements) -> HebAdverb | None:
     """Is the word a Adverb?"""
-    if elements.word not in HEB_ADVERB:
+    if constanants(elements.word) not in HEB_ADVERB_CONST:
         return None
 
     gender = ""

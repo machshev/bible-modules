@@ -1,5 +1,6 @@
 """Morphology parse."""
 
+from bm_tools.morph.adverb import HebAdverb, is_adverb
 from bm_tools.morph.article import HebArticle, is_article
 from bm_tools.morph.constants import (
     HEB_DAGESH,
@@ -23,9 +24,8 @@ from bm_tools.morph.helpers import constanants
 from bm_tools.morph.models import CommonElements, HebUnknown
 from bm_tools.morph.noun import HebNoun, is_noun
 from bm_tools.morph.preposition import HebPreposition, is_preposition
-from bm_tools.morph.adverb import HebAdverb, is_adverb
-from bm_tools.morph.verb import HebVerb, is_verb
 from bm_tools.morph.pronoun import HebPronoun, is_pronoun
+from bm_tools.morph.verb import HebVerb, is_verb
 from bm_tools.morph.yahweh import Yahweh, is_yahweh
 
 ParsedWord = (
@@ -87,7 +87,7 @@ def parse_definite_article(raw: str) -> tuple[str, bool]:
     return raw, False
 
 
-def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
+def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:  # noqa: C901
     """Parse inseparable prepositions."""
     if len(raw) < 5 or raw[0] not in HEBREW_INSEPARABLE_PREPOSITIONS:  # noqa: PLR2004
         return (raw, None, False)
@@ -121,10 +121,21 @@ def parse_inseparable_prepositions(raw: str) -> tuple[str, str | None, bool]:
             preposition = raw[0]
             word = "י" + HEB_SHEVA + raw[i + 2 :]
 
+        # ל + tsere before pe-aleph infinitive construct (e.g. לֵאמֹר)
+        elif raw[0] == "ל" and raw[i] == HEB_TSERE:
+            preposition = raw[0]
+            word = raw[i + 1 :]
+
         # Check for the article
         elif raw[i] in (HEB_PATAH, HEB_SEGOL, HEB_QAMATS):
-            word, definite_article = parse_definite_article(raw="ה" + raw[i:])
+            candidate, definite_article = parse_definite_article(raw="ה" + raw[i:])
             if definite_article:
+                word = candidate
+                preposition = raw[0]
+            elif i + 1 < len(raw) and raw[i + 1] in HEBREW_GUTERALS:
+                # Preposition with compensatory vowel before guttural-initial word
+                # (e.g. לָהֶם, בָּהֶם, כָּהֵם — preposition + 3mp/3fp pronoun)
+                word = raw[i + 1 :]
                 preposition = raw[0]
 
     elif raw[0] == "מ":
