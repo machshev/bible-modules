@@ -15,6 +15,7 @@ HEBREW_PREPOSITIONS = (
     "אִם",  # With
     "מִן",  # From
     "אַיִן",  # There is not
+    "לוֹ",  # to him / if (לו — ל+3ms suffix or conditional particle)
 )
 HEBREW_PREPOSITIONS_CONST = tuple(constanants(w) for w in HEBREW_PREPOSITIONS)
 
