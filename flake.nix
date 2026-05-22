@@ -2,7 +2,7 @@
   description = "Nix development environment";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
 
     pyproject-nix.url = "github:nix-community/pyproject.nix";
@@ -128,21 +128,24 @@
             pkgs.sqlitebrowser
             pkgs.python313Packages.ipython
             pkgs.python313Packages.ipdb
+
+            pkgs.stdenv.cc.cc.lib # provides libstdc++.so.6
+            pkgs.zlib # frequently needed
+            pkgs.libgcc # extra safety
           ];
-          env =
-            {
-              # Prevent uv from managing Python downloads
-              UV_PYTHON_DOWNLOADS = "never";
-              # Force uv to use nixpkgs Python interpreter
-              UV_PYTHON = python.interpreter;
-              # Make breakpoint() use ipdb instead of the builtin pdb
-              PYTHONBREAKPOINT = "ipdb.set_trace";
-            }
-            // lib.optionalAttrs pkgs.stdenv.isLinux {
-              LD_LIBRARY_PATH = lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;
-            };
+          env = {
+            # Prevent uv from managing Python downloads
+            UV_PYTHON_DOWNLOADS = "never";
+            # Force uv to use nixpkgs Python interpreter
+            UV_PYTHON = python.interpreter;
+            # Make breakpoint() use ipdb instead of the builtin pdb
+            PYTHONBREAKPOINT = "ipdb.set_trace";
+          };
           shellHook = ''
             unset PYTHONPATH
+
+            # Make sure libstdc++ is visible to uv venv + wheels
+            export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:''${LD_LIBRARY_PATH:-}"
           '';
         };
       };

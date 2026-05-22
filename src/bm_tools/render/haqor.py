@@ -81,7 +81,8 @@ class RenderBibleHaqor:
 
         self._db.commit()
 
-        post_process(db=self._db)
+        bdb_cache_path = self._output_path / "bdb_cache.db"
+        post_process(db=self._db, bdb_cache_path=bdb_cache_path)
 
         self._db.close()
 

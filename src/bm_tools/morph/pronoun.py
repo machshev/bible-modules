@@ -39,6 +39,19 @@ HEBREW_PRONOUNS = (
     "נִי",  # me / my
     # Object pronoun / preposition with 3ms suffix
     "אֹתוֹ",  # him / it (direct object marker + 3ms; also אִתּוֹ with him)
+    # Preposition ב + 3fs pronominal suffix הּ ("in her/it")
+    # Covers בַהּ, בָּהּ, בֵּהּ, בֵהּ — all share consonants בה
+    "בַהּ",
+    # 3fs pronominal suffix הּ alone (after preposition is stripped, e.g. לָּהּ → הּ)
+    "הּ",
+    # Direct object pronoun 3mp אוֹתָם (ʾōtām); consonants אותם  # noqa: RUF003
+    "אוֹתָם",
+    # Direct object pronoun 3fp אוֹתָן (ʾōtān); consonants אותן  # noqa: RUF003
+    "אוֹתָן",
+    # Preposition ב + 1cs suffix י ("in me / by me"); covers בִּי and בִי  # noqa: RUF003
+    "בִּי",
+    # 1cp pronominal suffix נוּ ("us/our"), e.g. לָנוּ, בָּנוּ
+    "נוּ",
 )
 HEBREW_PRONOUNS_CONST = tuple(constanants(w) for w in HEBREW_PRONOUNS)
 

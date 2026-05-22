@@ -32,6 +32,12 @@ HEBREW_PREPOSITIONS = (
     "לָהּ",  # to her / for her — ל+3fs suffix (consonants לה; also catches כַּלָּה stripped forms)  # noqa: E501
     "לָנוּ",  # to us — ל+1cp suffix (also בָּנוּ in us = ב+1cp; consonants לנו/בנו)
     "בָּנוּ",  # in us — ב+1cp suffix (also catches they-built 3cp perf of בנה)
+    "מֶנּוּ",  # from him/it — מִן+3ms suffix (after outer מ stripped from מִמֶּנּוּ)
+    "מִמֶּנִּי",  # from me — מִן+1cs suffix
+    "תַּחְתֶּנָּה",  # beneath her/it — תַּחַת+3fs suffix (consonants תחתנה)
+    "תַּחְתֶּיהָ",  # beneath her — תַּחַת+3fs suffix variant (consonants תחתיה)
+    "תַּחְתָּיו",  # beneath him — תַּחַת+3ms suffix (consonants תחתיו)
+    "מִמֶּנָּה",  # from her — מִן+3fs suffix
 )
 HEBREW_PREPOSITIONS_CONST = tuple(constanants(w) for w in HEBREW_PREPOSITIONS)
 

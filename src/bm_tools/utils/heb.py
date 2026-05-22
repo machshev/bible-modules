@@ -120,20 +120,24 @@ def review(
 
     db = sqlite3.connect(db_path)
 
-    query = "SELECT raw FROM words" + (" ORDER BY count DESC" if sort else "")
+    query = "SELECT raw FROM words" + (" ORDER BY count DESC" if sort else "")  # noqa: S608
+
+    total = known = displayed = 0
 
     for idx, result in enumerate(db.execute(query)):
         if idx < index:
             continue
 
         morph = morph_eval(raw=result[0])
+        total += 1
+        if not isinstance(morph, HebUnknown):
+            known += 1
 
-        if unknowns and not isinstance(morph, HebUnknown):
-            continue
+        if rows is None or displayed < rows:
+            if not unknowns or isinstance(morph, HebUnknown):
+                logger.info("[%i] %s: %s", idx, morph.raw[::-1], morph)
+                displayed += 1
 
-        logger.info("[%i] %s: %s", idx, morph.raw[::-1], morph)
-
-        if rows is not None:
-            rows -= 1
-            if not rows:
-                break
+    unknown = total - known
+    pct = known / total * 100 if total else 0
+    logger.info("Summary: %d total | %d known (%.1f%%) | %d unknown", total, known, pct, unknown)
