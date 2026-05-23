@@ -2,6 +2,7 @@
 
 import unicodedata
 from dataclasses import dataclass
+
 from bm_tools.morph.constants import (
     HEB_DAGESH,
     HEB_HATAF_PATAH,
@@ -370,9 +371,7 @@ def _is_qal_imp(word: str) -> bool:
     if vowel_c2 in (HEB_PATAH, HEB_TSERE, HEB_SEGOL, HEB_QAMATS) and cons not in _BDB_NOUN_LEMMAS:
         return True
     # Allow hiriq on C₂ for imperatives not in BDB (e.g. זְעִק, שְׂאִי)
-    if vowel_c2 == HEB_HIRIQ and cons not in _BDB_NOUN_LEMMAS:
-        return True
-    return False
+    return bool(vowel_c2 == HEB_HIRIQ and cons not in _BDB_NOUN_LEMMAS)
 
 
 def _is_hataf_c1_verb(word: str) -> bool:
@@ -774,7 +773,7 @@ def _is_piel_part(word: str) -> bool:
     """Piel participle ms (4 cons) or fs (5 cons ending ת): מְ + C₁(patah) + C₂ + C₃[+ת]."""
     cons = constanants(word)
     n = len(cons)
-    if n not in (4, 5) or cons[0] != "מ":  # noqa: PLR2004
+    if n not in (4, 5) or cons[0] != "מ":
         return False
     vowel_mem, _ = _first_vowel(word)
     if vowel_mem != HEB_SHEVA:
@@ -870,7 +869,7 @@ def _is_piel_perf_stem(stem: str) -> bool:
     Examples: שִׁלַּחְ (from שִׁלַּחְתִּי), בֵּרַכְ (from בֵּרַכְתָּ).
     """
     cons = constanants(stem)
-    if len(cons) not in (2, 3):  # noqa: PLR2004
+    if len(cons) not in (2, 3):
         return False
     vowel, _ = _first_vowel(stem)
     if vowel not in (HEB_HIRIQ, HEB_TSERE):
@@ -2095,7 +2094,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
     # be part of the root (e.g. אֱלֹהִים ends in ם but is a noun, not a verb+ם suffix).
     if _depth == 0 and cons_word not in _BDB_NOUN_LEMMAS:
         for suf_cons, strip_n in (("ך", 1), ("נו", 2), ("ני", 2), ("הו", 2), ("ם", 1), ("ו", 1), ("י", 1)):
-            if cons_word.endswith(suf_cons) and len(cons_word) > strip_n + 2:  # noqa: PLR2004
+            if cons_word.endswith(suf_cons) and len(cons_word) > strip_n + 2:
                 stripped = _strip_final_consonants(word, strip_n)
                 if stripped:
                     bare = CommonElements(

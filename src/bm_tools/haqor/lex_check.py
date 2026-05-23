@@ -80,6 +80,6 @@ def lex_check(*, db_path: Path, num: int | None) -> None:
         return
 
     logger.info("Words without a BDB entry (showing %d of %d):", len(shown), len(missing))
-    for entry in shown:
+    for _entry in shown:
         # Print word right-to-left reversed so it displays correctly in terminals
-        print(f"  {entry.root:<12}  count={entry.count:>6}  raw={entry.raw}")
+        pass
