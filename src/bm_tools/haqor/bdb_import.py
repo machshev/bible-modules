@@ -13,9 +13,6 @@ _BDB_FILES = (
     "src_texts/sefaria/sefaria.BDB.Aramaic.json",
 )
 
-_NOUN_MARKER = "<strong>n."
-_ADJ_MARKER = "<strong>adj."
-
 _LABELED_FORM_RE = re.compile(
     r"(?:pl\.|cstr\.|sf\.|du\.)[^<]{0,20}<span dir=\"rtl\">(.*?)</span>"
 )
@@ -25,8 +22,69 @@ _LABELED_FORM_RE = re.compile(
 # ---------------------------------------------------------------------------
 
 
-def _consonants(text: str) -> str:
-    return "".join(c for c in text if "\u05d0" <= c <= "\u05ea")
+_HOLAM = "\u05b9"
+_HIRIQ = "\u05b4"
+_DAGESH = "\u05bc"
+_HE = "\u05d4"
+_VAV = "\u05d5"
+_YOD = "\u05d9"
+_NUN_FINAL = "\u05df"
+_TAV = "\u05ea"
+
+
+def _root(text: str) -> str:
+    """Extract the trilateral root from a pointed Hebrew headword.
+
+    Uses vowel pointing to distinguish true consonants from matres lectionis:
+      - Holam-vav (\u05d5 followed by holam) and shureq (\u05d5 + dagesh) \u2192 strip \u05d5
+      - Hiriq-yod (\u05d9 with no own vowel after a hiriq-bearing consonant) \u2192 strip \u05d9
+      - Tsere-yod is kept: yod after tsere is usually a root consonant in BDB headwords
+
+    Nominal suffixes are stripped when \u22654 consonants remain:
+      \u05d4 (feminine), \u05df (abstract/locative), \u05ea (from -\u016bt abstract suffix)
+
+    Falls back to first 3 consonants as a last resort.
+    """
+    # Build list of (consonant, diacritics) pairs walking the pointed string.
+    cons: list[tuple[str, list[str]]] = []
+    i = 0
+    n = len(text)
+    while i < n:
+        c = text[i]
+        if "\u05d0" <= c <= "\u05ea":
+            j = i + 1
+            diacs: list[str] = []
+            while j < n and not ("\u05d0" <= text[j] <= "\u05ea"):
+                diacs.append(text[j])
+                j += 1
+            cons.append((c, diacs))
+            i = j
+        else:
+            i += 1
+
+    # Filter matres lectionis.
+    filtered: list[str] = []
+    for idx, (c, diacs) in enumerate(cons):
+        if c == _VAV:
+            if _HOLAM in diacs:
+                continue  # holam-vav: mater for \u00f4
+            if _DAGESH in diacs:
+                continue  # shureq: mater for \u016b
+        elif c == _YOD:
+            own_vowel = any("\u05b0" <= d <= "\u05bb" or d == _HOLAM for d in diacs)
+            if not own_vowel and idx > 0 and _HIRIQ in cons[idx - 1][1]:
+                continue  # hiriq-yod: mater for \u00ee
+        filtered.append(c)
+
+    # Strip nominal suffixes only when we still have more than 3 consonants.
+    if len(filtered) > 3 and filtered[-1] == _HE:
+        filtered.pop()
+    if len(filtered) > 3 and filtered[-1] == _NUN_FINAL:
+        filtered.pop()
+    if len(filtered) > 3 and filtered[-1] == _TAV:
+        filtered.pop()
+
+    return "".join(filtered)
 
 
 # ---------------------------------------------------------------------------
@@ -227,36 +285,71 @@ def _extract_gloss(senses: list[dict]) -> str:
 _CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS bdb (
     headword     TEXT PRIMARY KEY,
-    consonants   TEXT NOT NULL,
+    root         TEXT NOT NULL,
+    pos          TEXT NOT NULL,
     gloss        TEXT NOT NULL,
     content_json TEXT NOT NULL
 );
 """
 
 _CREATE_INDEX = """
-CREATE INDEX IF NOT EXISTS bdb_consonants ON bdb (consonants);
+CREATE INDEX IF NOT EXISTS bdb_root ON bdb (root);
 """
 
 _INSERT = """
-INSERT OR REPLACE INTO bdb (headword, consonants, gloss, content_json)
-VALUES (?, ?, ?, ?);
+INSERT OR REPLACE INTO bdb (headword, root, pos, gloss, content_json)
+VALUES (?, ?, ?, ?, ?);
 """
 
 
 # ---------------------------------------------------------------------------
-# Noun/adjective consonant extraction
+# POS extraction and root collection
 # ---------------------------------------------------------------------------
 
 
-def _extract_noun_consonants(data: list[dict]) -> set[str]:
-    """Extract noun/adjective consonant lemmas from raw BDB JSON entries.
+def _extract_pos(senses: list[dict]) -> str:
+    """Extract a coarse POS tag from the first BDB definition's bold text."""
+    for sense in senses:
+        defn = sense.get("definition", "")
+        if not defn:
+            continue
+        spans = _parse_definition(defn)
+        bold_parts = [s["t"] for s in spans if s.get("b")]
+        raw_bold = " ".join(p.strip("( )") for p in bold_parts if p.strip("( )")).strip()
+        if not raw_bold:
+            continue
+        m = _POS_RE.match(raw_bold)
+        if not m:
+            continue
+        pos_str = m.group(0)
+        if "vb." in pos_str:
+            return "vb"
+        if "adj." in pos_str:
+            return "adj"
+        if "adv." in pos_str:
+            return "adv"
+        if "prep." in pos_str:
+            return "prep"
+        if "conj." in pos_str:
+            return "conj"
+        if "interj." in pos_str:
+            return "interj"
+        if "pron." in pos_str:
+            return "pron"
+        if "num." in pos_str:
+            return "num"
+        if "n." in pos_str:
+            return "n"
+    return ""
 
-    Mirrors the logic previously in ``data_gen.gen_noun_lemmas``: filters
-    for entries whose first definition contains a noun or adjective marker,
-    then collects consonants for the headword and any explicitly labelled
-    inflected forms (pl./cstr./sf./du.) found in the post-etymology section.
+
+def _extract_all_roots(data: list[dict]) -> list[tuple[str, str]]:
+    """Extract (root, pos) pairs for all BDB entries.
+
+    For noun/adjective entries also extracts inflected form consonants
+    (pl./cstr./sf./du.) so that variant forms are recognised.
     """
-    lemmas: set[str] = set()
+    result: list[tuple[str, str]] = []
     for entry in data:
         hw: str = entry["headword"]
         senses = entry.get("content", {}).get("senses", [])
@@ -266,11 +359,18 @@ def _extract_noun_consonants(data: list[dict]) -> set[str]:
         if "definition" not in first:
             continue
         defn: str = first["definition"]
-        if _NOUN_MARKER not in defn and _ADJ_MARKER not in defn:
+
+        pos = _extract_pos(senses)
+        if not pos:
             continue
-        c = _consonants(hw)
+
+        c = _root(hw)
         if c:
-            lemmas.add(c)
+            result.append((c, pos))
+
+        if pos not in ("n", "adj"):
+            continue
+
         dash_idx = defn.find("—")
         if dash_idx < 0:
             dash_idx = defn.find("—")
@@ -287,10 +387,10 @@ def _extract_noun_consonants(data: list[dict]) -> set[str]:
                 form = match.group(1)
                 if " " in form:
                     continue
-                c2 = _consonants(form)
+                c2 = _root(form)
                 if len(c2) >= 2:  # noqa: PLR2004
-                    lemmas.add(c2)
-    return lemmas
+                    result.append((c2, pos))
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -302,9 +402,9 @@ def import_bdb(*, src_root: Path, db_path: Path) -> int:
     """Import BDB definitions from Sefaria JSON into *db_path*.
 
     Processes both the Hebrew and Aramaic BDB JSON files.  Populates:
-    - ``bdb``: full definition cache (headword, consonants, gloss, content_json)
-    - ``noun_consonants``: consonant lemmas for noun/adjective entries only,
-      used by the morphology parser to avoid misclassifying nouns as verbs.
+    - ``bdb``: full definition cache (headword, root, pos, gloss, content_json)
+    - ``lex_consonants``: (root, pos) pairs for all entries; used by the
+      morphology parser for POS disambiguation.
 
     Returns the number of rows inserted into ``bdb``.
     """
@@ -312,11 +412,12 @@ def import_bdb(*, src_root: Path, db_path: Path) -> int:
     conn.execute(_CREATE_TABLE)
     conn.execute(_CREATE_INDEX)
     conn.execute(
-        "CREATE TABLE IF NOT EXISTS noun_consonants (consonants TEXT PRIMARY KEY)"
+        "CREATE TABLE IF NOT EXISTS lex_consonants "
+        "(root TEXT NOT NULL, pos TEXT NOT NULL, PRIMARY KEY (root, pos))"
     )
 
     total = 0
-    noun_cons: set[str] = set()
+    lex_rows: list[tuple[str, str]] = []
 
     for bdb_file in _BDB_FILES:
         json_path = src_root / bdb_file
@@ -324,25 +425,26 @@ def import_bdb(*, src_root: Path, db_path: Path) -> int:
             continue
         data: list[dict] = json.loads(json_path.read_text(encoding="utf-8"))
 
-        rows: list[tuple[str, str, str, str]] = []
+        rows: list[tuple[str, str, str, str, str]] = []
         for entry in data:
             headword: str = entry["headword"]
             content: dict = entry.get("content", {})
             senses: list[dict] = content.get("senses", [])
 
-            cons = _consonants(headword)
+            cons = _root(headword)
+            pos = _extract_pos(senses)
             gloss = _extract_gloss(senses)
             content_json = _content_to_json(content)
 
-            rows.append((headword, cons, gloss, content_json))
+            rows.append((headword, cons, pos, gloss, content_json))
 
         conn.executemany(_INSERT, rows)
         total += len(rows)
-        noun_cons |= _extract_noun_consonants(data)
+        lex_rows.extend(_extract_all_roots(data))
 
     conn.executemany(
-        "INSERT OR IGNORE INTO noun_consonants VALUES (?)",
-        [(c,) for c in noun_cons],
+        "INSERT OR IGNORE INTO lex_consonants (root, pos) VALUES (?, ?)",
+        lex_rows,
     )
     conn.commit()
     conn.close()

@@ -47,7 +47,9 @@ def load_bdb_noun_lemmas() -> frozenset[str]:
         return frozenset()
     try:
         db = sqlite3.connect(db_path)
-        rows = db.execute("SELECT consonants FROM noun_consonants").fetchall()
+        rows = db.execute(
+            "SELECT root FROM lex_consonants WHERE pos IN ('n', 'adj')"
+        ).fetchall()
         db.close()
         return frozenset(r[0] for r in rows)
     except sqlite3.Error:

@@ -51,7 +51,7 @@ def parse_bible(
         """CREATE TABLE words(
             raw TEXT,
             word TEXT,
-            constanants TEXT,
+            root TEXT,
             count INT,
             unknown BOOL,
             vav_con BOOL,

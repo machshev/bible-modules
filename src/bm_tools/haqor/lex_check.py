@@ -12,7 +12,7 @@ __all__ = ("lex_check",)
 @dataclass
 class _MissingEntry:
     raw: str
-    consonants: str
+    root: str
     count: int
 
 
@@ -51,15 +51,15 @@ def lex_check(*, db_path: Path, num: int | None) -> None:
     missing: list[_MissingEntry] = []
     total = 0
 
-    for raw, consonants, count in db.execute(
-        "SELECT raw, constanants, count FROM words ORDER BY count DESC"
+    for raw, root, count in db.execute(
+        "SELECT raw, root, count FROM words ORDER BY count DESC"
     ):
         total += 1
         hit = db.execute(
-            "SELECT 1 FROM bdb WHERE consonants = ? LIMIT 1", (consonants,)
+            "SELECT 1 FROM bdb WHERE root = ? LIMIT 1", (root,)
         ).fetchone()
         if hit is None:
-            missing.append(_MissingEntry(raw=raw, consonants=consonants, count=count))
+            missing.append(_MissingEntry(raw=raw, root=root, count=count))
 
     db.close()
 
@@ -82,4 +82,4 @@ def lex_check(*, db_path: Path, num: int | None) -> None:
     logger.info("Words without a BDB entry (showing %d of %d):", len(shown), len(missing))
     for entry in shown:
         # Print word right-to-left reversed so it displays correctly in terminals
-        print(f"  {entry.consonants:<12}  count={entry.count:>6}  raw={entry.raw}")
+        print(f"  {entry.root:<12}  count={entry.count:>6}  raw={entry.raw}")
