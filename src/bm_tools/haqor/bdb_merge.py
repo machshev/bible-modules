@@ -30,11 +30,17 @@ def merge_bdb_cache(db: sqlite3.Connection, cache_path: Path) -> None:
     db.execute(
         """
         CREATE TABLE bdb AS
-        SELECT headword, consonants, gloss, content_json
+        SELECT headword, root, pos, gloss, content_json
         FROM bdb_cache.bdb
         """
     )
-    db.execute("CREATE INDEX bdb_consonants ON bdb (consonants)")
+    db.execute("CREATE INDEX bdb_root ON bdb (root)")
+    db.execute(
+        """
+        CREATE TABLE lex_consonants AS
+        SELECT root, pos FROM bdb_cache.lex_consonants
+        """
+    )
     db.execute("DETACH DATABASE bdb_cache")
 
     count = db.execute("SELECT COUNT(*) FROM bdb").fetchone()[0]
