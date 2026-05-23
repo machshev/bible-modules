@@ -48,7 +48,7 @@ HEBREW_PRONOUNS = (
     "אוֹתָם",
     # Direct object pronoun 3fp אוֹתָן (ʾōtān); consonants אותן  # noqa: RUF003
     "אוֹתָן",
-    # Preposition ב + 1cs suffix י ("in me / by me"); covers בִּי and בִי  # noqa: RUF003
+    # Preposition ב + 1cs suffix י ("in me / by me"); covers בִּי and בִי
     "בִּי",
     # 1cp pronominal suffix נוּ ("us/our"), e.g. לָנוּ, בָּנוּ
     "נוּ",

@@ -133,11 +133,15 @@ def review(
         if not isinstance(morph, HebUnknown):
             known += 1
 
-        if rows is None or displayed < rows:
-            if not unknowns or isinstance(morph, HebUnknown):
-                logger.info("[%i] %s: %s", idx, morph.raw[::-1], morph)
-                displayed += 1
+        show = (rows is None or displayed < rows) and (
+            not unknowns or isinstance(morph, HebUnknown)
+        )
+        if show:
+            logger.info("[%i] %s: %s", idx, morph.raw[::-1], morph)
+            displayed += 1
 
     unknown = total - known
     pct = known / total * 100 if total else 0
-    logger.info("Summary: %d total | %d known (%.1f%%) | %d unknown", total, known, pct, unknown)
+    logger.info(
+        "Summary: %d total | %d known (%.1f%%) | %d unknown", total, known, pct, unknown
+    )

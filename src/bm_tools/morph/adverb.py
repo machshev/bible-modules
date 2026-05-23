@@ -46,7 +46,7 @@ HEB_ADVERB = (
     "בְּטֶרֶם",  # before / ere (compound with ב; consonants בטרם)
     "מַדּוּעַ",  # why? (interrogative particle; consonants מדוע)
     "אֵין",  # there is not / no (negative existential; consonants אין)
-    "אַיִן",  # there is not / where? (negative existential/interrogative; consonants איין/אין)
+    "אַיִן",  # there is not / where? (negative existential/interrogative; consonants איין/אין)  # noqa: E501
     "אֵינֶנּוּ",  # he is not (אין + 3ms suffix; consonants איננו)
     "אֵינֶנָּה",  # she is not (אין + 3fs suffix; consonants איננה)
     "אֵינֶנִּי",  # I am not (אין + 1cs suffix; consonants איינני)

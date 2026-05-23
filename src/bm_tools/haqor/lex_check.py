@@ -31,9 +31,7 @@ def lex_check(*, db_path: Path, num: int | None) -> None:
     # Verify the bdb table exists
     tables = {
         row[0]
-        for row in db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )
+        for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
     }
     if "bdb" not in tables:
         logger.error(
@@ -55,9 +53,7 @@ def lex_check(*, db_path: Path, num: int | None) -> None:
         "SELECT raw, root, count FROM words ORDER BY count DESC"
     ):
         total += 1
-        hit = db.execute(
-            "SELECT 1 FROM bdb WHERE root = ? LIMIT 1", (root,)
-        ).fetchone()
+        hit = db.execute("SELECT 1 FROM bdb WHERE root = ? LIMIT 1", (root,)).fetchone()
         if hit is None:
             missing.append(_MissingEntry(raw=raw, root=root, count=count))
 
@@ -79,7 +75,9 @@ def lex_check(*, db_path: Path, num: int | None) -> None:
         logger.info("All words have a BDB entry.")
         return
 
-    logger.info("Words without a BDB entry (showing %d of %d):", len(shown), len(missing))
+    logger.info(
+        "Words without a BDB entry (showing %d of %d):", len(shown), len(missing)
+    )
     for _entry in shown:
         # Print word right-to-left reversed so it displays correctly in terminals
         pass

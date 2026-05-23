@@ -55,14 +55,27 @@ def is_noun(elements: CommonElements) -> HebNoun | None:
     if cons not in _BDB_NOUN_LEMMAS:
         # Build candidate stems by trying 2-char then 1-char suffix stripping.
         # Both are tried independently so that e.g. פניך strips ך (not יך) → פני.
-        # Single-consonant: ך (2ms/2fs), ו (3ms suffix)  # noqa: RUF003
+        # Single-consonant: ך (2ms/2fs), ו (3ms suffix)
         # Multi-consonant: כם (2mp), כן (2fp), נו (1cp), הם (3mp), הן (3fp)
         # Aramaic emphatic state: א suffix
         candidates: list[str] = []
-        # 3-char suffixes on construct-plural nouns: יכם (2mp), יכן (2fp), יהם (3mp), יהן (3fp), ינו (1cp)
+        # 3-char suffixes on construct-plural nouns: יכם (2mp), יכן (2fp), יהם (3mp), יהן (3fp), ינו (1cp)  # noqa: E501
         if len(cons) > 3 and cons[-3:] in ("יכם", "יכן", "יהם", "יהן", "ינו"):  # noqa: PLR2004
             candidates.append(cons[:-3])
-        if len(cons) > 2 and cons[-2:] in ("כם", "כן", "נו", "הם", "הן", "ים", "ות", "הו", "יו", "יה", "יך", "ין"):  # noqa: PLR2004
+        if len(cons) > 2 and cons[-2:] in (  # noqa: PLR2004
+            "כם",
+            "כן",
+            "נו",
+            "הם",
+            "הן",
+            "ים",
+            "ות",
+            "הו",
+            "יו",
+            "יה",
+            "יך",
+            "ין",
+        ):
             candidates.append(cons[:-2])
         if len(cons) > 1 and cons[-1] in ("ך", "ו", "א", "י", "ה", "ם", "ן", "ת"):
             candidates.append(cons[:-1])
