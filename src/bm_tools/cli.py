@@ -53,7 +53,8 @@ def sedra() -> None:
 @click.argument("word_id", type=int)
 def lookup4(word_id: int) -> None:
     """Lookup a word in the SEDRA 4 DataBase."""
-    from bm_tools.sedra.db import sedra4_db_word_json
+    from bm_tools.sedra.db import sedra4_db_word_json  # noqa: PLC0415
+
     click.echo(sedra4_db_word_json(word_id=word_id))
 
 
@@ -89,7 +90,8 @@ def bible(
     mod_name: str,
 ) -> None:
     """Create a single bible module MOD_NAME in the FORMAT and ALPHABET."""
-    from bm_tools.render import render_bible
+    from bm_tools.render import render_bible  # noqa: PLC0415
+
     render_bible(
         alphabet=alphabet,
         fmt=fmt,
@@ -122,8 +124,9 @@ def bible(
 )
 def gen_all(*, select: list[str] | None, reimport_bdb: bool) -> None:
     """Generate all bible modules."""
-    from bm_tools.haqor.bdb_import import import_bdb
-    from bm_tools.render import render_all
+    from bm_tools.haqor.bdb_import import import_bdb  # noqa: PLC0415
+    from bm_tools.render import render_all  # noqa: PLC0415
+
     if reimport_bdb:
         db_path = Path.cwd() / "modules" / "haqor" / "bdb_cache.db"
         db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -177,7 +180,8 @@ def haqor() -> None:
 )
 def morph_review(*, index: int, rows: int | None, unknowns: bool, sort: bool) -> None:
     """Evaluate morphology."""
-    from bm_tools.utils.heb import review
+    from bm_tools.utils.heb import review  # noqa: PLC0415
+
     review(index=index, rows=rows, unknowns=unknowns, sort=sort)
 
 
@@ -202,7 +206,8 @@ def check(*, num: int) -> None:
     Iterates all word types in haqor.db and reports which ones have no
     matching BDB entry.  Use -n 0 to print every missing word.
     """
-    from bm_tools.haqor.lex_check import lex_check
+    from bm_tools.haqor.lex_check import lex_check  # noqa: PLC0415
+
     db_path = Path.cwd() / "modules" / "haqor" / "haqor.db"
     lex_check(db_path=db_path, num=num if num > 0 else None)
 
@@ -276,7 +281,8 @@ def install_completions(*, shell: str | None) -> None:
 @admin.command()
 def cache_file() -> None:
     """Generate a cache file for easier SEDRA3 bible parsing."""
-    from bm_tools.sedra.bible import gen_bible_cache_file
+    from bm_tools.sedra.bible import gen_bible_cache_file  # noqa: PLC0415
+
     gen_bible_cache_file()
 
 
@@ -287,7 +293,8 @@ def import_bdb_cmd() -> None:
     This only needs to be re-run when the Sefaria BDB source JSON changes.
     The cache is automatically merged into haqor.db during `bm gen all -s haqor`.
     """
-    from bm_tools.haqor.bdb_import import import_bdb
+    from bm_tools.haqor.bdb_import import import_bdb  # noqa: PLC0415
+
     src_root = Path.cwd()
     db_path = src_root / "modules" / "haqor" / "bdb_cache.db"
     db_path.parent.mkdir(parents=True, exist_ok=True)

@@ -32,16 +32,19 @@ _NUN_FINAL = "\u05df"
 _TAV = "\u05ea"
 
 
-def _root(text: str) -> str:
+def _root(text: str) -> str:  # noqa: C901, PLR0912
     """Extract the trilateral root from a pointed Hebrew headword.
 
     Uses vowel pointing to distinguish true consonants from matres lectionis:
-      - Holam-vav (\u05d5 followed by holam) and shureq (\u05d5 + dagesh) \u2192 strip \u05d5
-      - Hiriq-yod (\u05d9 with no own vowel after a hiriq-bearing consonant) \u2192 strip \u05d9
+      - Holam-vav (\u05d5 followed by holam) and shureq (\u05d5 + dagesh)
+        \u2192 strip \u05d5
+      - Hiriq-yod (\u05d9 with no own vowel after a hiriq-bearing consonant)
+        \u2192 strip \u05d9
       - Tsere-yod is kept: yod after tsere is usually a root consonant in BDB headwords
 
     Nominal suffixes are stripped when \u22654 consonants remain:
-      \u05d4 (feminine), \u05df (abstract/locative), \u05ea (from -\u016bt abstract suffix)
+      \u05d4 (feminine), \u05df (abstract/locative),
+      \u05ea (from -\u016bt abstract suffix)
 
     Falls back to first 3 consonants as a last resort.
     """
@@ -77,11 +80,11 @@ def _root(text: str) -> str:
         filtered.append(c)
 
     # Strip nominal suffixes only when we still have more than 3 consonants.
-    if len(filtered) > 3 and filtered[-1] == _HE:
+    if len(filtered) > 3 and filtered[-1] == _HE:  # noqa: PLR2004
         filtered.pop()
-    if len(filtered) > 3 and filtered[-1] == _NUN_FINAL:
+    if len(filtered) > 3 and filtered[-1] == _NUN_FINAL:  # noqa: PLR2004
         filtered.pop()
-    if len(filtered) > 3 and filtered[-1] == _TAV:
+    if len(filtered) > 3 and filtered[-1] == _TAV:  # noqa: PLR2004
         filtered.pop()
 
     return "".join(filtered)
@@ -307,7 +310,7 @@ VALUES (?, ?, ?, ?, ?);
 # ---------------------------------------------------------------------------
 
 
-def _extract_pos(senses: list[dict]) -> str:
+def _extract_pos(senses: list[dict]) -> str:  # noqa: C901, PLR0911, PLR0912
     """Extract a coarse POS tag from the first BDB definition's bold text."""
     for sense in senses:
         defn = sense.get("definition", "")
@@ -315,7 +318,9 @@ def _extract_pos(senses: list[dict]) -> str:
             continue
         spans = _parse_definition(defn)
         bold_parts = [s["t"] for s in spans if s.get("b")]
-        raw_bold = " ".join(p.strip("( )") for p in bold_parts if p.strip("( )")).strip()
+        raw_bold = " ".join(
+            p.strip("( )") for p in bold_parts if p.strip("( )")
+        ).strip()
         if not raw_bold:
             continue
         m = _POS_RE.match(raw_bold)
@@ -343,7 +348,7 @@ def _extract_pos(senses: list[dict]) -> str:
     return ""
 
 
-def _extract_all_roots(data: list[dict]) -> list[tuple[str, str]]:
+def _extract_all_roots(data: list[dict]) -> list[tuple[str, str]]:  # noqa: C901, PLR0912
     """Extract (root, pos) pairs for all BDB entries.
 
     For noun/adjective entries also extracts inflected form consonants

@@ -20,7 +20,7 @@ from bm_tools.morph.constants import (
     HEB_SIN_DOT,
     HEB_TSERE,
 )
-from bm_tools.morph.helpers import constanants, is_consanant
+from bm_tools.morph.helpers import constanants, is_consanant, load_bdb_noun_lemmas
 from bm_tools.morph.models import CommonElements
 
 __all__ = (
@@ -48,7 +48,7 @@ _PERF_SUFFIXES: tuple[tuple[str, str, str, str], ...] = (
     ("ת" + HEB_SEGOL + HEB_DAGESH + "ן", "2", "f", "p"),  # תֶּן  2fp (no sheva before ת)
     ("ת" + HEB_QAMATS + HEB_DAGESH, "2", "m", "s"),  # תָּ   2ms (no sheva before ת)
     ("ת" + HEB_SHEVA + HEB_DAGESH, "2", "f", "s"),  # תְּ   2fs (no sheva before ת)
-    # Lamed-guttural / lamed-aleph variants: ת lacks dagesh (gutturals resist dagesh forte).
+    # Lamed-guttural / lamed-aleph variants: ת lacks dagesh (gutturals resist dagesh forte).  # noqa: E501
     # E.g. מָצָאתִי (1cs of מצא), קָרָאתִי (1cs of קרא), שָׁמַעְתָּ (2ms of שׁמע).
     ("ת" + HEB_HIRIQ + "י", "1", "c", "s"),  # תִי  1cs (no dagesh in ת)
     ("ת" + HEB_SEGOL + "ם", "2", "m", "p"),  # תֶם  2mp (no dagesh in ת)
@@ -136,8 +136,6 @@ _IMPF_BARE: tuple[tuple[str, str, str, str], ...] = (
 
 _SKIP_DIACRITICS = (HEB_DAGESH, HEB_SHIN_DOT, HEB_SIN_DOT)
 
-from bm_tools.morph.helpers import load_bdb_noun_lemmas
-
 _BDB_NOUN_LEMMAS: frozenset[str] = load_bdb_noun_lemmas()
 _HATAF_VOWELS = (HEB_HATAF_PATAH, HEB_HATAF_SEGOL, HEB_HATAF_QAMATS)
 # 3-consonant imperfect allows qamats and qubuts preformatives
@@ -206,7 +204,14 @@ def _is_valid_perf_stem(stem: str) -> bool:
         # Pe-yod: yod with no explicit vowel (quiesces after vav-consecutive strip).
         if cons[0] == "י" and (vowel is None or is_consanant(vowel)):
             c1_vowel = _vowel_at_consonant(stem, 1)
-            return c1_vowel in (HEB_PATAH, HEB_QAMATS, HEB_HIRIQ, HEB_TSERE, HEB_SHEVA, *_HATAF_VOWELS)
+            return c1_vowel in (
+                HEB_PATAH,
+                HEB_QAMATS,
+                HEB_HIRIQ,
+                HEB_TSERE,
+                HEB_SHEVA,
+                *_HATAF_VOWELS,
+            )
         return False
     if len(cons) == 2:  # noqa: PLR2004
         vowel, _ = _first_vowel(stem)
@@ -368,7 +373,10 @@ def _is_qal_imp(word: str) -> bool:
     if vowel_c2 == HEB_HOLAM:
         return True
     # Allow patah/tsere/segol/qamats on C₂ for imperatives not in BDB noun list
-    if vowel_c2 in (HEB_PATAH, HEB_TSERE, HEB_SEGOL, HEB_QAMATS) and cons not in _BDB_NOUN_LEMMAS:
+    if (
+        vowel_c2 in (HEB_PATAH, HEB_TSERE, HEB_SEGOL, HEB_QAMATS)
+        and cons not in _BDB_NOUN_LEMMAS
+    ):
         return True
     # Allow hiriq on C₂ for imperatives not in BDB (e.g. זְעִק, שְׂאִי)
     return bool(vowel_c2 == HEB_HIRIQ and cons not in _BDB_NOUN_LEMMAS)
@@ -491,14 +499,14 @@ def _is_3cons_impf(word: str) -> bool:
     return theme is not None or cons[-1] in ("ו", "י", "ה")
 
 
-def _is_lamed_he_perf(word: str) -> tuple[str, str, str] | None:
+def _is_lamed_he_perf(word: str) -> tuple[str, str, str] | None:  # noqa: PLR0911
     """Lamed-he Qal perfect where ה→י before consonantal suffixes.
 
     Patterns:
     - 2ms: C₁C₂יתָ  (4 consonants, patah on final ת, e.g. עָשִׂיתָ)
     - 2fs: C₁C₂ית   (4 consonants, no patah on ת, e.g. עָשִׂית)
     - 1cs: C₁C₂יתִי (5 consonants, e.g. רָאִיתִי, עָשִׂיתִי)
-    """  # noqa: RUF002
+    """
     cons = constanants(word)
     # 2mp/2fp: 5 consonants ending יתם/יתן
     if len(cons) == 5 and cons[-3] == "י" and cons[-2] == "ת":  # noqa: PLR2004
@@ -565,14 +573,21 @@ def _is_piel_form(word: str) -> bool:
 
     Catches Piel perfect 3ms (tsere on C₂) and imperatives (sheva on C₁), and
     the patah-theme pattern (e.g. שִׁלַּח, שִׁלַּם) where dagesh forte on C₂ is diagnostic.
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 3:  # noqa: PLR2004
         return False
     if cons in _BDB_NOUN_LEMMAS:
         return False
     vowel_c1, _ = _first_vowel(word)
-    if vowel_c1 not in (HEB_PATAH, HEB_HIRIQ, HEB_TSERE, HEB_QAMATS, HEB_SHEVA, *_HATAF_VOWELS):
+    if vowel_c1 not in (
+        HEB_PATAH,
+        HEB_HIRIQ,
+        HEB_TSERE,
+        HEB_QAMATS,
+        HEB_SHEVA,
+        *_HATAF_VOWELS,
+    ):
         return False
     vowel_c2 = _vowel_at_consonant(word, 1)
     if vowel_c2 == HEB_TSERE:
@@ -584,7 +599,7 @@ def _is_piel_form(word: str) -> bool:
 
 
 def _has_shureq(word: str, cons_idx: int) -> bool:
-    """Return True if the consonant at cons_idx is ו followed immediately by dagesh (shureq)."""
+    """Return True if the consonant at cons_idx is ו followed immediately by dagesh (shureq)."""  # noqa: E501
     char_idx = 0
     count = 0
     while char_idx < len(word):
@@ -607,7 +622,7 @@ def _is_ayin_vav_inf(word: str) -> bool:
     The DB encodes holam-vav as ו + holam and shureq as ו + dagesh.  C₁ carries no vowel diacritic.
     Catches בוֹא (inf construct/imperative of בוא "to come"), שׁוּב (inf of שׁוב "return") and similar.
     Excludes ה-final and BDB noun lemmas (e.g. קוֹל, שׁוֹר) to avoid false positives.
-    """  # noqa: E501, RUF002
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 3 or cons[-1] == "ה":  # noqa: PLR2004
         return False
@@ -628,7 +643,7 @@ def _is_lamed_nun_perf_1cs(word: str) -> bool:
 
     The final nun assimilates to the ת suffix, producing a double-ת pattern.
     Consonant signature: C₁ + C₂(=ת) + ת + י (4 consonants, last 3 are ת-ת-י).
-    """  # noqa: RUF002
+    """
     cons = constanants(word)
     if len(cons) != 4 or cons[-1] != "י" or cons[-2] != "ת" or cons[-3] != "ת":  # noqa: PLR2004
         return False
@@ -684,7 +699,7 @@ def _is_qal_part_ms_holam_vav(word: str) -> bool:
     return _vowel_at_consonant(word, 2) == HEB_TSERE
 
 
-def _is_hiphil_perf_3ms(word: str) -> bool:
+def _is_hiphil_perf_3ms(word: str) -> bool:  # noqa: C901, PLR0911
     """Hiphil perfect 3ms: strong or lamed-he root.
 
     Standard: ה(hiriq) + C₁(sheva/hataf) + C₂ + יod + C₃, 5 consonants.
@@ -707,15 +722,28 @@ def _is_hiphil_perf_3ms(word: str) -> bool:
         if vowel_h not in (HEB_HIRIQ, HEB_SEGOL, HEB_PATAH):
             return False
         return _vowel_at_consonant(word, 1) in (HEB_SHEVA, *_HATAF_VOWELS)
-    # Pe-nun Hiphil or hollow Hiphil: ה(hiriq/tsere/qamats/holam/hataf) + C₁ + יod + C₃, 4 consonants
+    # Pe-nun Hiphil or hollow Hiphil: ה(hiriq/tsere/qamats/holam/hataf) + C₁ + יod + C₃, 4 consonants  # noqa: E501
     # hiriq: pe-nun (הִגִּיד from נגד, הִשִּׁיא from נשא)
     # tsere: ayin-vav hollow (הֵבִיא from בוא, הֵשִׁיב from שׁוב)
     # qamats: pe-aleph (הָבִיא variant, הָשִׁיב variant)
     # holam: defective form (הֹשִׁיב from ישׁב, defective of הוֹשִׁיב)
     if len(cons) == 4 and cons[2] == "י":  # noqa: PLR2004
-        if vowel_h not in (HEB_HIRIQ, HEB_TSERE, HEB_QAMATS, HEB_PATAH, HEB_HOLAM, *_HATAF_VOWELS):
+        if vowel_h not in (
+            HEB_HIRIQ,
+            HEB_TSERE,
+            HEB_QAMATS,
+            HEB_PATAH,
+            HEB_HOLAM,
+            *_HATAF_VOWELS,
+        ):
             return False
-        return _vowel_at_consonant(word, 1) in (HEB_HIRIQ, HEB_TSERE, HEB_SEGOL, HEB_SHEVA, *_HATAF_VOWELS)
+        return _vowel_at_consonant(word, 1) in (
+            HEB_HIRIQ,
+            HEB_TSERE,
+            HEB_SEGOL,
+            HEB_SHEVA,
+            *_HATAF_VOWELS,
+        )
     # 3-consonant hollow Hiphil: ה(tsere/hiriq/segol/qamats/hataf) + C₁(various) + C₂
     # E.g. הֵפַר (Hiphil 3ms of פרר), הֵבֵא (Hiphil 3ms/stem of בוא),
     # הֲקִמֹ- (Hiphil stem of קום before suffix, hataf on ה before non-guttural).
@@ -723,14 +751,23 @@ def _is_hiphil_perf_3ms(word: str) -> bool:
         if vowel_h not in (HEB_TSERE, HEB_HIRIQ, HEB_SEGOL, HEB_QAMATS, *_HATAF_VOWELS):
             return False
         c1_vowel = _vowel_at_consonant(word, 1)
-        if c1_vowel not in (HEB_PATAH, HEB_SEGOL, HEB_QAMATS, HEB_HIRIQ, HEB_TSERE, HEB_SHEVA, HEB_HOLAM, None):
+        if c1_vowel not in (
+            HEB_PATAH,
+            HEB_SEGOL,
+            HEB_QAMATS,
+            HEB_HIRIQ,
+            HEB_TSERE,
+            HEB_SHEVA,
+            HEB_HOLAM,
+            None,
+        ):
             return False
         return cons not in _BDB_NOUN_LEMMAS
     return False
 
 
 def _is_hiphil_part_ms(word: str) -> bool:
-    """Hiphil active participle ms: מַ + C₁(sheva/hataf) + C₂ + יod + C₃, 5 consonants."""
+    """Hiphil active participle ms: מַ + C₁(sheva/hataf) + C₂ + יod + C₃, 5 consonants."""  # noqa: E501
     cons = constanants(word)
     if len(cons) != 5 or cons[0] != "מ" or cons[3] != "י":  # noqa: PLR2004
         return False
@@ -741,7 +778,7 @@ def _is_hiphil_part_ms(word: str) -> bool:
     return vowel_c1 in (HEB_SHEVA, *_HATAF_VOWELS)
 
 
-def _is_hiphil_inf(word: str) -> bool:
+def _is_hiphil_inf(word: str) -> bool:  # noqa: PLR0911
     """Hiphil infinitive construct.
 
     Standard: ה(patah) + C₁(sheva/hataf) + C₂ + יod + C₃, 5 consonants.
@@ -770,7 +807,7 @@ def _is_hiphil_inf(word: str) -> bool:
 
 
 def _is_piel_part(word: str) -> bool:
-    """Piel participle ms (4 cons) or fs (5 cons ending ת): מְ + C₁(patah) + C₂ + C₃[+ת]."""
+    """Piel participle ms (4 cons) or fs (5 cons ending ת): מְ + C₁(patah) + C₂ + C₃[+ת]."""  # noqa: E501
     cons = constanants(word)
     n = len(cons)
     if n not in (4, 5) or cons[0] != "מ":
@@ -806,7 +843,7 @@ def _is_hiphil_impf_bare(word: str) -> bool:
 
     5-consonant pattern: preformative(patah) + C₁(sheva) + C₂(hiriq) + י(mater) + C₃.
     Examples: יַמְטִיר (Hiphil impf 3ms of מטר), תַּצְמִיחַ (Hiphil impf 2ms/3fs of צמח).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 5 or cons[0] not in _IMPF_PREFORMATIVES or cons[3] != "י":  # noqa: PLR2004
         return False
@@ -836,7 +873,12 @@ def _is_hiphil_impf_peyod(word: str) -> bool:
     if cons[1] == "ו" and cons[3] == "י":
         if _vowel_at_consonant(word, 1) not in (HEB_HOLAM, HEB_HOLAM_HASER):
             return False
-        return _vowel_at_consonant(word, 2) in (HEB_HIRIQ, HEB_TSERE, HEB_SHEVA, *_HATAF_VOWELS)
+        return _vowel_at_consonant(word, 2) in (
+            HEB_HIRIQ,
+            HEB_TSERE,
+            HEB_SHEVA,
+            *_HATAF_VOWELS,
+        )
     return False
 
 
@@ -854,10 +896,21 @@ def _is_hiphil_perf_peyod(word: str) -> bool:
         return False
     # 5-cons: ה + ו(holam) + C₁(hiriq/tsere) + יod(mater) + C₂
     if len(cons) == 5 and cons[3] == "י":  # noqa: PLR2004
-        return _vowel_at_consonant(word, 2) in (HEB_HIRIQ, HEB_TSERE, HEB_SHEVA, *_HATAF_VOWELS)
+        return _vowel_at_consonant(word, 2) in (
+            HEB_HIRIQ,
+            HEB_TSERE,
+            HEB_SHEVA,
+            *_HATAF_VOWELS,
+        )
     # 4-cons: ה + ו(holam) + C₁(tsere/hiriq) + C₂ (incl. lamed-aleph: C₂=א quiescent)
     if len(cons) == 4:  # noqa: PLR2004
-        return _vowel_at_consonant(word, 2) in (HEB_HIRIQ, HEB_TSERE, HEB_SEGOL, HEB_SHEVA, *_HATAF_VOWELS)
+        return _vowel_at_consonant(word, 2) in (
+            HEB_HIRIQ,
+            HEB_TSERE,
+            HEB_SEGOL,
+            HEB_SHEVA,
+            *_HATAF_VOWELS,
+        )
     return False
 
 
@@ -867,7 +920,7 @@ def _is_piel_perf_stem(stem: str) -> bool:
     Used in the suffixed-perfect loop to identify Piel non-3ms forms.
     The dagesh forte on C₂ is the definitive Piel marker; hiriq/tsere on C₁ is diagnostic.
     Examples: שִׁלַּחְ (from שִׁלַּחְתִּי), בֵּרַכְ (from בֵּרַכְתָּ).
-    """
+    """  # noqa: E501
     cons = constanants(stem)
     if len(cons) not in (2, 3):
         return False
@@ -890,7 +943,11 @@ def _is_hiphil_part_peyod(word: str) -> bool:
     if len(cons) == 4 and cons[0] == "מ" and cons[2] == "י":  # noqa: PLR2004
         vowel_mem, _ = _first_vowel(word)
         if vowel_mem in (HEB_TSERE, HEB_SEGOL):
-            return _vowel_at_consonant(word, 1) in (HEB_HIRIQ, HEB_SHEVA, *_HATAF_VOWELS)
+            return _vowel_at_consonant(word, 1) in (
+                HEB_HIRIQ,
+                HEB_SHEVA,
+                *_HATAF_VOWELS,
+            )
         # Pe-nun: מ(patah) + C₁(dagesh = assimilated nun, hiriq) + יod + C₂
         if vowel_mem == HEB_PATAH:
             return _vowel_at_consonant(word, 1) == HEB_HIRIQ
@@ -908,7 +965,7 @@ def _is_qal_passive_part(word: str) -> bool:
 
     The shureq (ו+dagesh) on C₃ is the diagnostic u-class vowel.
     Examples: כָּתוּב (written, from כתב), שָׁמוּר (guarded, from שׁמר).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 4 or cons[2] != "ו" or cons[-1] == "ה":  # noqa: PLR2004
         return False
@@ -925,7 +982,7 @@ def _is_qal_passive_part_fs(word: str) -> bool:
     """Qal passive participle fs (qatûlāh): C₁(qamats/hataf) + C₂ + ו(shureq) + C₃ + ה, 5 cons.
 
     Examples: אֲרוּרָה (cursed, fs), כְּתוּבָה (written, fs).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 5 or cons[2] != "ו" or cons[-1] != "ה":  # noqa: PLR2004
         return False
@@ -942,7 +999,7 @@ def _is_qal_imp_holam_vav(word: str) -> bool:
 
     The ו carries holam (holam-vav mater), making 4 consonants.
     Examples: שְׁמוֹר (Qal imp of שׁמר), כְּתוֹב (Qal imp/inf-abs of כתב).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 4 or cons[2] != "ו" or cons[-1] == "ה":  # noqa: PLR2004
         return False
@@ -959,7 +1016,7 @@ def _is_pe_yod_impf_hollow(word: str) -> bool:
 
     The ו acts as holam-vav/shureq mater on the preformative (pe-yod dropped).
     Examples: תּוּכַל (2ms of יכל), יוּכַל (3ms), אוּכַל (1cs).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 4 or cons[0] not in _IMPF_PREFORMATIVES or cons[1] != "ו":  # noqa: PLR2004
         return False
@@ -974,7 +1031,7 @@ def _is_niphal_perf_peyod(word: str) -> bool:
 
     The pe-yod dropped and נ carries holam-vav as the Niphal vowel.
     Examples: נוֹתָר (remained, Niphal of יתר), נוֹלַד (born, Niphal of ילד).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 4 or cons[0] != "נ" or cons[1] != "ו":  # noqa: PLR2004
         return False
@@ -983,7 +1040,7 @@ def _is_niphal_perf_peyod(word: str) -> bool:
     return _vowel_at_consonant(word, 2) in (HEB_QAMATS, HEB_PATAH, HEB_TSERE)
 
 
-def _is_niphal_part_mp(word: str) -> bool:
+def _is_niphal_part_mp(word: str) -> bool:  # noqa: PLR0911
     """Niphal participle mp: 6 consonants ending ים.
 
     Regular: נ(hiriq/hataf) + C₁(sheva/hataf) + C₂ + C₃ + ים.
@@ -1001,7 +1058,12 @@ def _is_niphal_part_mp(word: str) -> bool:
     if cons[1] == "ו":
         if _vowel_at_consonant(word, 1) not in (HEB_HOLAM, HEB_HOLAM_HASER):
             return False
-        return _vowel_at_consonant(word, 2) in (HEB_QAMATS, HEB_TSERE, HEB_PATAH, *_HATAF_VOWELS)
+        return _vowel_at_consonant(word, 2) in (
+            HEB_QAMATS,
+            HEB_TSERE,
+            HEB_PATAH,
+            *_HATAF_VOWELS,
+        )
     # Regular: נ(hiriq) + C₁(sheva/hataf) + C₂ + C₃ + ים
     vowel_n, _ = _first_vowel(word)
     if vowel_n not in (HEB_HIRIQ, *_HATAF_VOWELS):
@@ -1032,7 +1094,7 @@ def _is_qal_part_mp(word: str) -> bool:
     """Qal active participle mp: C₁(holam) + C₂ + C₃ + ִים (5 consonants, C4='י', C5='ם').
 
     Examples: צֹעֲקִים (crying out), שֹׁמְרִים (guarding), etc.
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 5 or cons[3] != "י" or cons[4] != "ם":  # noqa: PLR2004
         return False
@@ -1061,7 +1123,7 @@ def _is_hitpael_perf(word: str) -> bool:
 
     Standard Hitpael: ה + ת(sheva) prefix.
     Hishtaphel (sibilant metathesis): ה + שׁ(sheva) + ת prefix (e.g. הִשְׁתַּחֲוָה from שׁחה).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) < 5 or cons[0] != "ה":  # noqa: PLR2004
         return False
@@ -1070,7 +1132,7 @@ def _is_hitpael_perf(word: str) -> bool:
         return False
     if cons[1] == "ת":
         return _vowel_at_consonant(word, 1) in (HEB_SHEVA, *_HATAF_VOWELS)
-    # Hishtaphel: ה + ש(sheva) + ת
+    # Hishtaphel: ה + ש(sheva) + ת  # noqa: ERA001
     if cons[1] == "ש" and len(cons) > 2 and cons[2] == "ת":  # noqa: PLR2004
         return _vowel_at_consonant(word, 1) == HEB_SHEVA
     return False
@@ -1107,24 +1169,24 @@ def _is_niphal_inf_construct(word: str) -> bool:
     The dagesh forte in C₁ (Niphal characteristic) causes C₁ to take a full vowel
     rather than sheva.  Distinguishes from Hiphil by C₂ having sheva (not a yod mater).
     Examples: הִבָּרֵא (Niphal inf of ברא), הִלָּחֵם (Niphal inf of לחם).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 4 or cons[0] != "ה":  # noqa: PLR2004
         return False
     vowel_h, _ = _first_vowel(word)
     if vowel_h != HEB_HIRIQ:
         return False
-    # C₁ must have a full vowel (not sheva) — the Niphal dagesh forte yields patah/qamats/tsere
+    # C₁ must have a full vowel (not sheva) — the Niphal dagesh forte yields patah/qamats/tsere  # noqa: E501
     vowel_c1 = _vowel_at_consonant(word, 1)
     if vowel_c1 not in (HEB_QAMATS, HEB_PATAH, HEB_TSERE, HEB_HIRIQ):
         return False
-    # C₂ must have sheva, hataf, or a full vowel before guttural (distinguishes from Hiphil)
+    # C₂ must have sheva, hataf, or a full vowel before guttural (distinguishes from Hiphil)  # noqa: E501
     # Tsere/segol/patah on C₂ can appear when C₂ is a guttural (e.g. הִנָּבֵא, הִלָּחֵם)
     vowel_c2 = _vowel_at_consonant(word, 2)
     return vowel_c2 in (HEB_SHEVA, HEB_TSERE, HEB_SEGOL, HEB_PATAH, *_HATAF_VOWELS)
 
 
-def _is_3cons_impf_stem(stem: str, check_bdb: bool = True) -> bool:
+def _is_3cons_impf_stem(stem: str, check_bdb: bool = True) -> bool:  # noqa: FBT001, FBT002
     """3-consonant imperfect stem after suffix stripping (pe-yod/pe-nun/hollow verbs).
 
     Validates stems where the first root consonant dropped or assimilated, leaving
@@ -1146,7 +1208,7 @@ def _is_hitpael_impf(word: str) -> bool:
     Standard: preformative + ת(sheva) + root (Hitpael).
     Hishtaphel (sibilant metathesis): preformative + שׁ(sheva) + ת + root, where the
     sibilant שׁ/שׂ/ס/צ swaps with the Hitpael ת (e.g. יִשְׁתַּחֲווּ from שׁחה).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) < 5 or cons[0] not in _IMPF_PREFORMATIVES:  # noqa: PLR2004
         return False
@@ -1167,7 +1229,7 @@ def _is_hitpael_part(word: str) -> bool:
 
     Standard Hitpael: מ + ת(sheva) prefix.
     Hishtaphel: מ + שׁ(sheva) + ת prefix (sibilant metathesis).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) < 5 or cons[0] != "מ":  # noqa: PLR2004
         return False
@@ -1176,7 +1238,7 @@ def _is_hitpael_part(word: str) -> bool:
         return False
     if cons[1] == "ת":
         return _vowel_at_consonant(word, 1) == HEB_SHEVA
-    # Hishtaphel: מ + ש(sheva) + ת
+    # Hishtaphel: מ + ש(sheva) + ת  # noqa: ERA001
     if cons[1] == "ש" and len(cons) > 2 and cons[2] == "ת":  # noqa: PLR2004
         return _vowel_at_consonant(word, 1) == HEB_SHEVA
     return False
@@ -1187,7 +1249,7 @@ def _is_niphal_inf_lamedhe(word: str) -> bool:
 
     The ות ending is characteristic of the Niphal inf construct for lamed-he roots.
     Examples: הֵעָלוֹת (Niphal inf of עלה), הִלָּחֵם (Niphal inf of לחם — 4 cons handled separately).
-    """
+    """  # noqa: E501
     cons = constanants(word)
     if len(cons) != 5 or cons[0] != "ה" or cons[3] != "ו" or cons[4] != "ת":  # noqa: PLR2004
         return False
@@ -1211,10 +1273,15 @@ def _is_polel_part_mp(word: str) -> bool:
     vowel_mem, _ = _first_vowel(word)
     if vowel_mem != HEB_SHEVA:
         return False
-    return _vowel_at_consonant(word, 1) in (HEB_HOLAM, HEB_HOLAM_HASER, HEB_QAMATS, *_HATAF_VOWELS)
+    return _vowel_at_consonant(word, 1) in (
+        HEB_HOLAM,
+        HEB_HOLAM_HASER,
+        HEB_QAMATS,
+        *_HATAF_VOWELS,
+    )
 
 
-def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noqa: PLR0912, C901, PLR0911
+def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noqa: PLR0912, C901, PLR0911, PLR0915
     """Is the word a Verb?"""
     word = elements.word
     cons_word = constanants(word)
@@ -1248,7 +1315,13 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
         if word_nfd.endswith(suffix_nfd):
             stem_nfd = word_nfd[: -len(suffix_nfd)]
             stem_nfc = unicodedata.normalize("NFC", stem_nfd)
-            for stem_check in (_is_niphal_perf_4cons, _is_hiphil_perf_3ms, _is_hitpael_perf, _is_hiphil_perf_peyod, _is_piel_perf_stem):
+            for stem_check in (
+                _is_niphal_perf_4cons,
+                _is_hiphil_perf_3ms,
+                _is_hitpael_perf,
+                _is_hiphil_perf_peyod,
+                _is_piel_perf_stem,
+            ):
                 if stem_check(stem_nfc):
                     return HebVerb(
                         definite_article=elements.definite_article,
@@ -1284,12 +1357,16 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
     for suffix, person, gender, number, expected_preformative in _IMPF_SUFFIXES:
         if word.endswith(suffix):
             stem = word[: -len(suffix)]
-            if stem and stem[0] == expected_preformative and (
-                _is_valid_impf_stem(stem)
-                or _is_3cons_impf_stem(stem, check_bdb=False)
-                or _is_hitpael_impf(stem)
-                or _is_hiphil_impf_bare(stem)
-                or _is_hiphil_impf_peyod(stem)
+            if (
+                stem
+                and stem[0] == expected_preformative
+                and (
+                    _is_valid_impf_stem(stem)
+                    or _is_3cons_impf_stem(stem, check_bdb=False)
+                    or _is_hitpael_impf(stem)
+                    or _is_hiphil_impf_bare(stem)
+                    or _is_hiphil_impf_peyod(stem)
+                )
             ):
                 return HebVerb(
                     definite_article=elements.definite_article,
@@ -1429,7 +1506,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
             word_constanants=constanants(word),
         )
 
-    # Qal active participle ms with holam-vav: C₁(no-vowel)+ו(holam)+C₂(tsere)+C₃ (e.g. רוֹמֵשׂ)
+    # Qal active participle ms with holam-vav: C₁(no-vowel)+ו(holam)+C₂(tsere)+C₃ (e.g. רוֹמֵשׂ)  # noqa: E501
     if _is_qal_part_ms_holam_vav(word):
         return HebVerb(
             definite_article=elements.definite_article,
@@ -1525,7 +1602,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
             word_constanants=constanants(word)[:-1],  # strip ו suffix
         )
 
-    # Ayin-vav/ayin-yod inf construct / imperative: C₁(holam) + C₂(ו/י) + C₃ (e.g. בוֹא)  # noqa: RUF003
+    # Ayin-vav/ayin-yod inf construct / imperative: C₁(holam) + C₂(ו/י) + C₃ (e.g. בוֹא)
     if _is_ayin_vav_inf(word):
         return HebVerb(
             definite_article=elements.definite_article,
@@ -1579,7 +1656,11 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
         person, gender, number = result_lhe
         cons_lhe = constanants(word)
         # Strip יתי (1cs) or יתם/יתן (2mp/2fp) — 3 cons — or ית (2ms/2fs) — 2 cons
-        root_lhe = cons_lhe[:-3] + "ה" if (person == "1" or number == "p") else cons_lhe[:-2] + "ה"
+        root_lhe = (
+            cons_lhe[:-3] + "ה"
+            if (person == "1" or number == "p")
+            else cons_lhe[:-2] + "ה"
+        )
         return HebVerb(
             definite_article=elements.definite_article,
             gender=gender,
@@ -1711,7 +1792,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
             word_constanants=constanants(word),
         )
 
-    # Pe-yod/hollow Hiphil perfect 3ms: ה(holam-vav) + ו + C₁(hiriq) + י + C₂ (e.g. הוֹלִיד)
+    # Pe-yod/hollow Hiphil perfect 3ms: ה(holam-vav) + ו + C₁(hiriq) + י + C₂ (e.g. הוֹלִיד)  # noqa: E501
     if _is_hiphil_perf_peyod(word):
         return HebVerb(
             definite_article=elements.definite_article,
@@ -1743,7 +1824,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
             word_constanants=cons_word,
         )
 
-    # Hiphil imperfect bare form: preformative(patah) + C₁(sheva) + C₂ + יod + C₃ (e.g. יַמְטִיר)
+    # Hiphil imperfect bare form: preformative(patah) + C₁(sheva) + C₂ + יod + C₃ (e.g. יַמְטִיר)  # noqa: E501
     if _is_hiphil_impf_bare(word):
         for preformative, person, gender, number in _IMPF_BARE:
             if word[0] == preformative:
@@ -1761,7 +1842,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
                     word_constanants=cons_word[1:],
                 )
 
-    # Pe-yod Hiphil imperfect: preformative(tsere) + י(root) + C₂(hiriq) + יod + C₃ (e.g. תֵּיטִיב)
+    # Pe-yod Hiphil imperfect: preformative(tsere) + י(root) + C₂(hiriq) + יod + C₃ (e.g. תֵּיטִיב)  # noqa: E501
     if _is_hiphil_impf_peyod(word):
         for preformative, person, gender, number in _IMPF_BARE:
             if word[0] == preformative:
@@ -1827,7 +1908,7 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
             word_constanants=cons_word,
         )
 
-    # Niphal infinitive construct of lamed-he roots: ה(tsere) + C₁ + C₂ + ו(holam) + ת (e.g. הֵעָלוֹת)
+    # Niphal infinitive construct of lamed-he roots: ה(tsere) + C₁ + C₂ + ו(holam) + ת (e.g. הֵעָלוֹת)  # noqa: E501
     if _is_niphal_inf_lamedhe(word):
         return HebVerb(
             definite_article=elements.definite_article,
@@ -2057,8 +2138,8 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
                     word_constanants=constanants(word)[1:],
                 )
 
-    # Cohortative / paragogic ה: word ends in ָה (qamats + ה); strip it and test as imperfect
-    # or imperative.  The 3fs perfect suffix is identical but is caught earlier by _PERF_SUFFIXES.
+    # Cohortative / paragogic ה: word ends in ָה (qamats + ה); strip it and test as imperfect  # noqa: E501
+    # or imperative.  The 3fs perfect suffix is identical but is caught earlier by _PERF_SUFFIXES.  # noqa: E501
     if _depth == 0:
         word_nfd_coh = unicodedata.normalize("NFD", word)
         _coh = unicodedata.normalize("NFD", HEB_QAMATS + "ה")
@@ -2088,12 +2169,20 @@ def is_verb(elements: CommonElements, _depth: int = 0) -> HebVerb | None:  # noq
                         word_constanants=r_coh.word_constanants,
                     )
 
-    # Try verb forms with pronominal object suffixes (ך 2ms, נו 3ms-suffix, ני 1cs-suffix).
-    # Strip the suffix consonant(s), re-run verb recognition at depth=1 to avoid recursion.
-    # Skip if the full word's consonants are a known BDB noun/adj lemma — the suffix would
+    # Try verb forms with pronominal object suffixes (ך 2ms, נו 3ms-suffix, ני 1cs-suffix).  # noqa: E501
+    # Strip the suffix consonant(s), re-run verb recognition at depth=1 to avoid recursion.  # noqa: E501
+    # Skip if the full word's consonants are a known BDB noun/adj lemma — the suffix would  # noqa: E501
     # be part of the root (e.g. אֱלֹהִים ends in ם but is a noun, not a verb+ם suffix).
     if _depth == 0 and cons_word not in _BDB_NOUN_LEMMAS:
-        for suf_cons, strip_n in (("ך", 1), ("נו", 2), ("ני", 2), ("הו", 2), ("ם", 1), ("ו", 1), ("י", 1)):
+        for suf_cons, strip_n in (
+            ("ך", 1),
+            ("נו", 2),
+            ("ני", 2),
+            ("הו", 2),
+            ("ם", 1),
+            ("ו", 1),
+            ("י", 1),
+        ):
             if cons_word.endswith(suf_cons) and len(cons_word) > strip_n + 2:
                 stripped = _strip_final_consonants(word, strip_n)
                 if stripped:
