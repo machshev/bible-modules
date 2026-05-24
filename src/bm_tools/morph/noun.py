@@ -15,6 +15,43 @@ _BDB_NOUN_LEMMAS: frozenset[str] = load_bdb_noun_lemmas()
 # Map regular consonant forms to final forms (for BDB lookup after suffix stripping)
 _REGULAR_TO_FINAL = {"מ": "ם", "נ": "ן", "כ": "ך", "פ": "ף", "צ": "ץ"}
 
+# Suffix tables: each maps suffix-string → (gender, number).
+# Empty string means "unknown from suffix alone — derive from the lemma form."
+# Tried longest-first so that יהם is not partially matched as הם.
+_THREE_CHAR_SUFFIXES: dict[str, tuple[str, str]] = {
+    "יכם": ("", "p"),
+    "יכן": ("", "p"),
+    "יהם": ("", "p"),
+    "יהן": ("", "p"),
+    "ינו": ("", "p"),
+}
+
+_TWO_CHAR_SUFFIXES: dict[str, tuple[str, str]] = {
+    "כם": ("", "p"),   # 2mp pronominal
+    "כן": ("", "p"),   # 2fp pronominal
+    "נו": ("", "p"),   # 1cp pronominal
+    "הם": ("", "p"),   # 3mp pronominal
+    "הן": ("", "p"),   # 3fp pronominal
+    "ים": ("m", "p"),  # masculine plural ending
+    "ות": ("f", "p"),  # feminine plural ending
+    "הו": ("", "s"),   # 3ms pronominal
+    "יו": ("", "s"),   # 3ms pronominal (his)
+    "יה": ("", "s"),   # 3fs pronominal (her)
+    "יך": ("", "s"),   # 2ms/2fs pronominal
+    "ין": ("", "p"),   # Aramaic plural
+}
+
+_ONE_CHAR_SUFFIXES: dict[str, tuple[str, str]] = {
+    "ך": ("", "s"),    # 2ms/2fs pronominal
+    "ו": ("", "s"),    # 3ms pronominal
+    "א": ("", "s"),    # Aramaic emphatic state
+    "י": ("", "s"),    # 1cs pronominal
+    "ה": ("f", "s"),   # FS noun ending or 3fs pronominal
+    "ם": ("", "p"),    # 3mp pronominal (alternate)
+    "ן": ("", "p"),    # 3fp pronominal (alternate)
+    "ת": ("f", "s"),   # FS construct ending
+}
+
 
 @dataclass(frozen=True)
 class HebNoun:
@@ -26,8 +63,8 @@ class HebNoun:
     word_constanants: str
     vav_consec: bool
     raw: str
-    gender: str  # i.e. (m)asculin, (f)eminin, and (n)uteral
-    number: str  # i.e. (s)ingular. (p)lural, and (d)uel
+    gender: str  # i.e. (m)asculine, (f)eminine
+    number: str  # i.e. (s)ingular, (p)lural, (d)ual
 
 
 def _lookup_stem(stem: str) -> str | None:
@@ -43,55 +80,79 @@ def _lookup_stem(stem: str) -> str | None:
         he_stem = stem[:-1] + "ה"
         if he_stem in _BDB_NOUN_LEMMAS:
             return he_stem
-    # Absolute ה dropped in construct/suffixed form (e.g. זע → זעה, פי → not needed)
+    # Absolute ה dropped in construct/suffixed form
     if stem + "ה" in _BDB_NOUN_LEMMAS:
         return stem + "ה"
     return None
 
 
+def _gender_number_from_lemma(lemma: str) -> tuple[str, str]:
+    """Infer gender and number from the lemma's consonant form."""
+    if lemma.endswith("ים"):
+        return ("m", "p")
+    if lemma.endswith("ות"):
+        return ("f", "p")
+    if lemma.endswith("ה"):
+        return ("f", "s")
+    return ("m", "s")
+
+
 def is_noun(elements: CommonElements) -> HebNoun | None:
     """Is the word a Noun?"""
     cons = constanants(elements.word)
-    if cons not in _BDB_NOUN_LEMMAS:
-        # Build candidate stems by trying 2-char then 1-char suffix stripping.
-        # Both are tried independently so that e.g. פניך strips ך (not יך) → פני.
-        # Single-consonant: ך (2ms/2fs), ו (3ms suffix)
-        # Multi-consonant: כם (2mp), כן (2fp), נו (1cp), הם (3mp), הן (3fp)
-        # Aramaic emphatic state: א suffix
-        candidates: list[str] = []
-        # 3-char suffixes on construct-plural nouns: יכם (2mp), יכן (2fp), יהם (3mp), יהן (3fp), ינו (1cp)  # noqa: E501
-        if len(cons) > 3 and cons[-3:] in ("יכם", "יכן", "יהם", "יהן", "ינו"):  # noqa: PLR2004
-            candidates.append(cons[:-3])
-        if len(cons) > 2 and cons[-2:] in (  # noqa: PLR2004
-            "כם",
-            "כן",
-            "נו",
-            "הם",
-            "הן",
-            "ים",
-            "ות",
-            "הו",
-            "יו",
-            "יה",
-            "יך",
-            "ין",
-        ):
-            candidates.append(cons[:-2])
-        if len(cons) > 1 and cons[-1] in ("ך", "ו", "א", "י", "ה", "ם", "ן", "ת"):
-            candidates.append(cons[:-1])
 
-        found = None
-        for stem in candidates:
-            found = _lookup_stem(stem)
-            if found:
+    if cons in _BDB_NOUN_LEMMAS:
+        gender, number = _gender_number_from_lemma(cons)
+        found_lemma = cons
+    else:
+        # Build (stem, gender, number) candidates from longest suffix to shortest.
+        candidates: list[tuple[str, str, str]] = []
+
+        if len(cons) > 3:  # noqa: PLR2004
+            sfx3 = cons[-3:]
+            if sfx3 in _THREE_CHAR_SUFFIXES:
+                g, n = _THREE_CHAR_SUFFIXES[sfx3]
+                candidates.append((cons[:-3], g, n))
+
+        if len(cons) > 2:  # noqa: PLR2004
+            sfx2 = cons[-2:]
+            if sfx2 in _TWO_CHAR_SUFFIXES:
+                g, n = _TWO_CHAR_SUFFIXES[sfx2]
+                candidates.append((cons[:-2], g, n))
+
+        if len(cons) > 1:
+            sfx1 = cons[-1]
+            if sfx1 in _ONE_CHAR_SUFFIXES:
+                g, n = _ONE_CHAR_SUFFIXES[sfx1]
+                candidates.append((cons[:-1], g, n))
+
+        found_lemma = None
+        gender = ""
+        number = ""
+        matched_suffix = ""
+        for stem, g, n in candidates:
+            found_lemma = _lookup_stem(stem)
+            if found_lemma:
+                gender = g
+                number = n
+                matched_suffix = cons[len(stem):]
                 break
 
-        if found is None:
+        if found_lemma is None:
             return None
-        cons = found
 
-    gender = ""
-    number = ""
+        # ת suffix is FP when the lemma is masculine (no ה ending), and FS
+        # construct when the absolute form ends in ה.
+        if matched_suffix == "ת" and gender == "f" and number == "s":
+            if not found_lemma.endswith("ה"):
+                number = "p"
+
+        # For pronominal suffixes the suffix alone doesn't tell us the noun's
+        # own gender/number — fall back to the lemma form.
+        if not gender or not number:
+            lg, ln = _gender_number_from_lemma(found_lemma)
+            gender = gender or lg
+            number = number or ln
 
     return HebNoun(
         preposition=elements.preposition,
@@ -99,7 +160,7 @@ def is_noun(elements: CommonElements) -> HebNoun | None:
         vav_consec=elements.vav_consec,
         gender=gender,
         number=number,
-        word_constanants=cons,
+        word_constanants=found_lemma,
         word=elements.word,
         raw=elements.raw,
     )
