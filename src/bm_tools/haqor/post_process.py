@@ -10,8 +10,10 @@ from sqlite3 import Connection
 from logzero import logger
 
 from bm_tools.haqor.bdb_merge import merge_bdb_cache
+from bm_tools.haqor.sedra_merge import merge_sedra_lexicon
 from bm_tools.haqor.verse_complex import gen_verse_complexity
 from bm_tools.haqor.word_count import save_word_count
+from bm_tools.haqor.words_aramaic import create_words_aramaic
 from bm_tools.utils.heb import parse_bible
 
 __all__ = ("post_process",)
@@ -33,6 +35,9 @@ def post_process(db: Connection, bdb_cache_path: Path | None = None) -> None:
     save_word_count(db=db, count=count)
 
     gen_verse_complexity(db=db, parsed_words=parsed_words, word_count=count)
+
+    merge_sedra_lexicon(db=db)
+    create_words_aramaic(db=db)
 
     if bdb_cache_path is not None:
         merge_bdb_cache(db=db, cache_path=bdb_cache_path)
