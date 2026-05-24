@@ -12,6 +12,7 @@ _BDB_FILES = (
     "src_texts/sefaria/sefaria.BDB.json",
     "src_texts/sefaria/sefaria.BDB.Aramaic.json",
 )
+_BDB_ARAMAIC_FILE = "src_texts/sefaria/sefaria.BDB.Aramaic.json"
 
 _LABELED_FORM_RE = re.compile(
     r"(?:pl\.|cstr\.|sf\.|du\.)[^<]{0,20}<span dir=\"rtl\">(.*?)</span>"
@@ -304,6 +305,25 @@ INSERT OR REPLACE INTO bdb (headword, root, pos, gloss, content_json)
 VALUES (?, ?, ?, ?, ?);
 """
 
+_CREATE_ARAMAIC_TABLE = """
+CREATE TABLE IF NOT EXISTS bdb_aramaic (
+    headword     TEXT PRIMARY KEY,
+    root         TEXT NOT NULL,
+    pos          TEXT NOT NULL,
+    gloss        TEXT NOT NULL,
+    content_json TEXT NOT NULL
+);
+"""
+
+_CREATE_ARAMAIC_INDEX = """
+CREATE INDEX IF NOT EXISTS bdb_aramaic_root ON bdb_aramaic (root);
+"""
+
+_INSERT_ARAMAIC = """
+INSERT OR REPLACE INTO bdb_aramaic (headword, root, pos, gloss, content_json)
+VALUES (?, ?, ?, ?, ?);
+"""
+
 
 # ---------------------------------------------------------------------------
 # POS extraction and root collection
@@ -403,11 +423,30 @@ def _extract_all_roots(data: list[dict]) -> list[tuple[str, str]]:  # noqa: C901
 # ---------------------------------------------------------------------------
 
 
+def _parse_entries(data: list[dict]) -> list[tuple[str, str, str, str, str]]:
+    rows: list[tuple[str, str, str, str, str]] = []
+    for entry in data:
+        headword: str = entry["headword"]
+        content: dict = entry.get("content", {})
+        senses: list[dict] = content.get("senses", [])
+        rows.append(
+            (
+                headword,
+                _root(headword),
+                _extract_pos(senses),
+                _extract_gloss(senses),
+                _content_to_json(content),
+            )
+        )
+    return rows
+
+
 def import_bdb(*, src_root: Path, db_path: Path) -> int:
     """Import BDB definitions from Sefaria JSON into *db_path*.
 
     Processes both the Hebrew and Aramaic BDB JSON files.  Populates:
     - ``bdb``: full definition cache (headword, root, pos, gloss, content_json)
+    - ``bdb_aramaic``: Aramaic-only subset with the same schema as ``bdb``
     - ``lex_consonants``: (root, pos) pairs for all entries; used by the
       morphology parser for POS disambiguation.
 
@@ -416,6 +455,8 @@ def import_bdb(*, src_root: Path, db_path: Path) -> int:
     conn = sqlite3.connect(db_path)
     conn.execute(_CREATE_TABLE)
     conn.execute(_CREATE_INDEX)
+    conn.execute(_CREATE_ARAMAIC_TABLE)
+    conn.execute(_CREATE_ARAMAIC_INDEX)
     conn.execute(
         "CREATE TABLE IF NOT EXISTS lex_consonants "
         "(root TEXT NOT NULL, pos TEXT NOT NULL, PRIMARY KEY (root, pos))"
@@ -430,22 +471,13 @@ def import_bdb(*, src_root: Path, db_path: Path) -> int:
             continue
         data: list[dict] = json.loads(json_path.read_text(encoding="utf-8"))
 
-        rows: list[tuple[str, str, str, str, str]] = []
-        for entry in data:
-            headword: str = entry["headword"]
-            content: dict = entry.get("content", {})
-            senses: list[dict] = content.get("senses", [])
-
-            cons = _root(headword)
-            pos = _extract_pos(senses)
-            gloss = _extract_gloss(senses)
-            content_json = _content_to_json(content)
-
-            rows.append((headword, cons, pos, gloss, content_json))
-
+        rows = _parse_entries(data)
         conn.executemany(_INSERT, rows)
         total += len(rows)
         lex_rows.extend(_extract_all_roots(data))
+
+        if bdb_file == _BDB_ARAMAIC_FILE:
+            conn.executemany(_INSERT_ARAMAIC, rows)
 
     conn.executemany(
         "INSERT OR IGNORE INTO lex_consonants (root, pos) VALUES (?, ?)",

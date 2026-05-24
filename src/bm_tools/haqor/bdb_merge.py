@@ -41,7 +41,17 @@ def merge_bdb_cache(db: sqlite3.Connection, cache_path: Path) -> None:
         SELECT root, pos FROM bdb_cache.lex_consonants
         """
     )
+    db.execute(
+        """
+        CREATE TABLE bdb_aramaic AS
+        SELECT headword, root, pos, gloss, content_json
+        FROM bdb_cache.bdb_aramaic
+        """
+    )
+    db.execute("CREATE INDEX bdb_aramaic_root ON bdb_aramaic (root)")
     db.execute("DETACH DATABASE bdb_cache")
 
     count = db.execute("SELECT COUNT(*) FROM bdb").fetchone()[0]
     logger.info("Merged %d BDB entries", count)
+    aram_count = db.execute("SELECT COUNT(*) FROM bdb_aramaic").fetchone()[0]
+    logger.info("Merged %d Aramaic word entries", aram_count)

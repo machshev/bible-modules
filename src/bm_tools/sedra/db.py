@@ -223,4 +223,4 @@ def parse_sedra3_lexemes_db_file(
     Returns:
         pandas DataFrame of the words DB table
     """
-    return pd.read_csv(file_name, index_col="keyLexemes")
+    return pd.read_csv(file_name, index_col="keyLexeme")
